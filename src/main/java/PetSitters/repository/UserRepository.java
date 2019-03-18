@@ -6,10 +6,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
-@Document(collection = "domain")
+@Document(collection = "users")
 public interface UserRepository extends MongoRepository<User, String> {
 
-        public User findByFirstName(String firstName);
+        public List<User> findByFirstName(String firstName);
+        public User findByUsername(String username);
         public List<User> findByLastName(String lastName);
 
     }
