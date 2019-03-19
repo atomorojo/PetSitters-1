@@ -1,10 +1,11 @@
 package PetSitters.service;
 
 import PetSitters.entity.User;
+import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.repository.UserRepository;
+import PetSitters.schemas.DeleteAccountSchema;
 import PetSitters.schemas.RegisterSchema;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -15,7 +16,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
 
 
 @RunWith(SpringRunner.class)
@@ -47,13 +49,13 @@ public class PetSittersServiceTest {
 
         User u = UserRep.findByUsername("rod98");
 
-        assertEquals("Expected the firstName Rodrigo", registerSchema.getFirstName(), u.getFirstName());
-        assertEquals("Expected the lastName Gomez", registerSchema.getLastName(), u.getLastName());
-        assertEquals("Expected the username rod98", registerSchema.getUsername(), u.getUsername());
-        assertEquals("Expected the password 123", registerSchema.getPassword(), u.getPassword());
+        assertEquals("Expected the firstName 'Rodrigo'", u.getFirstName(), registerSchema.getFirstName());
+        assertEquals("Expected the lastName 'Gomez'", u.getLastName(), registerSchema.getLastName());
+        assertEquals("Expected the username 'rod98'", u.getUsername(), registerSchema.getUsername());
+        assertEquals("Expected the password '123'", u.getPassword(),registerSchema.getPassword());
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
         Date birthDate = format.parse(registerSchema.getBirthdate());
-        assertEquals("Expected the birthdate 20-12-1998", birthDate, u.getBirthdate());
+        assertEquals("Expected the birthdate '20-12-1998'", u.getBirthdate(), birthDate);
     }
 
     @Test(expected = ParseException.class)
@@ -66,5 +68,36 @@ public class PetSittersServiceTest {
         Mockito.when(registerSchema.getBirthdate()).thenReturn("20/12/1998");
 
         PSS.register(registerSchema);
+    }
+
+    @Test
+    public void testDeleteExistingAccount() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema = Mockito.mock(RegisterSchema.class);
+        Mockito.when(registerSchema.getFirstName()).thenReturn("Rodrigo");
+        Mockito.when(registerSchema.getLastName()).thenReturn("Gomez");
+        Mockito.when(registerSchema.getUsername()).thenReturn("rod98");
+        Mockito.when(registerSchema.getPassword()).thenReturn("123");
+        Mockito.when(registerSchema.getBirthdate()).thenReturn("20-12-1998");
+
+        PSS.register(registerSchema);
+
+        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
+
+        DeleteAccountSchema deleteAccount = new DeleteAccountSchema();
+        deleteAccount.setUsername("rod98");
+
+        PSS.deleteAccount(deleteAccount);
+
+        assertFalse("The user 'rod98' should not exist", UserRep.existsByUsername("rod98"));
+    }
+
+    @Test(expected = ExceptionInvalidAccount.class)
+    public void testDeleteNonExistingAccount() throws ExceptionInvalidAccount {
+        DeleteAccountSchema deleteAccount = Mockito.mock(DeleteAccountSchema.class);
+        Mockito.when(deleteAccount.getUsername()).thenReturn("rod981");
+
+        assertFalse("The user 'rod981' should not exist", UserRep.existsByUsername("rod981"));
+
+        PSS.deleteAccount(deleteAccount);
     }
 }

@@ -1,6 +1,8 @@
 package PetSitters.controller;
 
 import PetSitters.entity.User;
+import PetSitters.exception.ExceptionInvalidAccount;
+import PetSitters.schemas.DeleteAccountSchema;
 import PetSitters.schemas.LoginSchema;
 import PetSitters.schemas.LogoutSchema;
 import PetSitters.schemas.RegisterSchema;
@@ -12,7 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.io.IOException;
+
 import java.text.ParseException;
 import java.util.List;
 
@@ -41,6 +43,13 @@ public class PetSittersController {
     @ApiOperation(value = "Register process.")
     public ResponseEntity<User> register(@RequestBody RegisterSchema register) throws ParseException {
         petSittersService.register(register);
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @PostMapping(value = "deleteAccount")
+    @ApiOperation(value = "Deletes an existent account.")
+    public ResponseEntity<User> deleteAccount(@RequestBody DeleteAccountSchema account) throws ExceptionInvalidAccount {
+        petSittersService.deleteAccount(account);
         return new ResponseEntity(HttpStatus.OK);
     }
 

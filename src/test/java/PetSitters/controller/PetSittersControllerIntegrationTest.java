@@ -1,6 +1,7 @@
 package PetSitters.controller;
 
 import PetSitters.entity.User;
+import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.repository.UserRepository;
 import org.junit.After;
 import org.junit.Before;
@@ -59,13 +60,13 @@ public class PetSittersControllerIntegrationTest {
 
         User u = UserRep.findByUsername("andy.luc24");
 
-        assertEquals("Expected the firstName andy", "andy", u.getFirstName());
-        assertEquals("Expected the lastName lucas", "lucas", u.getLastName());
-        assertEquals("Expected the username andy.luc24", "andy.luc24", u.getUsername());
-        assertEquals("Expected the password 1234", "1234", u.getPassword());
+        assertEquals("Expected the firstName 'andy'", u.getFirstName(), "andy");
+        assertEquals("Expected the lastName 'lucas'", u.getLastName(), "lucas");
+        assertEquals("Expected the username 'andy.luc24'", u.getUsername(), "andy.luc24");
+        assertEquals("Expected the password '1234'", u.getPassword(), "1234");
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
         Date birthDate = format.parse("22-9-1982");
-        assertEquals("Expected the birthdate 22-9-1982", birthDate, u.getBirthdate());
+        assertEquals("Expected the birthdate '22-9-1982'", u.getBirthdate(), birthDate);
     }
 
     @Test(expected = org.springframework.web.util.NestedServletException.class)     // Provoked by java.text.ParseException: Unparseable date: "22/9/1982"
@@ -105,6 +106,42 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"birthdate\":\"22-9-1982\"\n" +
                 "}";
         mvc.perform(post("/petsitters/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(cont));
+    }
+
+    @Test
+    public void deleteAnExistingAccount() throws Exception {
+        String cont = "{\n" +
+                "\t\"firstName\":\"andy\",\n" +
+                "\t\"lastName\":\"lucas\",\n" +
+                "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"birthdate\":\"22-9-1982\"\n" +
+                "}";
+        mvc.perform(post("/petsitters/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(cont));
+
+
+        assertTrue("The User 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
+
+        cont = "{\n" +
+                "\t\"username\":\"andy.luc24\"\n" +
+                "}";
+        mvc.perform(post("/petsitters/deleteAccount")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(cont));
+
+        assertFalse("The User 'andy.luc24' should not exist", UserRep.existsByUsername("andy.luc24"));
+    }
+
+    @Test(expected = org.springframework.web.util.NestedServletException.class)     // Provoked by ExceptionInvalidAccount.class: The account does not exist
+    public void deleteAnNonExistingAccount() throws Exception {
+        String cont = "{\n" +
+                "\t\"username\":\"andy.luc24\"\n" +
+                "}";
+        mvc.perform(post("/petsitters/deleteAccount")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(cont));
     }

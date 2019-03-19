@@ -6,6 +6,8 @@ import org.junit.Test;
 
 import javax.validation.ValidationException;
 
+import static junit.framework.TestCase.assertEquals;
+
 public class RegisterSchemaTest {
 
     RegisterSchema R;
@@ -18,6 +20,22 @@ public class RegisterSchemaTest {
     @After
     public void tearDown() throws Exception {
         R = null;
+    }
+
+    @Test
+    public void validateAllIsCorrect() {
+        R.setFirstName("Name");
+        R.setLastName("Surname");
+        R.setUsername("UserN");
+        R.setPassword("Pass");
+        R.setBirthdate("20-11-1111");
+        R.validate();
+        assertEquals ("The name should be 'Name'", R.getFirstName(), "Name");
+        assertEquals ("The name should be 'Surname'", R.getLastName(), "Surname");
+        assertEquals ("The name should be 'UserN'", R.getUsername(), "UserN");
+        assertEquals ("The name should be 'Pass'", R.getPassword(), "Pass");
+        assertEquals ("The name should be '20-11-1111'", R.getBirthdate(), "20-11-1111");
+
     }
 
     @Test(expected = ValidationException.class)
