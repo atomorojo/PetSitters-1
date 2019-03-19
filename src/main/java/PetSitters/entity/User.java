@@ -1,14 +1,11 @@
 package PetSitters.entity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import org.hibernate.validator.constraints.UniqueElements;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.IndexDirection;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -19,28 +16,28 @@ import java.util.Date;
 public class User {
     @Id
     @ApiModelProperty(value = "The user's id", required = false)
-    public String id;
+    String id;
 
     @ApiModelProperty(value = "The user's firstname", required = true)
     @NotNull
-    public String firstName;
+    String firstName;
 
     @ApiModelProperty(value = "The user's lastname", required = true)
     @NotNull
-    public String lastName;
+    String lastName;
 
     @ApiModelProperty(value = "The user's username", required = true)
     @Indexed(name = "_username", direction = IndexDirection.ASCENDING, unique = true, background = true)
     @NotNull
-    public String username;
+    String username;
 
     @ApiModelProperty(value = "The user's password", required = true)
     @NotNull
-    public String password;
+    String password;
 
     @ApiModelProperty(value = "The user's bitrhdate", required = true)
     @NotNull
-    public Date birthdate;
+    Date birthdate;
 
     public User() {}
 
