@@ -23,24 +23,24 @@ import java.util.List;
 public class PetSittersController {
 
     @Autowired
-    PetSittersService PSS;
+    PetSittersService petSittersService;
 
-    @RequestMapping(value = "login", method = RequestMethod.POST)
+    @PostMapping(value = "login")
     @ApiOperation(value = "Login process.")
-    public ResponseEntity<User> login(@RequestBody LoginSchema login) throws IOException {
-        List<User> us=PSS.login(login);
+    public ResponseEntity<User> login(@RequestBody LoginSchema login) {
+        List<User> us = petSittersService.login(login);
         return new ResponseEntity(us, HttpStatus.OK);
     }
-    @RequestMapping(value = "logout", method = RequestMethod.POST)
+    @PostMapping(value = "logout")
     @ApiOperation(value = "Logout process.")
-    public ResponseEntity<User> logout(@RequestBody LogoutSchema logout) throws IOException {
-        PSS.logout(logout);
+    public ResponseEntity<User> logout(@RequestBody LogoutSchema logout) {
+        petSittersService.logout(logout);
         return new ResponseEntity(HttpStatus.OK);
     }
-    @RequestMapping(value = "register", method = RequestMethod.POST)
+    @PostMapping(value = "register")
     @ApiOperation(value = "Register process.")
-    public ResponseEntity<User> register(@RequestBody RegisterSchema register) throws IOException, ParseException {
-        PSS.register(register);
+    public ResponseEntity<User> register(@RequestBody RegisterSchema register) throws ParseException {
+        petSittersService.register(register);
         return new ResponseEntity(HttpStatus.OK);
     }
 
