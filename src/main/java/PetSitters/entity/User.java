@@ -1,4 +1,5 @@
 package PetSitters.entity;
+
 import org.springframework.data.annotation.Id;
 
 import javax.persistence.GeneratedValue;
@@ -18,6 +19,7 @@ public class User {
         this.username = username;
         this.password = password;
     }
+
 
     public String getId() {
         return id;
