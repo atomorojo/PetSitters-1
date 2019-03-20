@@ -9,7 +9,7 @@ pipeline {
     stages {
       stage('SCM') {
                   steps {
-        git 'https://github.com/atomorojo/PetSitters.git'
+        git 'https://github.com/atomorojo/PetSitters-1.git'
         }
       }
         stage('Build') {
