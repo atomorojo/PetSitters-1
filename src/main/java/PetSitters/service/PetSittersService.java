@@ -9,6 +9,7 @@ import PetSitters.schemas.LogoutSchema;
 import PetSitters.schemas.RegisterSchema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
@@ -33,7 +34,9 @@ public class PetSittersService {
 
     public void register(RegisterSchema register) throws ParseException {
         register.validate();
-        User newUser = new User(register.getFirstName(), register.getLastName(), register.getUsername(), register.getPassword(), register.getBirthdate());
+        BCryptPasswordEncoder bCryptPasswordEncoder=new BCryptPasswordEncoder();
+        String password=bCryptPasswordEncoder.encode(register.getPassword());
+        User newUser = new User(register.getFirstName(), register.getLastName(), register.getUsername(), password, register.getBirthdate());
         UserRep.save(newUser);
     }
 

@@ -1,7 +1,6 @@
 package PetSitters.security;
 
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -17,7 +16,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import javax.annotation.PostConstruct;
+import java.util.Arrays;
 
 import static PetSitters.security.Constants.*;
 
@@ -50,8 +49,32 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .cors().and()
                 .csrf().disable()
-                .authorizeRequests().antMatchers(HttpMethod.POST,LOGIN_URL,REGISTER_URL).permitAll()
-                .anyRequest().authenticated().and()
+                .authorizeRequests()
+                .antMatchers(HttpMethod.GET,SWAGGER_URL)
+                .permitAll()
+                .antMatchers(HttpMethod.POST,REGISTER_URL)
+                .permitAll()
+                .antMatchers(HttpMethod.POST,LOGIN_URL)
+                .permitAll()
+                .antMatchers(HttpMethod.GET,
+                        "/v2/api-docs",
+                        "/swagger-resources/configuration/ui",
+                        "/swagger-resources",
+                        "/swagger-resources/configuration/security",
+                        "/swagger-ui.html",
+                        "/webjars/**")
+                .permitAll()
+                .antMatchers(HttpMethod.POST,
+                        "/v2/api-docs",
+                        "/swagger-resources/configuration/ui",
+                        "/swagger-resources",
+                        "/swagger-resources/configuration/security",
+                        "/swagger-ui.html",
+                        "/webjars/**")
+                .permitAll()
+                .anyRequest()
+                .authenticated()
+                .and()
                 .addFilter(new JWTAuthenticationFilter(authenticationManager()))
                 .addFilter(new JWTAuthorizationFilter(authenticationManager()));
     }
@@ -64,8 +87,11 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
-        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", new CorsConfiguration().applyPermitDefaultValues());
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("*"));
+        configuration.setAllowedMethods(Arrays.asList("GET","POST"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 }
