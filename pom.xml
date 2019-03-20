@@ -44,16 +44,32 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
- 				     <groupId>junit</groupId>
+ 			<groupId>junit</groupId>
   		    <artifactId>junit</artifactId>
-  		    <version>4.11</version>
+  		    <version>4.12</version>
    		   <scope>test</scope>
-			</dependency>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>2.21.0</version>
+		</dependency>
 
 		<dependency>
 			<groupId>io.springfox</groupId>
 			<artifactId>springfox-swagger-ui</artifactId>
 			<version>2.9.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-core</artifactId>
+			<version>5.1.4.RELEASE</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-jwt</artifactId>
+            <version>1.0.10.RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>io.swagger</groupId>
@@ -106,14 +122,14 @@
    			     <artifactId>maven-jar-plugin</artifactId>
        				 <version>3.0.2</version>
       				  <configuration>
-       				   <archive>
+						  <archive>
           			  <manifest>
            			   <addClasspath>true</addClasspath>
            			   <classpathPrefix>lib/</classpathPrefix>
           			   <mainClass>PetSitters.PetSittersApiApplication</mainClass>
           			 </manifest>
-        		  </archive>
-        </configuration>
+        		 	 </archive>
+      			  </configuration>
 </plugin>
 		</plugins>
 	</build>
