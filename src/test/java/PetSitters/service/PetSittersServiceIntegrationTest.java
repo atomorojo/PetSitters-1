@@ -2,7 +2,7 @@ package PetSitters.service;
 
 import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.schemas.DeleteAccountSchema;
-import PetSitters.entity.User;
+import PetSitters.entity.UserPetSitters;
 import PetSitters.repository.UserRepository;
 import PetSitters.schemas.RegisterSchema;
 import org.junit.After;
@@ -47,8 +47,7 @@ public class PetSittersServiceIntegrationTest {
     }
 
     DeleteAccountSchema getFilledSchemaDeletion() {
-        DeleteAccountSchema deleteAccount = new DeleteAccountSchema();
-        deleteAccount.setUsername("rod98");
+        DeleteAccountSchema deleteAccount = new DeleteAccountSchema("rod98", "123");
         return deleteAccount;
     }
 
@@ -56,7 +55,7 @@ public class PetSittersServiceIntegrationTest {
     public void testRegisterNormal() throws ParseException {
         RegisterSchema registerSchema = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema);
-        User u = UserRep.findByUsername("rod98");
+        UserPetSitters u = UserRep.findByUsername("rod98");
 
         assertEquals("Expected the firstName 'Rodrigo'", u.getFirstName(), registerSchema.getFirstName());
         assertEquals("Expected the lastName 'Gomez'", u.getLastName(), registerSchema.getLastName());
@@ -100,6 +99,16 @@ public class PetSittersServiceIntegrationTest {
         DeleteAccountSchema deleteAccount = getFilledSchemaDeletion();
         PSS.deleteAccount(deleteAccount);
         assertFalse("The user 'rod98' should not exist", UserRep.existsByUsername("rod98"));
+    }
+
+    @Test(expected = ExceptionInvalidAccount.class)
+    public void testDeleteExistingAccountWithDifferentPassword() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema);
+        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
+        DeleteAccountSchema deleteAccount = getFilledSchemaDeletion();
+        deleteAccount.setPassword("321");
+        PSS.deleteAccount(deleteAccount);
     }
 
     @Test(expected = ExceptionInvalidAccount.class)

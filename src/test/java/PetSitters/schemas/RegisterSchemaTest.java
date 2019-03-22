@@ -54,6 +54,13 @@ public class RegisterSchemaTest {
     }
 
     @Test(expected = ValidationException.class)
+    public void validateLastNameIsNull() {
+        fillRegisterSchema();
+        R.setLastName(null);
+        R.validate();
+    }
+
+    @Test(expected = ValidationException.class)
     public void validateLastNameIsEmpty() {
         fillRegisterSchema();
         R.setLastName("");
@@ -61,9 +68,24 @@ public class RegisterSchemaTest {
     }
 
     @Test(expected = ValidationException.class)
+    public void validateUsernameIsNull() {
+        fillRegisterSchema();
+        R.setUsername(null);
+        R.validate();
+    }
+
+
+    @Test(expected = ValidationException.class)
     public void validateUsernameIsEmpty() {
         fillRegisterSchema();
         R.setUsername("");
+        R.validate();
+    }
+
+    @Test(expected = ValidationException.class)
+    public void validatePasswordIsNull() {
+        fillRegisterSchema();
+        R.setPassword(null);
         R.validate();
     }
 
@@ -75,9 +97,23 @@ public class RegisterSchemaTest {
     }
 
     @Test(expected = ValidationException.class)
+    public void validateEmailIsNull() {
+        fillRegisterSchema();
+        R.setEmail(null);
+        R.validate();
+    }
+
+    @Test(expected = ValidationException.class)
     public void validateEmailIsEmpty() {
         fillRegisterSchema();
         R.setEmail("");
+        R.validate();
+    }
+
+    @Test(expected = ValidationException.class)
+    public void validateBirthdateIsNull() {
+        fillRegisterSchema();
+        R.setBirthdate(null);
         R.validate();
     }
 

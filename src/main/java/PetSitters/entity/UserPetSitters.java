@@ -15,7 +15,7 @@ import java.util.Date;
 
 @ApiModel("User")
 @Document
-public class User {
+public class UserPetSitters {
     @Id
     @ApiModelProperty(value = "The user's id", required = false)
     String id;
@@ -46,14 +46,14 @@ public class User {
     @NotBlank
     Date birthdate;
 
-    public User() {}
+    public UserPetSitters() {}
 
-    public User(String firstName, String lastName) {
+    public UserPetSitters(String firstName, String lastName) {
         this.firstName = firstName;
         this.lastName = lastName;
     }
 
-    public User(RegisterSchema R) throws ParseException {
+    public UserPetSitters(RegisterSchema R) throws ParseException {
         this.firstName = R.getFirstName();
         this.lastName = R.getLastName();
         this.username = R.getUsername();
@@ -119,12 +119,16 @@ public class User {
         this.birthdate = birthdate;
     }
 
+    public boolean isTheSamePassword(String password) {
+        return getPassword().equals(password);
+    }
+
     @Override
     public String toString() {
         return String.format(
                 "User[id=%s, firstName='%s', lastName='%s']",
                 id, firstName, lastName);
     }
-    
+
 }
 

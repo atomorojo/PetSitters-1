@@ -1,6 +1,6 @@
 package PetSitters.controller;
 
-import PetSitters.entity.User;
+import PetSitters.entity.UserPetSitters;
 import PetSitters.repository.UserRepository;
 import org.junit.After;
 import org.junit.Before;
@@ -67,7 +67,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"birthdate\":\"22-9-1982\"\n" +
                 "}";
         register(cont);
-        User u = UserRep.findByUsername("andy.luc24");
+        UserPetSitters u = UserRep.findByUsername("andy.luc24");
         assertEquals("Expected the firstName 'andy'", u.getFirstName(), "andy");
         assertEquals("Expected the lastName 'lucas'", u.getLastName(), "lucas");
         assertEquals("Expected the username 'andy.luc24'", u.getUsername(), "andy.luc24");
@@ -172,16 +172,57 @@ public class PetSittersControllerIntegrationTest {
         register(cont);
         assertTrue("The User 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
         cont = "{\n" +
-                "\t\"username\":\"andy.luc24\"\n" +
+                "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"password\":\"1234\"\n" +
                 "}";
         deleteAccount(cont);
         assertFalse("The User 'andy.luc24' should not exist", UserRep.existsByUsername("andy.luc24"));
     }
 
+    @Test
+    public void deleteAnExistingAccountWithWrongPassword() throws Exception {
+        String cont = "{\n" +
+                "\t\"firstName\":\"andy\",\n" +
+                "\t\"lastName\":\"lucas\",\n" +
+                "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"a@b.com\",\n" +
+                "\t\"birthdate\":\"22-9-1982\"\n" +
+                "}";
+        register(cont);
+        assertTrue("The User 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
+        cont = "{\n" +
+                "\t\"username\":\"andy.luc24\"\n" +
+                "\t\"password\":\"asdas\"\n" +
+                "}";
+        deleteAccount(cont);
+        assertTrue("The User 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
+    }
+
+    @Test(expected = org.springframework.web.util.NestedServletException.class)     // Provoked by ValidationException: There are blank fields
+    public void deleteAnExistingAccountWithoutPassword() throws Exception {
+        String cont = "{\n" +
+                "\t\"firstName\":\"andy\",\n" +
+                "\t\"lastName\":\"lucas\",\n" +
+                "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"a@b.com\",\n" +
+                "\t\"birthdate\":\"22-9-1982\"\n" +
+                "}";
+        register(cont);
+        assertTrue("The User 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
+        cont = "{\n" +
+                "\t\"username\":\"andy.luc24\"\n" +
+                "}";
+        deleteAccount(cont);
+        assertTrue("The User 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
+    }
+
     @Test(expected = org.springframework.web.util.NestedServletException.class)     // Provoked by ExceptionInvalidAccount.class: The account does not exist
     public void deleteAnNonExistingAccount() throws Exception {
         String cont = "{\n" +
-                "\t\"username\":\"andy.luc24\"\n" +
+                "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"password\":\"1234\"\n" +
                 "}";
         deleteAccount(cont);
     }
