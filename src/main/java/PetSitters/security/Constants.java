@@ -2,18 +2,14 @@ package PetSitters.security;
 
 public class Constants {
 
-    // Spring Security
 
-    public static final String LOGIN_URL = "/login";
-    public static final String SWAGGER_URL = "/swagger-ui.html";
-    public static final String REGISTER_URL = "/petsitters/register";
-    public static final String HEADER_AUTHORIZACION_KEY = "Authorization";
-    public static final String TOKEN_BEARER_PREFIX = "Bearer ";
 
-    // JWT
-
-    public static final String ISSUER_INFO = "petsitters";
-    public static final String SUPER_SECRET_KEY = "1234";
-    public static final long TOKEN_EXPIRATION_TIME = 864_000_000; // 10 day
+        public static final long ACCESS_TOKEN_VALIDITY_SECONDS = 5*60*60;
+        public static final String SIGNING_KEY = "petsitters";
+        public static final String TOKEN_PREFIX = "Bearer ";
+        public static final String HEADER_STRING = "Authorization";
+        public static final String SWAGGER_URL = "/swagger-ui.html";
+        public static final String REGISTER_URL = "/petsitters/register";
+        public static final String LOGIN_URL =  "/petsitters/login";
 
 }

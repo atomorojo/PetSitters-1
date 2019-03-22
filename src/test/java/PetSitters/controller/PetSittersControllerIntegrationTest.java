@@ -1,6 +1,6 @@
 package PetSitters.controller;
 
-import PetSitters.entity.User;
+import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.repository.UserRepository;
 import org.junit.After;
@@ -58,7 +58,7 @@ public class PetSittersControllerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(cont));
 
-        User u = UserRep.findByUsername("andy.luc24");
+        UserPetSitters u = UserRep.findByUsername("andy.luc24");
 
         assertEquals("Expected the firstName 'andy'", u.getFirstName(), "andy");
         assertEquals("Expected the lastName 'lucas'", u.getLastName(), "lucas");

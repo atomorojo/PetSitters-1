@@ -15,7 +15,7 @@ import javax.persistence.GenerationType;
 
 @ApiModel("User")
 @Document
-public class User {
+public class UserPetSitters {
     @Id
     @ApiModelProperty(value = "The user's id", required = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,14 +42,14 @@ public class User {
     @NotNull
     Date birthdate;
 
-    public User() {}
+    public UserPetSitters() {}
 
-    public User(String firstName, String lastName) {
+    public UserPetSitters(String firstName, String lastName) {
         this.firstName = firstName;
         this.lastName = lastName;
     }
 
-    public User(String firstName, String lastName, String username, String password, String birthdate) throws ParseException {
+    public UserPetSitters(String firstName, String lastName, String username, String password, String birthdate) throws ParseException {
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;

@@ -2,7 +2,7 @@ package PetSitters.service;
 
 import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.schemas.DeleteAccountSchema;
-import PetSitters.entity.User;
+import PetSitters.entity.UserPetSitters;
 import PetSitters.repository.UserRepository;
 import PetSitters.schemas.LoginSchema;
 import PetSitters.schemas.LogoutSchema;
@@ -21,8 +21,8 @@ public class PetSittersService {
     @Autowired
     UserRepository UserRep;
 
-    public List<User> login(LoginSchema login) {
-        User test=new User(login.getUser(),login.getPassword());
+    public List<UserPetSitters> login(LoginSchema login) {
+        UserPetSitters test=new UserPetSitters(login.getUsername(),login.getPassword());
         test.setId("1");
         UserRep.save(test);
         return UserRep.findByFirstName("why");
@@ -36,16 +36,14 @@ public class PetSittersService {
         register.validate();
         BCryptPasswordEncoder bCryptPasswordEncoder=new BCryptPasswordEncoder();
         String password=bCryptPasswordEncoder.encode(register.getPassword());
-        User newUser = new User(register.getFirstName(), register.getLastName(), register.getUsername(), password, register.getBirthdate());
+        UserPetSitters newUser = new UserPetSitters(register.getFirstName(), register.getLastName(), register.getUsername(), password, register.getBirthdate());
         UserRep.save(newUser);
     }
 
     public void deleteAccount(DeleteAccountSchema account) throws ExceptionInvalidAccount {
         // Needs to have an JWT
-        account.validate();
-        String username = account.getUsername();
-
-        User u = UserRep.findByUsername(username);
+        String username=account.getUsername();
+        UserPetSitters u = UserRep.findByUsername(username);
         if (u == null) {
             throw new ExceptionInvalidAccount("The account with the username '" + username + "' does not exist");
         }

@@ -2,15 +2,15 @@ package PetSitters.schemas;
 
 public class LoginSchema {
 
-    String user;
+    String username;
     String password;
 
-    public String getUser() {
-        return user;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUser(String user) {
-        this.user = user;
+    public void setUser(String username) {
+        this.username = username;
     }
 
     public String getPassword() {

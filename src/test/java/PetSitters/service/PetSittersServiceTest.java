@@ -1,6 +1,6 @@
 package PetSitters.service;
 
-import PetSitters.entity.User;
+import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.repository.UserRepository;
 import PetSitters.schemas.DeleteAccountSchema;
@@ -47,7 +47,7 @@ public class PetSittersServiceTest {
 
         PSS.register(registerSchema);
 
-        User u = UserRep.findByUsername("rod98");
+        UserPetSitters u = UserRep.findByUsername("rod98");
 
         assertEquals("Expected the firstName 'Rodrigo'", u.getFirstName(), registerSchema.getFirstName());
         assertEquals("Expected the lastName 'Gomez'", u.getLastName(), registerSchema.getLastName());
