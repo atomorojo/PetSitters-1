@@ -3,6 +3,11 @@ package PetSitters.controller;
 import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.repository.UserRepository;
+import PetSitters.schemas.ResultActionLoginSchema;
+import PetSitters.security.ApiResponse;
+import PetSitters.security.JwtTokenUtil;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpResponse;
 import org.junit.After;
 import org.junit.Before;
@@ -21,6 +26,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -151,7 +157,7 @@ public class PetSittersControllerIntegrationTest {
     }
 
     @Test
-    public void loginCorrecto() throws Exception {
+    public void loginCorrect() throws Exception {
         String cont = "{\n" +
                 "\t\"firstName\":\"andy\",\n" +
                 "\t\"lastName\":\"lucas\",\n" +
@@ -169,6 +175,89 @@ public class PetSittersControllerIntegrationTest {
                 "}";
 
         ResultActions result= mvc.perform(post("/petsitters/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(cont));
+        result.andExpect(status().isOk());
+    }
+
+    @Test (expected = org.springframework.web.util.NestedServletException.class)
+    public void loginIncorrect() throws Exception {
+        String cont = "{\n" +
+                "\t\"firstName\":\"andy\",\n" +
+                "\t\"lastName\":\"lucas\",\n" +
+                "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"birthdate\":\"22-9-1982\"\n" +
+                "}";
+        mvc.perform(post("/petsitters/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(cont));
+
+        cont = "{\n" +
+                "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+
+        ResultActions result= mvc.perform(post("/petsitters/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(cont));
+    }
+
+    @Test
+    public void loginJWTtoUser() throws Exception {
+        String cont = "{\n" +
+                "\t\"firstName\":\"andy\",\n" +
+                "\t\"lastName\":\"lucas\",\n" +
+                "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"birthdate\":\"22-9-1982\"\n" +
+                "}";
+        mvc.perform(post("/petsitters/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(cont));
+
+        cont = "{\n" +
+                "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"password\":\"1234\"\n" +
+                "}";
+
+        ResultActions result = mvc.perform(post("/petsitters/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(cont));
+        ObjectMapper objectMapper = new ObjectMapper();
+        String resJson = result.andReturn().getResponse().getContentAsString();
+        ResultActionLoginSchema resultActionLoginSchema = objectMapper.readValue(resJson,ResultActionLoginSchema.class);
+        String token = resultActionLoginSchema.getResult().getToken();
+        JwtTokenUtil jwtTokenUtil = new JwtTokenUtil();
+        assertEquals("Expected user is andy.luc24", jwtTokenUtil.getUsernameFromToken(token),"andy.luc24");
+    }
+
+    @Test
+    public void loginAndDeleteAccount() throws Exception {
+        String cont = "{\n" +
+                "\t\"firstName\":\"andy\",\n" +
+                "\t\"lastName\":\"lucas\",\n" +
+                "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"birthdate\":\"22-9-1982\"\n" +
+                "}";
+        mvc.perform(post("/petsitters/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(cont));
+
+        cont = "{\n" +
+                "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"password\":\"1234\"\n" +
+                "}";
+
+        mvc.perform(post("/petsitters/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(cont));
+
+        cont = "{\n" +
+                "\t\"username\":\"andy.luc24\"\n" +
+                "}";
+        ResultActions result = mvc.perform(post("/petsitters/deleteAccount")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(cont));
         result.andExpect(status().isOk());
