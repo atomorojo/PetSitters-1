@@ -22,77 +22,68 @@ public class RegisterSchemaTest {
         R = null;
     }
 
+    void fillRegisterSchema() {
+        R = new RegisterSchema("Name", "Surname", "UserN", "Pass", "Name@Surname.com", "20-11-1111");
+    }
+
     @Test
     public void validateAllIsCorrect() {
-        R.setFirstName("Name");
-        R.setLastName("Surname");
-        R.setUsername("UserN");
-        R.setPassword("Pass");
-        R.setBirthdate("20-11-1111");
+        fillRegisterSchema();
         R.validate();
         assertEquals ("The name should be 'Name'", R.getFirstName(), "Name");
         assertEquals ("The name should be 'Surname'", R.getLastName(), "Surname");
         assertEquals ("The name should be 'UserN'", R.getUsername(), "UserN");
         assertEquals ("The name should be 'Pass'", R.getPassword(), "Pass");
+        assertEquals ("The name should be 'Name@Surname.com'", R.getEmail(), "Name@Surname.com");
         assertEquals ("The name should be '20-11-1111'", R.getBirthdate(), "20-11-1111");
 
     }
 
     @Test(expected = ValidationException.class)
     public void validateFirstNameIsNull() {
-        R.setLastName("Surname");
-        R.setUsername("UserN");
-        R.setPassword("Pass");
-        R.setBirthdate("20-11-1111");
+        fillRegisterSchema();
+        R.setFirstName(null);
         R.validate();
     }
 
     @Test(expected = ValidationException.class)
     public void validateFirstNameIsEmpty() {
+        fillRegisterSchema();
         R.setFirstName("");
-        R.setLastName("Surname");
-        R.setUsername("UserN");
-        R.setPassword("Pass");
-        R.setBirthdate("20-11-1111");
         R.validate();
     }
 
     @Test(expected = ValidationException.class)
     public void validateLastNameIsEmpty() {
-        R.setFirstName("Surname");
+        fillRegisterSchema();
         R.setLastName("");
-        R.setUsername("UserN");
-        R.setPassword("Pass");
-        R.setBirthdate("20-11-1111");
         R.validate();
     }
 
     @Test(expected = ValidationException.class)
     public void validateUsernameIsEmpty() {
-        R.setFirstName("Surname");
-        R.setLastName("jjij");
+        fillRegisterSchema();
         R.setUsername("");
-        R.setPassword("Pass");
-        R.setBirthdate("20-11-1111");
         R.validate();
     }
 
     @Test(expected = ValidationException.class)
     public void validatePasswordIsEmpty() {
-        R.setFirstName("Surname");
-        R.setLastName("joio");
-        R.setUsername("UserN");
+        fillRegisterSchema();
         R.setPassword("");
-        R.setBirthdate("20-11-1111");
+        R.validate();
+    }
+
+    @Test(expected = ValidationException.class)
+    public void validateEmailIsEmpty() {
+        fillRegisterSchema();
+        R.setEmail("");
         R.validate();
     }
 
     @Test(expected = ValidationException.class)
     public void validateBirthdateIsEmpty() {
-        R.setFirstName("Surname");
-        R.setLastName("jioijo");
-        R.setUsername("UserN");
-        R.setPassword("Pass");
+        fillRegisterSchema();
         R.setBirthdate("");
         R.validate();
     }
