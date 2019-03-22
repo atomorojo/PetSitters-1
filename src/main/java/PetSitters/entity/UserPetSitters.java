@@ -1,6 +1,5 @@
 package PetSitters.entity;
 
-import PetSitters.schemas.RegisterSchema;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.springframework.data.annotation.Id;
@@ -12,12 +11,15 @@ import javax.validation.constraints.NotBlank;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 
 @ApiModel("User")
 @Document
 public class UserPetSitters {
     @Id
     @ApiModelProperty(value = "The user's id", required = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     String id;
 
     @ApiModelProperty(value = "The user's firstname", required = true)
@@ -53,14 +55,13 @@ public class UserPetSitters {
         this.lastName = lastName;
     }
 
-    public UserPetSitters(RegisterSchema R) throws ParseException {
-        this.firstName = R.getFirstName();
-        this.lastName = R.getLastName();
-        this.username = R.getUsername();
-        this.password = R.getPassword();
-        this.email = R.getEmail();
+    public UserPetSitters(String firstName, String lastName, String username, String password, String birthdate) throws ParseException {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.username = username;
+        this.password = password;
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
-        this.birthdate = format.parse(R.getBirthdate());
+        this.birthdate = format.parse(birthdate);
     }
 
     public String getId() {

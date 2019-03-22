@@ -1,16 +1,24 @@
 package PetSitters.service;
 
+import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.schemas.DeleteAccountSchema;
-import PetSitters.entity.UserPetSitters;
 import PetSitters.repository.UserRepository;
+import PetSitters.schemas.LoginSchema;
 import PetSitters.schemas.RegisterSchema;
+import PetSitters.security.JwtTokenUtil;
+import PetSitters.security.UserServiceImpl;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.text.ParseException;
@@ -28,7 +36,17 @@ public class PetSittersServiceIntegrationTest {
     PetSittersService PSS;
 
     @Autowired
+    private JwtTokenUtil jwtTokenUtil;
+
+    @Autowired
+    private UserServiceImpl userService;
+
+
+    @Autowired
     UserRepository UserRep;
+
+    @Autowired
+    AuthenticationManager authenticationManager;
 
     @After
     public void tearDown() throws Exception {
@@ -56,11 +74,10 @@ public class PetSittersServiceIntegrationTest {
         RegisterSchema registerSchema = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema);
         UserPetSitters u = UserRep.findByUsername("rod98");
-
         assertEquals("Expected the firstName 'Rodrigo'", u.getFirstName(), registerSchema.getFirstName());
         assertEquals("Expected the lastName 'Gomez'", u.getLastName(), registerSchema.getLastName());
         assertEquals("Expected the username 'rod98'", u.getUsername(), registerSchema.getUsername());
-        assertEquals("Expected the password '123'", u.getPassword(), registerSchema.getPassword());
+        assertTrue("Expected the password '123'", new BCryptPasswordEncoder().matches("123",u.getPassword()));
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
         Date birthDate = format.parse(registerSchema.getBirthdate());
         assertEquals("Expected the birthdate '20-12-1998'", u.getBirthdate(), birthDate);
@@ -117,4 +134,29 @@ public class PetSittersServiceIntegrationTest {
         assertFalse("The user 'rod98' should not exist", UserRep.existsByUsername("rod98"));
         PSS.deleteAccount(deleteAccount);
     }
+
+    @Test(expected = AuthenticationException.class)
+    public void testInvalidLogin() throws AuthenticationException {
+        LoginSchema loginUser=new LoginSchema("fail","fail");
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginUser.getUsername(), loginUser.getPassword()));
+        final UserPetSitters user = userService.findOne(loginUser.getUsername());
+        final String token = jwtTokenUtil.generateToken(user);
+    }
+    public void testValidLogin() throws ParseException {
+        RegisterSchema registerSchema = new RegisterSchema();
+        registerSchema.setFirstName("Rodrigo");
+        registerSchema.setLastName("Gomez");
+        registerSchema.setUsername("rod98");
+        registerSchema.setPassword("123");
+        registerSchema.setBirthdate("20-12-1998");
+        PSS.register(registerSchema);
+
+        LoginSchema loginUser=new LoginSchema("rod98","123");
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginUser.getUsername(), loginUser.getPassword()));
+        final UserPetSitters user = userService.findOne(loginUser.getUsername());
+        final String token = jwtTokenUtil.generateToken(user);
+
+    }
+
+
 }
