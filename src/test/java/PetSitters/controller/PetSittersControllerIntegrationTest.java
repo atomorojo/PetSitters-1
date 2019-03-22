@@ -1,7 +1,6 @@
 package PetSitters.controller;
 
 import PetSitters.entity.User;
-import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.repository.UserRepository;
 import org.junit.After;
 import org.junit.Before;
@@ -45,6 +44,18 @@ public class PetSittersControllerIntegrationTest {
         UserRep.deleteAll();
     }
 
+    void register(String cont) throws Exception {
+        mvc.perform(post("/petsitters/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(cont));
+    }
+
+    void deleteAccount(String cont) throws Exception {
+        mvc.perform(post("/petsitters/deleteAccount")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(cont));
+    }
+
     @Test
     public void registerNormalRegister() throws Exception {
         String cont = "{\n" +
@@ -52,14 +63,11 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
                 "}";
-        mvc.perform(post("/petsitters/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(cont));
-
+        register(cont);
         User u = UserRep.findByUsername("andy.luc24");
-
         assertEquals("Expected the firstName 'andy'", u.getFirstName(), "andy");
         assertEquals("Expected the lastName 'lucas'", u.getLastName(), "lucas");
         assertEquals("Expected the username 'andy.luc24'", u.getUsername(), "andy.luc24");
@@ -69,6 +77,50 @@ public class PetSittersControllerIntegrationTest {
         assertEquals("Expected the birthdate '22-9-1982'", u.getBirthdate(), birthDate);
     }
 
+    @Test(expected = org.springframework.web.util.NestedServletException.class)     // Provoked by org.springframework.dao.DuplicateKeyException
+    public void testRegisterDuplicatedWithUsername() throws Exception {
+        String cont = "{\n" +
+                "\t\"firstName\":\"andy\",\n" +
+                "\t\"lastName\":\"lucas\",\n" +
+                "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"a@b.com\",\n" +
+                "\t\"birthdate\":\"22-9-1982\"\n" +
+                "}";
+        register(cont);
+        cont = "{\n" +
+                "\t\"firstName\":\"redrigo\",\n" +
+                "\t\"lastName\":\"gomez\",\n" +
+                "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"password\":\"876\",\n" +
+                "\t\"email\":\"c@d.es\",\n" +
+                "\t\"birthdate\":\"2-11-1842\"\n" +
+                "}";
+        register(cont);
+    }
+
+    @Test(expected = org.springframework.web.util.NestedServletException.class)     // Provoked by org.springframework.dao.DuplicateKeyException
+    public void testRegisterDuplicatedWithEmail() throws Exception {
+        String cont = "{\n" +
+                "\t\"firstName\":\"andy\",\n" +
+                "\t\"lastName\":\"lucas\",\n" +
+                "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"a@b.com\",\n" +
+                "\t\"birthdate\":\"22-9-1982\"\n" +
+                "}";
+        register(cont);
+        cont = "{\n" +
+                "\t\"firstName\":\"redrigo\",\n" +
+                "\t\"lastName\":\"gomez\",\n" +
+                "\t\"username\":\"rodgo\",\n" +
+                "\t\"password\":\"876\",\n" +
+                "\t\"email\":\"a@b.com\",\n" +
+                "\t\"birthdate\":\"2-11-1842\"\n" +
+                "}";
+        register(cont);
+    }
+
     @Test(expected = org.springframework.web.util.NestedServletException.class)     // Provoked by java.text.ParseException: Unparseable date: "22/9/1982"
     public void registerWrongFormatOfDate() throws Exception {
         String cont = "{\n" +
@@ -76,11 +128,10 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22/9/1982\"\n" +
                 "}";
-        mvc.perform(post("/petsitters/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(cont));
+        register(cont);
     }
 
     @Test(expected = org.springframework.web.util.NestedServletException.class)     // Provoked by javax.validation.ValidationException: There are blank fields
@@ -89,11 +140,10 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
                 "}";
-        mvc.perform(post("/petsitters/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(cont));
+        register(cont);
     }
 
     @Test(expected = org.springframework.web.util.NestedServletException.class)     // Provoked by javax.validation.ValidationException: There are blank fields
@@ -103,11 +153,10 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
                 "}";
-        mvc.perform(post("/petsitters/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(cont));
+        register(cont);
     }
 
     @Test
@@ -117,22 +166,15 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
                 "}";
-        mvc.perform(post("/petsitters/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(cont));
-
-
+        register(cont);
         assertTrue("The User 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
-
         cont = "{\n" +
                 "\t\"username\":\"andy.luc24\"\n" +
                 "}";
-        mvc.perform(post("/petsitters/deleteAccount")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(cont));
-
+        deleteAccount(cont);
         assertFalse("The User 'andy.luc24' should not exist", UserRep.existsByUsername("andy.luc24"));
     }
 
@@ -141,8 +183,6 @@ public class PetSittersControllerIntegrationTest {
         String cont = "{\n" +
                 "\t\"username\":\"andy.luc24\"\n" +
                 "}";
-        mvc.perform(post("/petsitters/deleteAccount")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(cont));
+        deleteAccount(cont);
     }
 }

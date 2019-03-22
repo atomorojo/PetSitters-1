@@ -18,7 +18,20 @@ public class RegisterSchema {
     @NotBlank
     String password;
     @NotBlank
+    String email;
+    @NotBlank
     String birthdate;
+
+    public RegisterSchema() { }
+
+    public RegisterSchema(@NotBlank String firstName, @NotBlank String lastName, @NotBlank String username, @NotBlank String password, @NotBlank String email, @NotBlank String birthdate) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.birthdate = birthdate;
+    }
 
     public String getFirstName() {
         return firstName;
@@ -50,6 +63,14 @@ public class RegisterSchema {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getBirthdate() {
