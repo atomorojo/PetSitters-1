@@ -1,4 +1,5 @@
 package PetSitters.entity;
+import PetSitters.schemas.RegisterSchema;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.springframework.data.annotation.Id;
@@ -51,14 +52,14 @@ public class User {
         this.lastName = lastName;
     }
 
-    public User(String firstName, String lastName, String username, String password, String email, String birthdate) throws ParseException {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.username = username;
-        this.password = password;
-        this.email = email;
+    public User(RegisterSchema R) throws ParseException {
+        this.firstName = R.getFirstName();
+        this.lastName = R.getLastName();
+        this.username = R.getUsername();
+        this.password = R.getPassword();
+        this.email = R.getEmail();
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
-        this.birthdate = format.parse(birthdate);
+        this.birthdate = format.parse(R.getBirthdate());
     }
 
     public String getId() {

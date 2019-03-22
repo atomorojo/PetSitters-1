@@ -21,7 +21,7 @@ public class PetSittersService {
     UserRepository UserRep;
 
     public List<User> login(LoginSchema login) {
-        User test=new User(login.getUser(),login.getPassword());
+        User test = new User(login.getUser(),login.getPassword());
         test.setId("1");
         UserRep.save(test);
         return UserRep.findByFirstName("why");
@@ -33,7 +33,7 @@ public class PetSittersService {
 
     public void register(RegisterSchema register) throws ParseException {
         register.validate();
-        User newUser = new User(register.getFirstName(), register.getLastName(), register.getUsername(), register.getPassword(), register.getEmail(), register.getBirthdate());
+        User newUser = new User(register);
         UserRep.save(newUser);
     }
 

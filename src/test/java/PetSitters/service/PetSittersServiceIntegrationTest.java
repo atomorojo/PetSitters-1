@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.text.ParseException;
@@ -35,26 +36,25 @@ public class PetSittersServiceIntegrationTest {
         UserRep.deleteAll();
     }
 
-    RegisterSchema getFilledSchemaRegistration() {
-        RegisterSchema registerSchema = new RegisterSchema();
-        registerSchema.setFirstName("Rodrigo");
-        registerSchema.setLastName("Gomez");
-        registerSchema.setUsername("rod98");
-        registerSchema.setPassword("123");
-        registerSchema.setEmail("a@b.com");
-        registerSchema.setBirthdate("20-12-1998");
+    RegisterSchema getFilledSchemaRegistrationPersona1() {
+        RegisterSchema registerSchema = new RegisterSchema("Rodrigo", "Gomez", "rod98", "123", "a@b.com", "20-12-1998");
+        return registerSchema;
+    }
+
+    RegisterSchema getFilledSchemaRegistrationPersona2() {
+        RegisterSchema registerSchema = new RegisterSchema("Juan", "del Castillo", "casjua92", "789", "a@example.com", "20-7-1992");
         return registerSchema;
     }
 
     DeleteAccountSchema getFilledSchemaDeletion() {
         DeleteAccountSchema deleteAccount = new DeleteAccountSchema();
-        deleteAccount.setUsername("rod981");
+        deleteAccount.setUsername("rod98");
         return deleteAccount;
     }
 
     @Test
     public void testRegisterNormal() throws ParseException {
-        RegisterSchema registerSchema = getFilledSchemaRegistration();
+        RegisterSchema registerSchema = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema);
         User u = UserRep.findByUsername("rod98");
 
@@ -67,16 +67,34 @@ public class PetSittersServiceIntegrationTest {
         assertEquals("Expected the birthdate '20-12-1998'", u.getBirthdate(), birthDate);
     }
 
+    @Test(expected = DuplicateKeyException.class)
+    public void testRegisterDuplicatedWithUsername() throws ParseException {
+        RegisterSchema registerSchema = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        registerSchema2.setUsername(registerSchema.getUsername());
+        PSS.register(registerSchema2);
+    }
+
+    @Test(expected = DuplicateKeyException.class)
+    public void testRegisterDuplicatedWithEmail() throws ParseException {
+        RegisterSchema registerSchema = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        registerSchema2.setEmail(registerSchema.getEmail());
+        PSS.register(registerSchema2);
+    }
+
     @Test(expected = ParseException.class)
     public void testRegisterErrorInDateFormat() throws ParseException {
-        RegisterSchema registerSchema = getFilledSchemaRegistration();
+        RegisterSchema registerSchema = getFilledSchemaRegistrationPersona1();
         registerSchema.setBirthdate("20/12/1998");
         PSS.register(registerSchema);
     }
 
     @Test
     public void testDeleteExistingAccount() throws ParseException, ExceptionInvalidAccount {
-        RegisterSchema registerSchema = getFilledSchemaRegistration();
+        RegisterSchema registerSchema = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema);
         assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
         DeleteAccountSchema deleteAccount = getFilledSchemaDeletion();
@@ -87,7 +105,7 @@ public class PetSittersServiceIntegrationTest {
     @Test(expected = ExceptionInvalidAccount.class)
     public void testDeleteNonExistingAccount() throws ExceptionInvalidAccount {
         DeleteAccountSchema deleteAccount = getFilledSchemaDeletion();
-        assertFalse("The user 'rod981' should not exist", UserRep.existsByUsername("rod981"));
+        assertFalse("The user 'rod98' should not exist", UserRep.existsByUsername("rod98"));
         PSS.deleteAccount(deleteAccount);
     }
 }

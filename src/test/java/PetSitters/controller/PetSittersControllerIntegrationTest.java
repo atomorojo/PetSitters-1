@@ -1,7 +1,6 @@
 package PetSitters.controller;
 
 import PetSitters.entity.User;
-import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.repository.UserRepository;
 import org.junit.After;
 import org.junit.Before;
@@ -51,7 +50,7 @@ public class PetSittersControllerIntegrationTest {
                 .content(cont));
     }
 
-    void deleteAccount(String cont) {
+    void deleteAccount(String cont) throws Exception {
         mvc.perform(post("/petsitters/deleteAccount")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(cont));
@@ -64,6 +63,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
                 "}";
         register(cont);
@@ -77,6 +77,50 @@ public class PetSittersControllerIntegrationTest {
         assertEquals("Expected the birthdate '22-9-1982'", u.getBirthdate(), birthDate);
     }
 
+    @Test(expected = org.springframework.web.util.NestedServletException.class)     // Provoked by org.springframework.dao.DuplicateKeyException
+    public void testRegisterDuplicatedWithUsername() throws Exception {
+        String cont = "{\n" +
+                "\t\"firstName\":\"andy\",\n" +
+                "\t\"lastName\":\"lucas\",\n" +
+                "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"a@b.com\",\n" +
+                "\t\"birthdate\":\"22-9-1982\"\n" +
+                "}";
+        register(cont);
+        cont = "{\n" +
+                "\t\"firstName\":\"redrigo\",\n" +
+                "\t\"lastName\":\"gomez\",\n" +
+                "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"password\":\"876\",\n" +
+                "\t\"email\":\"c@d.es\",\n" +
+                "\t\"birthdate\":\"2-11-1842\"\n" +
+                "}";
+        register(cont);
+    }
+
+    @Test(expected = org.springframework.web.util.NestedServletException.class)     // Provoked by org.springframework.dao.DuplicateKeyException
+    public void testRegisterDuplicatedWithEmail() throws Exception {
+        String cont = "{\n" +
+                "\t\"firstName\":\"andy\",\n" +
+                "\t\"lastName\":\"lucas\",\n" +
+                "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"a@b.com\",\n" +
+                "\t\"birthdate\":\"22-9-1982\"\n" +
+                "}";
+        register(cont);
+        cont = "{\n" +
+                "\t\"firstName\":\"redrigo\",\n" +
+                "\t\"lastName\":\"gomez\",\n" +
+                "\t\"username\":\"rodgo\",\n" +
+                "\t\"password\":\"876\",\n" +
+                "\t\"email\":\"a@b.com\",\n" +
+                "\t\"birthdate\":\"2-11-1842\"\n" +
+                "}";
+        register(cont);
+    }
+
     @Test(expected = org.springframework.web.util.NestedServletException.class)     // Provoked by java.text.ParseException: Unparseable date: "22/9/1982"
     public void registerWrongFormatOfDate() throws Exception {
         String cont = "{\n" +
@@ -84,6 +128,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22/9/1982\"\n" +
                 "}";
         register(cont);
@@ -95,6 +140,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
                 "}";
         register(cont);
@@ -107,6 +153,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
                 "}";
         register(cont);
@@ -119,6 +166,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
                 "}";
         register(cont);
