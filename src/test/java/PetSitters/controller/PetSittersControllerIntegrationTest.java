@@ -45,6 +45,18 @@ public class PetSittersControllerIntegrationTest {
         UserRep.deleteAll();
     }
 
+    void register(String cont) throws Exception {
+        mvc.perform(post("/petsitters/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(cont));
+    }
+
+    void deleteAccount(String cont) {
+        mvc.perform(post("/petsitters/deleteAccount")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(cont));
+    }
+
     @Test
     public void registerNormalRegister() throws Exception {
         String cont = "{\n" +
@@ -54,12 +66,8 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"password\":\"1234\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
                 "}";
-        mvc.perform(post("/petsitters/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(cont));
-
+        register(cont);
         User u = UserRep.findByUsername("andy.luc24");
-
         assertEquals("Expected the firstName 'andy'", u.getFirstName(), "andy");
         assertEquals("Expected the lastName 'lucas'", u.getLastName(), "lucas");
         assertEquals("Expected the username 'andy.luc24'", u.getUsername(), "andy.luc24");
@@ -78,9 +86,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"password\":\"1234\",\n" +
                 "\t\"birthdate\":\"22/9/1982\"\n" +
                 "}";
-        mvc.perform(post("/petsitters/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(cont));
+        register(cont);
     }
 
     @Test(expected = org.springframework.web.util.NestedServletException.class)     // Provoked by javax.validation.ValidationException: There are blank fields
@@ -91,9 +97,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"password\":\"1234\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
                 "}";
-        mvc.perform(post("/petsitters/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(cont));
+        register(cont);
     }
 
     @Test(expected = org.springframework.web.util.NestedServletException.class)     // Provoked by javax.validation.ValidationException: There are blank fields
@@ -105,9 +109,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"password\":\"1234\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
                 "}";
-        mvc.perform(post("/petsitters/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(cont));
+        register(cont);
     }
 
     @Test
@@ -119,20 +121,12 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"password\":\"1234\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
                 "}";
-        mvc.perform(post("/petsitters/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(cont));
-
-
+        register(cont);
         assertTrue("The User 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
-
         cont = "{\n" +
                 "\t\"username\":\"andy.luc24\"\n" +
                 "}";
-        mvc.perform(post("/petsitters/deleteAccount")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(cont));
-
+        deleteAccount(cont);
         assertFalse("The User 'andy.luc24' should not exist", UserRep.existsByUsername("andy.luc24"));
     }
 
@@ -141,8 +135,6 @@ public class PetSittersControllerIntegrationTest {
         String cont = "{\n" +
                 "\t\"username\":\"andy.luc24\"\n" +
                 "}";
-        mvc.perform(post("/petsitters/deleteAccount")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(cont));
+        deleteAccount(cont);
     }
 }

@@ -18,6 +18,8 @@ public class RegisterSchema {
     @NotBlank
     String password;
     @NotBlank
+    String email;
+    @NotBlank
     String birthdate;
 
     public String getFirstName() {
@@ -50,6 +52,14 @@ public class RegisterSchema {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getBirthdate() {

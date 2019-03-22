@@ -36,17 +36,26 @@ public class PetSittersServiceTest {
         UserRep.deleteAll();
     }
 
-    @Test
-    public void testRegisterNormal() throws ParseException {
+    RegisterSchema getFilledSchemaRegistration() {
         RegisterSchema registerSchema = Mockito.mock(RegisterSchema.class);
         Mockito.when(registerSchema.getFirstName()).thenReturn("Rodrigo");
         Mockito.when(registerSchema.getLastName()).thenReturn("Gomez");
         Mockito.when(registerSchema.getUsername()).thenReturn("rod98");
         Mockito.when(registerSchema.getPassword()).thenReturn("123");
         Mockito.when(registerSchema.getBirthdate()).thenReturn("20-12-1998");
+        return registerSchema;
+    }
 
+    DeleteAccountSchema getFilledSchemaDeletion() {
+        DeleteAccountSchema deleteAccount = Mockito.mock(DeleteAccountSchema.class);
+        Mockito.when(deleteAccount.getUsername()).thenReturn("rod981");
+        return deleteAccount;
+    }
+
+    @Test
+    public void testRegisterNormal() throws ParseException {
+        RegisterSchema registerSchema = getFilledSchemaRegistration();
         PSS.register(registerSchema);
-
         User u = UserRep.findByUsername("rod98");
 
         assertEquals("Expected the firstName 'Rodrigo'", u.getFirstName(), registerSchema.getFirstName());
@@ -60,44 +69,25 @@ public class PetSittersServiceTest {
 
     @Test(expected = ParseException.class)
     public void testRegisterErrorInDateFormat() throws ParseException {
-        RegisterSchema registerSchema = Mockito.mock(RegisterSchema.class);
-        Mockito.when(registerSchema.getFirstName()).thenReturn("Rodrigo");
-        Mockito.when(registerSchema.getLastName()).thenReturn("Gomez");
-        Mockito.when(registerSchema.getUsername()).thenReturn("rod98");
-        Mockito.when(registerSchema.getPassword()).thenReturn("123");
+        RegisterSchema registerSchema = getFilledSchemaRegistration();
         Mockito.when(registerSchema.getBirthdate()).thenReturn("20/12/1998");
-
         PSS.register(registerSchema);
     }
 
     @Test
     public void testDeleteExistingAccount() throws ParseException, ExceptionInvalidAccount {
-        RegisterSchema registerSchema = Mockito.mock(RegisterSchema.class);
-        Mockito.when(registerSchema.getFirstName()).thenReturn("Rodrigo");
-        Mockito.when(registerSchema.getLastName()).thenReturn("Gomez");
-        Mockito.when(registerSchema.getUsername()).thenReturn("rod98");
-        Mockito.when(registerSchema.getPassword()).thenReturn("123");
-        Mockito.when(registerSchema.getBirthdate()).thenReturn("20-12-1998");
-
+        RegisterSchema registerSchema = getFilledSchemaRegistration();
         PSS.register(registerSchema);
-
         assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
-
-        DeleteAccountSchema deleteAccount = new DeleteAccountSchema();
-        deleteAccount.setUsername("rod98");
-
+        DeleteAccountSchema deleteAccount = getFilledSchemaDeletion();
         PSS.deleteAccount(deleteAccount);
-
         assertFalse("The user 'rod98' should not exist", UserRep.existsByUsername("rod98"));
     }
 
     @Test(expected = ExceptionInvalidAccount.class)
     public void testDeleteNonExistingAccount() throws ExceptionInvalidAccount {
-        DeleteAccountSchema deleteAccount = Mockito.mock(DeleteAccountSchema.class);
-        Mockito.when(deleteAccount.getUsername()).thenReturn("rod981");
-
+        DeleteAccountSchema deleteAccount = getFilledSchemaDeletion();
         assertFalse("The user 'rod981' should not exist", UserRep.existsByUsername("rod981"));
-
         PSS.deleteAccount(deleteAccount);
     }
 }

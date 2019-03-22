@@ -33,12 +33,11 @@ public class PetSittersService {
 
     public void register(RegisterSchema register) throws ParseException {
         register.validate();
-        User newUser = new User(register.getFirstName(), register.getLastName(), register.getUsername(), register.getPassword(), register.getBirthdate());
+        User newUser = new User(register.getFirstName(), register.getLastName(), register.getUsername(), register.getPassword(), register.getEmail(), register.getBirthdate());
         UserRep.save(newUser);
     }
 
     public void deleteAccount(DeleteAccountSchema account) throws ExceptionInvalidAccount {
-        // Needs to have an JWT
         account.validate();
         String username = account.getUsername();
 

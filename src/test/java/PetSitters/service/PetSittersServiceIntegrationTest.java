@@ -35,17 +35,27 @@ public class PetSittersServiceIntegrationTest {
         UserRep.deleteAll();
     }
 
-    @Test
-    public void testRegisterNormal() throws ParseException {
+    RegisterSchema getFilledSchemaRegistration() {
         RegisterSchema registerSchema = new RegisterSchema();
         registerSchema.setFirstName("Rodrigo");
         registerSchema.setLastName("Gomez");
         registerSchema.setUsername("rod98");
         registerSchema.setPassword("123");
+        registerSchema.setEmail("a@b.com");
         registerSchema.setBirthdate("20-12-1998");
+        return registerSchema;
+    }
 
+    DeleteAccountSchema getFilledSchemaDeletion() {
+        DeleteAccountSchema deleteAccount = new DeleteAccountSchema();
+        deleteAccount.setUsername("rod981");
+        return deleteAccount;
+    }
+
+    @Test
+    public void testRegisterNormal() throws ParseException {
+        RegisterSchema registerSchema = getFilledSchemaRegistration();
         PSS.register(registerSchema);
-
         User u = UserRep.findByUsername("rod98");
 
         assertEquals("Expected the firstName 'Rodrigo'", u.getFirstName(), registerSchema.getFirstName());
@@ -59,44 +69,25 @@ public class PetSittersServiceIntegrationTest {
 
     @Test(expected = ParseException.class)
     public void testRegisterErrorInDateFormat() throws ParseException {
-        RegisterSchema registerSchema = new RegisterSchema();
-        registerSchema.setFirstName("Rodrigo");
-        registerSchema.setLastName("Gomez");
-        registerSchema.setUsername("rod98");
-        registerSchema.setPassword("123");
+        RegisterSchema registerSchema = getFilledSchemaRegistration();
         registerSchema.setBirthdate("20/12/1998");
-
         PSS.register(registerSchema);
     }
 
     @Test
     public void testDeleteExistingAccount() throws ParseException, ExceptionInvalidAccount {
-        RegisterSchema registerSchema = new RegisterSchema();
-        registerSchema.setFirstName("Rodrigo");
-        registerSchema.setLastName("Gomez");
-        registerSchema.setUsername("rod98");
-        registerSchema.setPassword("123");
-        registerSchema.setBirthdate("20-12-1998");
-
+        RegisterSchema registerSchema = getFilledSchemaRegistration();
         PSS.register(registerSchema);
-
         assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
-
-        DeleteAccountSchema deleteAccount = new DeleteAccountSchema();
-        deleteAccount.setUsername("rod98");
-
+        DeleteAccountSchema deleteAccount = getFilledSchemaDeletion();
         PSS.deleteAccount(deleteAccount);
-
         assertFalse("The user 'rod98' should not exist", UserRep.existsByUsername("rod98"));
     }
 
     @Test(expected = ExceptionInvalidAccount.class)
     public void testDeleteNonExistingAccount() throws ExceptionInvalidAccount {
-        DeleteAccountSchema deleteAccount = new DeleteAccountSchema();
-        deleteAccount.setUsername("rod981");
-
+        DeleteAccountSchema deleteAccount = getFilledSchemaDeletion();
         assertFalse("The user 'rod981' should not exist", UserRep.existsByUsername("rod981"));
-
         PSS.deleteAccount(deleteAccount);
     }
 }

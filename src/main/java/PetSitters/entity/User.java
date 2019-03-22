@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.index.IndexDirection;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -19,24 +19,29 @@ public class User {
     String id;
 
     @ApiModelProperty(value = "The user's firstname", required = true)
-    @NotNull
+    @NotBlank
     String firstName;
 
     @ApiModelProperty(value = "The user's lastname", required = true)
-    @NotNull
+    @NotBlank
     String lastName;
 
     @ApiModelProperty(value = "The user's username", required = true)
     @Indexed(name = "_username", direction = IndexDirection.ASCENDING, unique = true, background = true)
-    @NotNull
+    @NotBlank
     String username;
 
     @ApiModelProperty(value = "The user's password", required = true)
-    @NotNull
+    @NotBlank
     String password;
 
+    @ApiModelProperty(value = "The user's email", required = true)
+    @Indexed(name = "_email", direction = IndexDirection.ASCENDING, unique = true, background = true)
+    @NotBlank
+    String email;
+
     @ApiModelProperty(value = "The user's bitrhdate", required = true)
-    @NotNull
+    @NotBlank
     Date birthdate;
 
     public User() {}
@@ -46,11 +51,12 @@ public class User {
         this.lastName = lastName;
     }
 
-    public User(String firstName, String lastName, String username, String password, String birthdate) throws ParseException {
+    public User(String firstName, String lastName, String username, String password, String email, String birthdate) throws ParseException {
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
         this.password = password;
+        this.email = email;
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
         this.birthdate = format.parse(birthdate);
     }
@@ -93,6 +99,14 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public Date getBirthdate() {
