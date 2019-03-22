@@ -1,14 +1,10 @@
 package PetSitters.controller;
 
 import PetSitters.entity.UserPetSitters;
-import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.repository.UserRepository;
 import PetSitters.schemas.ResultActionLoginSchema;
-import PetSitters.security.ApiResponse;
 import PetSitters.security.JwtTokenUtil;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.http.HttpResponse;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +22,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Map;
 
 import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;

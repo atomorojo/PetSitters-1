@@ -2,8 +2,8 @@ package PetSitters.service;
 
 import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
-import PetSitters.schemas.DeleteAccountSchema;
 import PetSitters.repository.UserRepository;
+import PetSitters.schemas.DeleteAccountSchema;
 import PetSitters.schemas.RegisterSchema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;

@@ -15,8 +15,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static java.util.Collections.emptyList;
-
 
 @Service(value = "userService")
 public class UserServiceImpl implements UserDetailsService {
