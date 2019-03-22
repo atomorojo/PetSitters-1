@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.text.ParseException;
@@ -51,7 +52,7 @@ public class PetSittersServiceIntegrationTest {
         assertEquals("Expected the firstName 'Rodrigo'", u.getFirstName(), registerSchema.getFirstName());
         assertEquals("Expected the lastName 'Gomez'", u.getLastName(), registerSchema.getLastName());
         assertEquals("Expected the username 'rod98'", u.getUsername(), registerSchema.getUsername());
-        assertEquals("Expected the password '123'", u.getPassword(), registerSchema.getPassword());
+        assertTrue("Expected the password '123'", new BCryptPasswordEncoder().matches("123",u.getPassword()));
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
         Date birthDate = format.parse(registerSchema.getBirthdate());
         assertEquals("Expected the birthdate '20-12-1998'", u.getBirthdate(), birthDate);

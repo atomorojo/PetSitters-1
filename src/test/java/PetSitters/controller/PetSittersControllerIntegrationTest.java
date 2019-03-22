@@ -3,6 +3,7 @@ package PetSitters.controller;
 import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.repository.UserRepository;
+import org.apache.http.HttpResponse;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,8 +11,10 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -21,6 +24,7 @@ import java.util.Date;
 
 import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -63,7 +67,7 @@ public class PetSittersControllerIntegrationTest {
         assertEquals("Expected the firstName 'andy'", u.getFirstName(), "andy");
         assertEquals("Expected the lastName 'lucas'", u.getLastName(), "lucas");
         assertEquals("Expected the username 'andy.luc24'", u.getUsername(), "andy.luc24");
-        assertEquals("Expected the password '1234'", u.getPassword(), "1234");
+        assertTrue("Expected the password '1234'", new BCryptPasswordEncoder().matches("1234",u.getPassword()));
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
         Date birthDate = format.parse("22-9-1982");
         assertEquals("Expected the birthdate '22-9-1982'", u.getBirthdate(), birthDate);
@@ -144,5 +148,29 @@ public class PetSittersControllerIntegrationTest {
         mvc.perform(post("/petsitters/deleteAccount")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(cont));
+    }
+
+    @Test
+    public void loginCorrecto() throws Exception {
+        String cont = "{\n" +
+                "\t\"firstName\":\"andy\",\n" +
+                "\t\"lastName\":\"lucas\",\n" +
+                "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"birthdate\":\"22-9-1982\"\n" +
+                "}";
+        mvc.perform(post("/petsitters/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(cont));
+
+        cont = "{\n" +
+                "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"password\":\"1234\"\n" +
+                "}";
+
+        ResultActions result= mvc.perform(post("/petsitters/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(cont));
+        result.andExpect(status().isOk());
     }
 }
