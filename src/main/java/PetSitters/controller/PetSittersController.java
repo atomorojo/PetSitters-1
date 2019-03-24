@@ -26,7 +26,7 @@ import java.text.ParseException;
 @SuppressWarnings("ALL")
 @RestController
 @RequestMapping("/petsitters")
-@Api(value = "PetSittersApi", produces = MediaType.APPLICATION_JSON_VALUE)
+@Api(value = "PetSittersApi", produces = MediaType.APPLICATION_JSON_VALUE )
 public class PetSittersController {
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -40,7 +40,7 @@ public class PetSittersController {
     @Autowired
     PetSittersService petSittersService;
 
-    @RequestMapping(value = "login", method = RequestMethod.POST)
+    @RequestMapping(value = "login", method = RequestMethod.POST,headers="Accept=application/json")
     @ApiOperation(value = "Login process.")
     public ApiResponse<AuthToken> register(@RequestBody LoginSchema loginUser) throws AuthenticationException {
         loginUser.validate();
@@ -50,14 +50,14 @@ public class PetSittersController {
         return new ApiResponse<>(200, "success",new AuthToken(token, user.getUsername()));
     }
 
-    @PostMapping(value = "register")
+    @PostMapping(value = "register",headers="Accept=application/json")
     @ApiOperation(value = "Register process.")
     public ResponseEntity register(@RequestBody RegisterSchema register) throws ParseException {
         petSittersService.register(register);
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @PostMapping(value = "deleteAccount")
+    @PostMapping(value = "deleteAccount",headers="Accept=application/json")
     @ApiOperation(value = "Deletes an existent account.")
     public ResponseEntity deleteAccount(@RequestBody DeleteAccountSchema account) throws ExceptionInvalidAccount {
         petSittersService.deleteAccount(account);
