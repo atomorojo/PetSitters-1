@@ -13,6 +13,7 @@ import PetSitters.service.PetSittersService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -53,7 +54,11 @@ public class PetSittersController {
     @PostMapping(value = "register",headers="Accept=application/json")
     @ApiOperation(value = "Register process.")
     public ResponseEntity register(@RequestBody RegisterSchema register) throws ParseException {
-        petSittersService.register(register);
+        try {
+            petSittersService.register(register);
+        } catch (DuplicateKeyException e) {
+            throw new DuplicateKeyException("Username and/or email already exists");
+        }
         return new ResponseEntity(HttpStatus.OK);
     }
 
