@@ -59,8 +59,8 @@ public class PetSittersController {
 
     @PostMapping(value = "deleteAccount",headers="Accept=application/json")
     @ApiOperation(value = "Deletes an existent account.")
-    public ResponseEntity deleteAccount(@RequestBody DeleteAccountSchema account) throws ExceptionInvalidAccount {
-        petSittersService.deleteAccount(account);
+    public ResponseEntity deleteAccount(@RequestBody DeleteAccountSchema account, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
+        petSittersService.deleteAccount(account, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(HttpStatus.OK);
     }
 

@@ -23,34 +23,21 @@ public class DeleteAccountSchemaTest {
     }
 
     void fillDeleteSchemaAndValidate() {
-        deleteSchema = new DeleteAccountSchema("User1234", "123");
+        deleteSchema = new DeleteAccountSchema("1234");
     }
 
     @Test
     public void validateAllIsCorrect() {
         fillDeleteSchemaAndValidate();
         deleteSchema.validate();
-        assertEquals("The username should be 'User1234'", deleteSchema.getUsername(), "User1234");
+        assertEquals("The password should be '1234'", deleteSchema.getPassword(), "1234");
     }
 
-    @Test(expected = ValidationException.class)
-    public void validateUsernameIsBlank() {
-        fillDeleteSchemaAndValidate();
-        deleteSchema.setUsername("");
-        deleteSchema.validate();
-    }
 
     @Test(expected = ValidationException.class)
     public void validatePasswordIsBlank() {
         fillDeleteSchemaAndValidate();
         deleteSchema.setPassword("");
-        deleteSchema.validate();
-    }
-
-    @Test(expected = ValidationException.class)
-    public void validateUsernameIsNull() {
-        fillDeleteSchemaAndValidate();
-        deleteSchema.setUsername(null);
         deleteSchema.validate();
     }
 

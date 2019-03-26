@@ -24,10 +24,9 @@ public class PetSittersService {
         UserRep.save(newUser);
     }
 
-    public void deleteAccount(DeleteAccountSchema account) throws ExceptionInvalidAccount {
+    public void deleteAccount(DeleteAccountSchema account, String username) throws ExceptionInvalidAccount {
         account.validate();
         String password = account.getPassword();
-        String username = account.getUsername();
         UserPetSitters u = UserRep.findByUsername(username);
         if (u == null) {
             throw new ExceptionInvalidAccount("The account with the username '" + username + "' does not exist");

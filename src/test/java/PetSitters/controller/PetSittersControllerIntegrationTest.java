@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -173,7 +174,7 @@ public class PetSittersControllerIntegrationTest {
     }
 
     @Test
-    public void deleteAnExistingAccount() throws Exception {
+    public void deleteAnExistingAccountWithoutLogin() throws Exception {
         String cont = "{\n" +
                 "\t\"firstName\":\"andy\",\n" +
                 "\t\"lastName\":\"lucas\",\n" +
@@ -185,15 +186,14 @@ public class PetSittersControllerIntegrationTest {
         register(cont).andExpect(status().isOk());
         assertTrue("The User 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
         cont = "{\n" +
-                "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\"\n" +
                 "}";
-        deleteAccount(cont).andExpect(status().isOk());
-        assertFalse("The User 'andy.luc24' should not exist", UserRep.existsByUsername("andy.luc24"));
+        deleteAccount(cont).andExpect(status().is4xxClientError());
+        assertTrue("The User 'andy.luc24' should not exist", UserRep.existsByUsername("andy.luc24"));
     }
 
     @Test
-    public void deleteAnExistingAccountWithWrongPassword() throws Exception {
+    public void deleteAnExistingAccountWithWrongPasswordWithoutLogin() throws Exception {
         String cont = "{\n" +
                 "\t\"firstName\":\"andy\",\n" +
                 "\t\"lastName\":\"lucas\",\n" +
@@ -205,14 +205,13 @@ public class PetSittersControllerIntegrationTest {
         register(cont).andExpect(status().isOk());
         assertTrue("The User 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
         cont = "{\n" +
-                "\t\"username\":\"andy.luc24\"\n" +
                 "\t\"password\":\"asdas\"\n" +
                 "}";
         deleteAccount(cont).andExpect(status().is4xxClientError());
     }
 
     @Test
-    public void deleteAnExistingAccountWithoutPassword() throws Exception {
+    public void deleteAnExistingAccountWithoutPasswordWithoutLogin() throws Exception {
         String cont = "{\n" +
                 "\t\"firstName\":\"andy\",\n" +
                 "\t\"lastName\":\"lucas\",\n" +
@@ -224,19 +223,17 @@ public class PetSittersControllerIntegrationTest {
         register(cont).andExpect(status().isOk());
         assertTrue("The User 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
         cont = "{\n" +
-                "\t\"username\":\"andy.luc24\"\n" +
                 "}";
-        deleteAccount(cont).andExpect(status().is5xxServerError());
+        deleteAccount(cont).andExpect(status().is4xxClientError());
         assertTrue("The User 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
     }
 
     @Test
     public void deleteAnNonExistingAccount() throws Exception {
         String cont = "{\n" +
-                "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\"\n" +
                 "}";
-        deleteAccount(cont).andExpect(status().is5xxServerError());
+        deleteAccount(cont).andExpect(status().is4xxClientError());
     }
 
     @Test
@@ -269,7 +266,6 @@ public class PetSittersControllerIntegrationTest {
                 "}";
         register(cont).andExpect(status().isOk());
         cont = "{\n" +
-                "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"123\"\n" +
                 "}";
         login(cont).andExpect(status().is5xxServerError());
@@ -315,11 +311,82 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\"\n" +
                 "}";
-        login(cont).andExpect(status().isOk());
+        ResultActions result = login(cont).andExpect(status().isOk());
+        ObjectMapper objectMapper = new ObjectMapper();
+        String resJson = result.andReturn().getResponse().getContentAsString();
+        ResultActionLoginSchema resultActionLoginSchema = objectMapper.readValue(resJson,ResultActionLoginSchema.class);
+        String token = resultActionLoginSchema.getResult().getToken();
+        cont = "{\n" +
+                "\t\"password\":\"1234\"\n" +
+                "}";
+
+        mvc.perform(post("/petsitters/deleteAccount")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(cont))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void deleteAnExistingAccountWithWrongPasswordWithLogin() throws Exception {
+        String cont = "{\n" +
+                "\t\"firstName\":\"andy\",\n" +
+                "\t\"lastName\":\"lucas\",\n" +
+                "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"a@b.com\",\n" +
+                "\t\"birthdate\":\"22-9-1982\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        assertTrue("The User 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
         cont = "{\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\"\n" +
                 "}";
-        deleteAccount(cont).andExpect(status().isOk());
+        ResultActions result = login(cont).andExpect(status().isOk());
+        ObjectMapper objectMapper = new ObjectMapper();
+        String resJson = result.andReturn().getResponse().getContentAsString();
+        ResultActionLoginSchema resultActionLoginSchema = objectMapper.readValue(resJson,ResultActionLoginSchema.class);
+        String token = resultActionLoginSchema.getResult().getToken();
+        cont = "{\n" +
+                "\t\"password\":\"asdasd\"\n" +
+                "}";
+
+        mvc.perform(post("/petsitters/deleteAccount")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(cont))
+                .andExpect(status().is5xxServerError());
+    }
+
+    @Test
+    public void deleteAnExistingAccountWithoutPasswordWithLogin() throws Exception {
+        String cont = "{\n" +
+                "\t\"firstName\":\"andy\",\n" +
+                "\t\"lastName\":\"lucas\",\n" +
+                "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"a@b.com\",\n" +
+                "\t\"birthdate\":\"22-9-1982\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        assertTrue("The User 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
+        cont = "{\n" +
+                "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"password\":\"1234\"\n" +
+                "}";
+        ResultActions result = login(cont).andExpect(status().isOk());
+        ObjectMapper objectMapper = new ObjectMapper();
+        String resJson = result.andReturn().getResponse().getContentAsString();
+        ResultActionLoginSchema resultActionLoginSchema = objectMapper.readValue(resJson,ResultActionLoginSchema.class);
+        String token = resultActionLoginSchema.getResult().getToken();
+        cont = "{\n" +
+                "}";
+
+        mvc.perform(post("/petsitters/deleteAccount")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(cont))
+                .andExpect(status().is5xxServerError());
     }
 }

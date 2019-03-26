@@ -64,7 +64,7 @@ public class PetSittersServiceIntegrationTest {
     }
 
     DeleteAccountSchema getFilledSchemaDeletion() {
-        DeleteAccountSchema deleteAccount = new DeleteAccountSchema("rod98", "123");
+        DeleteAccountSchema deleteAccount = new DeleteAccountSchema("123");
         return deleteAccount;
     }
 
@@ -113,7 +113,7 @@ public class PetSittersServiceIntegrationTest {
         PSS.register(registerSchema);
         assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
         DeleteAccountSchema deleteAccount = getFilledSchemaDeletion();
-        PSS.deleteAccount(deleteAccount);
+        PSS.deleteAccount(deleteAccount, "rod98");
         assertFalse("The user 'rod98' should not exist", UserRep.existsByUsername("rod98"));
     }
 
@@ -124,14 +124,14 @@ public class PetSittersServiceIntegrationTest {
         assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
         DeleteAccountSchema deleteAccount = getFilledSchemaDeletion();
         deleteAccount.setPassword("321");
-        PSS.deleteAccount(deleteAccount);
+        PSS.deleteAccount(deleteAccount, "rod98");
     }
 
     @Test(expected = ExceptionInvalidAccount.class)
     public void testDeleteNonExistingAccount() throws ExceptionInvalidAccount {
         DeleteAccountSchema deleteAccount = getFilledSchemaDeletion();
         assertFalse("The user 'rod98' should not exist", UserRep.existsByUsername("rod98"));
-        PSS.deleteAccount(deleteAccount);
+        PSS.deleteAccount(deleteAccount, "rod98");
     }
 
     @Test(expected = AuthenticationException.class)
