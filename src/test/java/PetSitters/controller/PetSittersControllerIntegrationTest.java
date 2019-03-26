@@ -63,10 +63,25 @@ public class PetSittersControllerIntegrationTest {
                 .content(cont));
     }
 
+    ResultActions deleteAccountWithHeader(String cont, String token) throws Exception {
+        return mvc.perform(post("/petsitters/deleteAccount")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(cont));
+    }
+
     ResultActions login(String cont) throws Exception {
         return mvc.perform(post("/petsitters/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(cont));
+    }
+
+    String loginOkAndGetToken(String cont) throws Exception {
+        ResultActions result = login(cont).andExpect(status().isOk());
+        ObjectMapper objectMapper = new ObjectMapper();
+        String resJson = result.andReturn().getResponse().getContentAsString();
+        ResultActionLoginSchema resultActionLoginSchema = objectMapper.readValue(resJson,ResultActionLoginSchema.class);
+        return resultActionLoginSchema.getResult().getToken();
     }
 
     @Test
@@ -286,12 +301,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\"\n" +
                 "}";
-
-        ResultActions result = login(cont).andExpect(status().isOk());
-        ObjectMapper objectMapper = new ObjectMapper();
-        String resJson = result.andReturn().getResponse().getContentAsString();
-        ResultActionLoginSchema resultActionLoginSchema = objectMapper.readValue(resJson,ResultActionLoginSchema.class);
-        String token = resultActionLoginSchema.getResult().getToken();
+        String token = loginOkAndGetToken(cont);
         JwtTokenUtil jwtTokenUtil = new JwtTokenUtil();
         assertEquals("Expected user is andy.luc24", jwtTokenUtil.getUsernameFromToken(token),"andy.luc24");
     }
@@ -311,20 +321,11 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\"\n" +
                 "}";
-        ResultActions result = login(cont).andExpect(status().isOk());
-        ObjectMapper objectMapper = new ObjectMapper();
-        String resJson = result.andReturn().getResponse().getContentAsString();
-        ResultActionLoginSchema resultActionLoginSchema = objectMapper.readValue(resJson,ResultActionLoginSchema.class);
-        String token = resultActionLoginSchema.getResult().getToken();
+        String token = loginOkAndGetToken(cont);
         cont = "{\n" +
                 "\t\"password\":\"1234\"\n" +
                 "}";
-
-        mvc.perform(post("/petsitters/deleteAccount")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(cont))
-                .andExpect(status().isOk());
+        deleteAccountWithHeader(cont, token).andExpect(status().isOk());
     }
 
     @Test
@@ -343,20 +344,11 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\"\n" +
                 "}";
-        ResultActions result = login(cont).andExpect(status().isOk());
-        ObjectMapper objectMapper = new ObjectMapper();
-        String resJson = result.andReturn().getResponse().getContentAsString();
-        ResultActionLoginSchema resultActionLoginSchema = objectMapper.readValue(resJson,ResultActionLoginSchema.class);
-        String token = resultActionLoginSchema.getResult().getToken();
+        String token = loginOkAndGetToken(cont);
         cont = "{\n" +
                 "\t\"password\":\"asdasd\"\n" +
                 "}";
-
-        mvc.perform(post("/petsitters/deleteAccount")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(cont))
-                .andExpect(status().is5xxServerError());
+        deleteAccountWithHeader(cont, token).andExpect(status().is5xxServerError());
     }
 
     @Test
@@ -375,18 +367,9 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\"\n" +
                 "}";
-        ResultActions result = login(cont).andExpect(status().isOk());
-        ObjectMapper objectMapper = new ObjectMapper();
-        String resJson = result.andReturn().getResponse().getContentAsString();
-        ResultActionLoginSchema resultActionLoginSchema = objectMapper.readValue(resJson,ResultActionLoginSchema.class);
-        String token = resultActionLoginSchema.getResult().getToken();
+        String token = loginOkAndGetToken(cont);
         cont = "{\n" +
                 "}";
-
-        mvc.perform(post("/petsitters/deleteAccount")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(cont))
-                .andExpect(status().is5xxServerError());
+        deleteAccountWithHeader(cont, token).andExpect(status().is5xxServerError());
     }
 }
