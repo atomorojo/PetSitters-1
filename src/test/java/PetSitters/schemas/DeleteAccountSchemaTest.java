@@ -13,12 +13,12 @@ public class DeleteAccountSchemaTest {
     DeleteAccountSchema deleteSchema;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         deleteSchema = new DeleteAccountSchema();
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         deleteSchema = null;
     }
 

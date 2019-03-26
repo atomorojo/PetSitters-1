@@ -13,12 +13,12 @@ public class RegisterSchemaTest {
     RegisterSchema R;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         R = new RegisterSchema();
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         R = null;
     }
 
@@ -31,12 +31,11 @@ public class RegisterSchemaTest {
         fillRegisterSchema();
         R.validate();
         assertEquals ("The name should be 'Name'", R.getFirstName(), "Name");
-        assertEquals ("The name should be 'Surname'", R.getLastName(), "Surname");
-        assertEquals ("The name should be 'UserN'", R.getUsername(), "UserN");
-        assertEquals ("The name should be 'Pass'", R.getPassword(), "Pass");
-        assertEquals ("The name should be 'Name@Surname.com'", R.getEmail(), "Name@Surname.com");
-        assertEquals ("The name should be '20-11-1111'", R.getBirthdate(), "20-11-1111");
-
+        assertEquals ("The surname should be 'Surname'", R.getLastName(), "Surname");
+        assertEquals ("The username should be 'UserN'", R.getUsername(), "UserN");
+        assertEquals ("The password should be 'Pass'", R.getPassword(), "Pass");
+        assertEquals ("The email should be 'Name@Surname.com'", R.getEmail(), "Name@Surname.com");
+        assertEquals ("The birthdate should be '20-11-1111'", R.getBirthdate(), "20-11-1111");
     }
 
     @Test(expected = ValidationException.class)

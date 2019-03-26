@@ -48,7 +48,7 @@ public class PetSittersServiceIntegrationTest {
     AuthenticationManager authenticationManager;
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         PSS = null;
         UserRep.deleteAll();
     }
@@ -76,7 +76,7 @@ public class PetSittersServiceIntegrationTest {
         assertEquals("Expected the firstName 'Rodrigo'", u.getFirstName(), registerSchema.getFirstName());
         assertEquals("Expected the lastName 'Gomez'", u.getLastName(), registerSchema.getLastName());
         assertEquals("Expected the username 'rod98'", u.getUsername(), registerSchema.getUsername());
-        assertTrue("Expected the password '123'", new BCryptPasswordEncoder().matches("123",u.getPassword()));
+        assertTrue("Expected the password '123'", new BCryptPasswordEncoder().matches("123", u.getPassword()));
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
         Date birthDate = format.parse(registerSchema.getBirthdate());
         assertEquals("Expected the birthdate '20-12-1998'", u.getBirthdate(), birthDate);
@@ -136,26 +136,19 @@ public class PetSittersServiceIntegrationTest {
 
     @Test(expected = AuthenticationException.class)
     public void testInvalidLogin() throws AuthenticationException {
-        LoginSchema loginUser=new LoginSchema("fail","fail");
+        LoginSchema loginUser = new LoginSchema("fail", "fail");
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginUser.getUsername(), loginUser.getPassword()));
         final UserPetSitters user = userService.findOne(loginUser.getUsername());
         final String token = jwtTokenUtil.generateToken(user);
     }
+
     public void testValidLogin() throws ParseException {
-        RegisterSchema registerSchema = new RegisterSchema();
-        registerSchema.setFirstName("Rodrigo");
-        registerSchema.setLastName("Gomez");
-        registerSchema.setUsername("rod98");
-        registerSchema.setPassword("123");
-        registerSchema.setBirthdate("20-12-1998");
+        RegisterSchema registerSchema = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema);
-
-        LoginSchema loginUser=new LoginSchema("rod98","123");
+        LoginSchema loginUser = new LoginSchema("rod98", "123");
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginUser.getUsername(), loginUser.getPassword()));
         final UserPetSitters user = userService.findOne(loginUser.getUsername());
         final String token = jwtTokenUtil.generateToken(user);
 
     }
-
-
 }

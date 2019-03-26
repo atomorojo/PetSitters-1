@@ -46,18 +46,24 @@ public class PetSittersControllerIntegrationTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         UserRep.deleteAll();
     }
 
-    void register(String cont) throws Exception {
-        mvc.perform(post("/petsitters/register")
+    ResultActions register(String cont) throws Exception {
+        return mvc.perform(post("/petsitters/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(cont));
     }
 
-    void deleteAccount(String cont) throws Exception {
-        mvc.perform(post("/petsitters/deleteAccount")
+    ResultActions deleteAccount(String cont) throws Exception {
+        return mvc.perform(post("/petsitters/deleteAccount")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(cont));
+    }
+
+    ResultActions login(String cont) throws Exception {
+        return mvc.perform(post("/petsitters/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(cont));
     }
@@ -72,9 +78,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
                 "}";
-        mvc.perform(post("/petsitters/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(cont));
+        register(cont).andExpect(status().isOk());
 
         UserPetSitters u = UserRep.findByUsername("andy.luc24");
         assertEquals("Expected the firstName 'andy'", u.getFirstName(), "andy");
@@ -86,7 +90,7 @@ public class PetSittersControllerIntegrationTest {
         assertEquals("Expected the birthdate '22-9-1982'", u.getBirthdate(), birthDate);
     }
 
-    @Test(expected = org.springframework.web.util.NestedServletException.class)     // Provoked by org.springframework.dao.DuplicateKeyException
+    @Test
     public void testRegisterDuplicatedWithUsername() throws Exception {
         String cont = "{\n" +
                 "\t\"firstName\":\"andy\",\n" +
@@ -96,7 +100,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
                 "}";
-        register(cont);
+        register(cont).andExpect(status().isOk());
         cont = "{\n" +
                 "\t\"firstName\":\"redrigo\",\n" +
                 "\t\"lastName\":\"gomez\",\n" +
@@ -105,10 +109,10 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"email\":\"c@d.es\",\n" +
                 "\t\"birthdate\":\"2-11-1842\"\n" +
                 "}";
-        register(cont);
+        register(cont).andExpect(status().is5xxServerError());
     }
 
-    @Test(expected = org.springframework.web.util.NestedServletException.class)     // Provoked by org.springframework.dao.DuplicateKeyException
+    @Test
     public void testRegisterDuplicatedWithEmail() throws Exception {
         String cont = "{\n" +
                 "\t\"firstName\":\"andy\",\n" +
@@ -118,7 +122,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
                 "}";
-        register(cont);
+        register(cont).andExpect(status().isOk());
         cont = "{\n" +
                 "\t\"firstName\":\"redrigo\",\n" +
                 "\t\"lastName\":\"gomez\",\n" +
@@ -127,10 +131,10 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"2-11-1842\"\n" +
                 "}";
-        register(cont);
+        register(cont).andExpect(status().is5xxServerError());
     }
 
-    @Test(expected = org.springframework.web.util.NestedServletException.class)     // Provoked by java.text.ParseException: Unparseable date: "22/9/1982"
+    @Test
     public void registerWrongFormatOfDate() throws Exception {
         String cont = "{\n" +
                 "\t\"firstName\":\"andy\",\n" +
@@ -140,10 +144,10 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22/9/1982\"\n" +
                 "}";
-        register(cont);
+        register(cont).andExpect(status().is5xxServerError());
     }
 
-    @Test(expected = org.springframework.web.util.NestedServletException.class)     // Provoked by javax.validation.ValidationException: There are blank fields
+    @Test
     public void registerFirstNameFieldIsNull() throws Exception {
         String cont = "{\n" +
                 "\t\"lastName\":\"lucas\",\n" +
@@ -152,10 +156,10 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
                 "}";
-        register(cont);
+        register(cont).andExpect(status().is5xxServerError());
     }
 
-    @Test(expected = org.springframework.web.util.NestedServletException.class)     // Provoked by javax.validation.ValidationException: There are blank fields
+    @Test
     public void registerFirstNameFieldIsEmpty() throws Exception {
         String cont = "{\n" +
                 "\t\"firstName\":\"\",\n" +
@@ -165,7 +169,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
                 "}";
-        register(cont);
+        register(cont).andExpect(status().is5xxServerError());
     }
 
     @Test
@@ -178,13 +182,13 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
                 "}";
-        register(cont);
+        register(cont).andExpect(status().isOk());
         assertTrue("The User 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
         cont = "{\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\"\n" +
                 "}";
-        deleteAccount(cont);
+        deleteAccount(cont).andExpect(status().isOk());
         assertFalse("The User 'andy.luc24' should not exist", UserRep.existsByUsername("andy.luc24"));
     }
 
@@ -198,17 +202,16 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
                 "}";
-        register(cont);
+        register(cont).andExpect(status().isOk());
         assertTrue("The User 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
         cont = "{\n" +
                 "\t\"username\":\"andy.luc24\"\n" +
                 "\t\"password\":\"asdas\"\n" +
                 "}";
-        deleteAccount(cont);
-        assertTrue("The User 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
+        deleteAccount(cont).andExpect(status().is4xxClientError());
     }
 
-    @Test(expected = org.springframework.web.util.NestedServletException.class)     // Provoked by ValidationException: There are blank fields
+    @Test
     public void deleteAnExistingAccountWithoutPassword() throws Exception {
         String cont = "{\n" +
                 "\t\"firstName\":\"andy\",\n" +
@@ -218,22 +221,22 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
                 "}";
-        register(cont);
+        register(cont).andExpect(status().isOk());
         assertTrue("The User 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
         cont = "{\n" +
                 "\t\"username\":\"andy.luc24\"\n" +
                 "}";
-        deleteAccount(cont);
+        deleteAccount(cont).andExpect(status().is5xxServerError());
         assertTrue("The User 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
     }
 
-    @Test(expected = org.springframework.web.util.NestedServletException.class)     // Provoked by ExceptionInvalidAccount.class: The account does not exist
+    @Test
     public void deleteAnNonExistingAccount() throws Exception {
         String cont = "{\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\"\n" +
                 "}";
-        deleteAccount(cont);
+        deleteAccount(cont).andExpect(status().is5xxServerError());
     }
 
     @Test
@@ -246,42 +249,30 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"birthdate\":\"22-9-1982\",\n" +
                 "\t\"email\":\"dummyemail\"\n" +
                 "}";
-        mvc.perform(post("/petsitters/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(cont));
-
+        register(cont).andExpect(status().isOk());
         cont = "{\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\"\n" +
                 "}";
-
-        ResultActions result= mvc.perform(post("/petsitters/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(cont));
-        result.andExpect(status().isOk());
+        login(cont).andExpect(status().isOk());
     }
 
-    @Test (expected = org.springframework.web.util.NestedServletException.class)
+    @Test
     public void loginIncorrect() throws Exception {
         String cont = "{\n" +
                 "\t\"firstName\":\"andy\",\n" +
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\",\n" +
-                "\t\"birthdate\":\"22-9-1982\"\n" +
+                "\t\"birthdate\":\"22-9-1982\",\n" +
+                "\t\"email\":\"dummyemail\"\n" +
                 "}";
-        mvc.perform(post("/petsitters/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(cont));
-
+        register(cont).andExpect(status().isOk());
         cont = "{\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"123\"\n" +
                 "}";
-
-        ResultActions result= mvc.perform(post("/petsitters/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(cont));
+        login(cont).andExpect(status().is5xxServerError());
     }
 
     @Test
@@ -294,18 +285,13 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"birthdate\":\"22-9-1982\",\n" +
                 "\t\"email\":\"dummyemail\"\n" +
                 "}";
-        mvc.perform(post("/petsitters/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(cont));
-
+        register(cont).andExpect(status().isOk());
         cont = "{\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\"\n" +
                 "}";
 
-        ResultActions result = mvc.perform(post("/petsitters/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(cont));
+        ResultActions result = login(cont).andExpect(status().isOk());
         ObjectMapper objectMapper = new ObjectMapper();
         String resJson = result.andReturn().getResponse().getContentAsString();
         ResultActionLoginSchema resultActionLoginSchema = objectMapper.readValue(resJson,ResultActionLoginSchema.class);
@@ -324,26 +310,16 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"birthdate\":\"22-9-1982\",\n" +
                 "\t\"email\":\"dummyemail\"\n" +
                 "}";
-        mvc.perform(post("/petsitters/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(cont));
-
+        register(cont).andExpect(status().isOk());
         cont = "{\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\"\n" +
                 "}";
-
-        mvc.perform(post("/petsitters/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(cont));
-
+        login(cont).andExpect(status().isOk());
         cont = "{\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\"\n" +
                 "}";
-        ResultActions result = mvc.perform(post("/petsitters/deleteAccount")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(cont));
-        result.andExpect(status().isOk());
+        deleteAccount(cont).andExpect(status().isOk());
     }
 }

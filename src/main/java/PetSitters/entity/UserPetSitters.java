@@ -1,11 +1,13 @@
 package PetSitters.entity;
 
+import PetSitters.schemas.RegisterSchema;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.IndexDirection;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -50,18 +52,19 @@ public class UserPetSitters {
 
     public UserPetSitters() {}
 
-    public UserPetSitters(String firstName, String lastName) {
-        this.firstName = firstName;
-        this.lastName = lastName;
+    private String encrypt(String password) {
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+        return bCryptPasswordEncoder.encode(password);
     }
 
-    public UserPetSitters(String firstName, String lastName, String username, String password, String birthdate) throws ParseException {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.username = username;
-        this.password = password;
+    public UserPetSitters(RegisterSchema R) throws ParseException {
+        this.firstName = R.getFirstName();
+        this.lastName = R.getLastName();
+        this.username = R.getUsername();
+        this.password = encrypt(R.getPassword());
+        this.email = R.getEmail();
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
-        this.birthdate = format.parse(birthdate);
+        this.birthdate = format.parse(R.getBirthdate());
     }
 
     public String getId() {
@@ -101,7 +104,7 @@ public class UserPetSitters {
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        this.password = encrypt(password);
     }
 
     public String getEmail() {
@@ -120,10 +123,6 @@ public class UserPetSitters {
         this.birthdate = birthdate;
     }
 
-    public boolean isTheSamePassword(String password) {
-        return getPassword().equals(password);
-    }
-
     @Override
     public String toString() {
         return String.format(
@@ -131,5 +130,8 @@ public class UserPetSitters {
                 id, firstName, lastName);
     }
 
+    public boolean isTheSamePassword(String password) {
+        return new BCryptPasswordEncoder().matches(password,getPassword());
+    }
 }
 

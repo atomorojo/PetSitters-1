@@ -33,7 +33,7 @@ public class PetSittersServiceTest {
     UserRepository UserRep;
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         PSS = null;
         UserRep.deleteAll();
     }
