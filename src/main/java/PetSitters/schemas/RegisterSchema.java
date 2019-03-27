@@ -1,8 +1,9 @@
 package PetSitters.schemas;
 
+import org.springframework.batch.item.validator.ValidationException;
+
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
-import javax.validation.ValidationException;
 import javax.validation.Validator;
 import javax.validation.constraints.NotBlank;
 import java.util.Set;
