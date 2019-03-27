@@ -1,9 +1,9 @@
 package PetSitters.schemas;
 
-public class ResultActionLoginSchema {
+public class ResultActionLoginSchemaTest {
     String status;
     String message;
-    ResultSchema result;
+    ResultSchemaTest result;
 
     public String getStatus() {
         return status;
@@ -21,11 +21,11 @@ public class ResultActionLoginSchema {
         this.message = message;
     }
 
-    public ResultSchema getResult() {
+    public ResultSchemaTest getResult() {
         return result;
     }
 
-    public void setResult(ResultSchema resultSchema) {
+    public void setResult(ResultSchemaTest resultSchema) {
         this.result = resultSchema;
     }
 }

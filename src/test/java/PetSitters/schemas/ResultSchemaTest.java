@@ -1,6 +1,6 @@
 package PetSitters.schemas;
 
-public class ResultSchema {
+public class ResultSchemaTest {
     String token;
     String username;
 

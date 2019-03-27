@@ -2,7 +2,7 @@ package PetSitters.controller;
 
 import PetSitters.entity.UserPetSitters;
 import PetSitters.repository.UserRepository;
-import PetSitters.schemas.ResultActionLoginSchema;
+import PetSitters.schemas.ResultActionLoginSchemaTest;
 import PetSitters.security.JwtTokenUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.After;
@@ -20,7 +20,9 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.util.NestedServletException;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -41,7 +43,7 @@ public class PetSittersControllerIntegrationTest {
     private MockMvc mvc;
 
     @Before
-    public void setUp () {
+    public void setUp() {
         DefaultMockMvcBuilder dfmk = MockMvcBuilders.webAppContextSetup(context);
         mvc = dfmk.build();
     }
@@ -80,7 +82,7 @@ public class PetSittersControllerIntegrationTest {
         ResultActions result = login(cont).andExpect(status().isOk());
         ObjectMapper objectMapper = new ObjectMapper();
         String resJson = result.andReturn().getResponse().getContentAsString();
-        ResultActionLoginSchema resultActionLoginSchema = objectMapper.readValue(resJson,ResultActionLoginSchema.class);
+        ResultActionLoginSchemaTest resultActionLoginSchema = objectMapper.readValue(resJson, ResultActionLoginSchemaTest.class);
         return resultActionLoginSchema.getResult().getToken();
     }
 
@@ -100,7 +102,7 @@ public class PetSittersControllerIntegrationTest {
         assertEquals("Expected the firstName 'andy'", u.getFirstName(), "andy");
         assertEquals("Expected the lastName 'lucas'", u.getLastName(), "lucas");
         assertEquals("Expected the username 'andy.luc24'", u.getUsername(), "andy.luc24");
-        assertTrue("Expected the password '1234'", new BCryptPasswordEncoder().matches("1234",u.getPassword()));
+        assertTrue("Expected the password '1234'", new BCryptPasswordEncoder().matches("1234", u.getPassword()));
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
         Date birthDate = format.parse("22-9-1982");
         assertEquals("Expected the birthdate '22-9-1982'", u.getBirthdate(), birthDate);
@@ -125,7 +127,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"email\":\"c@d.es\",\n" +
                 "\t\"birthdate\":\"2-11-1842\"\n" +
                 "}";
-        register(cont).andExpect(status().is5xxServerError());
+        register(cont).andExpect(status().is4xxClientError());
     }
 
     @Test
@@ -147,10 +149,10 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"2-11-1842\"\n" +
                 "}";
-        register(cont).andExpect(status().is5xxServerError());
+        register(cont).andExpect(status().is4xxClientError());
     }
 
-    @Test
+    @Test(expected = NestedServletException.class)
     public void registerWrongFormatOfDate() throws Exception {
         String cont = "{\n" +
                 "\t\"firstName\":\"andy\",\n" +
@@ -160,7 +162,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22/9/1982\"\n" +
                 "}";
-        register(cont).andExpect(status().is5xxServerError());
+        register(cont);
     }
 
     @Test
@@ -303,7 +305,7 @@ public class PetSittersControllerIntegrationTest {
                 "}";
         String token = loginOkAndGetToken(cont);
         JwtTokenUtil jwtTokenUtil = new JwtTokenUtil();
-        assertEquals("Expected user is andy.luc24", jwtTokenUtil.getUsernameFromToken(token),"andy.luc24");
+        assertEquals("Expected user is andy.luc24", jwtTokenUtil.getUsernameFromToken(token), "andy.luc24");
     }
 
     @Test
@@ -348,7 +350,7 @@ public class PetSittersControllerIntegrationTest {
         cont = "{\n" +
                 "\t\"password\":\"asdasd\"\n" +
                 "}";
-        deleteAccountWithHeader(cont, token).andExpect(status().is5xxServerError());
+        deleteAccountWithHeader(cont, token).andExpect(status().is4xxClientError());
     }
 
     @Test
@@ -372,4 +374,5 @@ public class PetSittersControllerIntegrationTest {
                 "}";
         deleteAccountWithHeader(cont, token).andExpect(status().is5xxServerError());
     }
+
 }
