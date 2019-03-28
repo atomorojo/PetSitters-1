@@ -1,16 +1,30 @@
 package PetSitters.schemas;
 
-public class LoginSchema {
+import org.springframework.batch.item.validator.ValidationException;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.constraints.NotBlank;
+import java.util.Set;
 
-    String user;
+public class LoginSchema {
+    @NotBlank
+    String username;
+    @NotBlank
     String password;
 
-    public String getUser() {
-        return user;
+
+    public LoginSchema(String username, String password) {
+        this.username=username;
+        this.password=password;
     }
 
-    public void setUser(String user) {
-        this.user = user;
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUser(String username) {
+        this.username = username;
     }
 
     public String getPassword() {
@@ -20,4 +34,12 @@ public class LoginSchema {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public void validate() {
+        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();     // Validation of the schema
+        Set<ConstraintViolation<LoginSchema>> violations = validator.validate(this);
+        if (!violations.isEmpty())
+            throw new ValidationException("There are blank fields");
+    }
+
 }

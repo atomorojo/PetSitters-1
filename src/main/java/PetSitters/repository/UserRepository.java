@@ -1,18 +1,18 @@
 package PetSitters.repository;
-import java.util.List;
-import java.util.function.Function;
 
-import PetSitters.entity.User;
+import PetSitters.entity.UserPetSitters;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-@Document(collection = "users")
-public interface UserRepository extends MongoRepository<User, String> {
+import java.util.List;
 
-        List<User> findByFirstName(String firstName);
-        User findByUsername(String username);
-        List<User> findByLastName(String lastName);
-        void deleteByUsername(String username);
+@Document(collection = "users")
+public interface UserRepository extends MongoRepository<UserPetSitters, String> {
+
+        List<UserPetSitters> findByFirstName(String firstName);
+        UserPetSitters findByUsername(String username);
         boolean existsByUsername(String username);
-    }
+        void deleteByUsername(String username);
+}
+
 

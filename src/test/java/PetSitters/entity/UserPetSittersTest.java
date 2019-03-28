@@ -1,0 +1,34 @@
+package PetSitters.entity;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class UserPetSittersTest {
+
+    UserPetSitters U;
+
+    @Before
+    public void setUp() throws Exception {
+        U = new UserPetSitters();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        U = null;
+    }
+
+    @Test
+    public void testIsTheSamePasswordWithTheSamePassword() {
+        U.setPassword("Pass");
+        assertTrue("The password should be 'Pass'", U.isTheSamePassword("Pass"));
+    }
+
+    @Test
+    public void testIsTheSamePasswordWithDifferentPassword() {
+        U.setPassword("PassDifferent");
+        assertFalse("The password should be 'Pass'", U.isTheSamePassword("Pass"));
+    }
+}

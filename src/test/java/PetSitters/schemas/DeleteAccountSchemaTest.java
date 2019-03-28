@@ -4,7 +4,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.validation.ValidationException;
+import org.springframework.batch.item.validator.ValidationException;
 
 import static org.junit.Assert.*;
 
@@ -13,30 +13,38 @@ public class DeleteAccountSchemaTest {
     DeleteAccountSchema deleteSchema;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         deleteSchema = new DeleteAccountSchema();
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         deleteSchema = null;
+    }
+
+    void fillDeleteSchemaAndValidate() {
+        deleteSchema = new DeleteAccountSchema("1234");
     }
 
     @Test
     public void validateAllIsCorrect() {
-        deleteSchema.setUsername("User1234");
+        fillDeleteSchemaAndValidate();
         deleteSchema.validate();
-        assertEquals("The username should be 'User1234'", deleteSchema.getUsername(), "User1234");
+        assertEquals("The password should be '1234'", deleteSchema.getPassword(), "1234");
+    }
+
+
+    @Test(expected = ValidationException.class)
+    public void validatePasswordIsBlank() {
+        fillDeleteSchemaAndValidate();
+        deleteSchema.setPassword("");
+        deleteSchema.validate();
     }
 
     @Test(expected = ValidationException.class)
-    public void validateUsernameIsBlank() {
-        deleteSchema.setUsername("");
-        deleteSchema.validate();
-    }
-
-    @Test(expected = ValidationException.class)
-    public void validateUsernameIsNull() {
+    public void validatePasswordIsNull() {
+        fillDeleteSchemaAndValidate();
+        deleteSchema.setPassword(null);
         deleteSchema.validate();
     }
 }

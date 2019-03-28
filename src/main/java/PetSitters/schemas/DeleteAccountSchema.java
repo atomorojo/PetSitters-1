@@ -1,8 +1,9 @@
 package PetSitters.schemas;
 
+import org.springframework.batch.item.validator.ValidationException;
+
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
-import javax.validation.ValidationException;
 import javax.validation.Validator;
 import javax.validation.constraints.NotBlank;
 import java.util.Set;
@@ -10,14 +11,20 @@ import java.util.Set;
 public class DeleteAccountSchema {
 
     @NotBlank
-    String username;
+    String password;
 
-    public String getUsername() {
-        return username;
+    public DeleteAccountSchema() { }
+
+    public DeleteAccountSchema(@NotBlank String password) {
+        this.password = password;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public void validate() {

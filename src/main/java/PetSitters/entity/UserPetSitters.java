@@ -1,58 +1,70 @@
 package PetSitters.entity;
+
+import PetSitters.schemas.RegisterSchema;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.IndexDirection;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import javax.validation.constraints.NotNull;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.validation.constraints.NotBlank;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @ApiModel("User")
 @Document
-public class User {
+public class UserPetSitters {
     @Id
     @ApiModelProperty(value = "The user's id", required = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     String id;
 
     @ApiModelProperty(value = "The user's firstname", required = true)
-    @NotNull
+    @NotBlank
     String firstName;
 
     @ApiModelProperty(value = "The user's lastname", required = true)
-    @NotNull
+    @NotBlank
     String lastName;
 
     @ApiModelProperty(value = "The user's username", required = true)
     @Indexed(name = "_username", direction = IndexDirection.ASCENDING, unique = true, background = true)
-    @NotNull
+    @NotBlank
     String username;
 
     @ApiModelProperty(value = "The user's password", required = true)
-    @NotNull
+    @NotBlank
     String password;
 
+    @ApiModelProperty(value = "The user's email", required = true)
+    @Indexed(name = "_email", direction = IndexDirection.ASCENDING, unique = true, background = true)
+    @NotBlank
+    String email;
+
     @ApiModelProperty(value = "The user's bitrhdate", required = true)
-    @NotNull
+    @NotBlank
     Date birthdate;
 
-    public User() {}
+    public UserPetSitters() {}
 
-    public User(String firstName, String lastName) {
-        this.firstName = firstName;
-        this.lastName = lastName;
+    private String encrypt(String password) {
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+        return bCryptPasswordEncoder.encode(password);
     }
 
-    public User(String firstName, String lastName, String username, String password, String birthdate) throws ParseException {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.username = username;
-        this.password = password;
+    public UserPetSitters(RegisterSchema R) throws ParseException {
+        this.firstName = R.getFirstName();
+        this.lastName = R.getLastName();
+        this.username = R.getUsername();
+        this.password = encrypt(R.getPassword());
+        this.email = R.getEmail();
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
-        this.birthdate = format.parse(birthdate);
+        this.birthdate = format.parse(R.getBirthdate());
     }
 
     public String getId() {
@@ -92,7 +104,15 @@ public class User {
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        this.password = encrypt(password);
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public Date getBirthdate() {
@@ -110,5 +130,8 @@ public class User {
                 id, firstName, lastName);
     }
 
+    public boolean isTheSamePassword(String password) {
+        return new BCryptPasswordEncoder().matches(password,getPassword());
+    }
 }
 
