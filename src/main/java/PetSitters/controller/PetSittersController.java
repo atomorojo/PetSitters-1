@@ -5,14 +5,12 @@ import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.schemas.DeleteAccountSchema;
 import PetSitters.schemas.LoginSchema;
 import PetSitters.schemas.RegisterSchema;
-import PetSitters.security.ApiResponse;
-import PetSitters.security.AuthToken;
-import PetSitters.security.JwtTokenUtil;
-import PetSitters.security.UserServiceImpl;
+import PetSitters.security.*;
 import PetSitters.service.PetSittersService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,8 +18,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 
+import javax.validation.Valid;
 import java.text.ParseException;
 
 @SuppressWarnings("ALL")
@@ -41,6 +44,23 @@ public class PetSittersController {
     @Autowired
     PetSittersService petSittersService;
 
+    @Autowired
+    VerificationTokenService verificationTokenService;
+
+
+/*
+    @PostMapping("/email-verification")
+    public String formPost(@RequestBody VerificationForm verificationForm) {
+        verificationTokenService.createVerification(verificationForm.getEmail());
+        return "verification-form";
+    }
+*/
+    @GetMapping("/verify-email")
+    @ResponseBody
+    public String verifyEmail(@RequestParam String code) {
+        return verificationTokenService.verifyEmail(code).getBody();
+    }
+
     @RequestMapping(value = "login", method = RequestMethod.POST,headers="Accept=application/json")
     @ApiOperation(value = "Login process.")
     public ApiResponse<AuthToken> register(@RequestBody LoginSchema loginUser) throws AuthenticationException {
@@ -59,6 +79,7 @@ public class PetSittersController {
         } catch (DuplicateKeyException e) {
             throw new DuplicateKeyException("Username and/or email already exists");
         }
+        verificationTokenService.createVerification(register.getEmail());
         return new ResponseEntity(HttpStatus.OK);
     }
 

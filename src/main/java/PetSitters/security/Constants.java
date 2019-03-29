@@ -11,5 +11,6 @@ public class Constants {
         public static final String SWAGGER_URL = "/swagger-ui.html";
         public static final String REGISTER_URL = "/petsitters/register";
         public static final String LOGIN_URL =  "/petsitters/login";
-
+        public static final String EMAIL_URL= "/petsitters/email-verification";
+        public static final String EMAIL_URL_VERIFY="/petsitters/verify-email";
 }

@@ -13,6 +13,7 @@ public interface UserRepository extends MongoRepository<UserPetSitters, String> 
         UserPetSitters findByUsername(String username);
         boolean existsByUsername(String username);
         void deleteByUsername(String username);
+        UserPetSitters findByEmail(String email);
 }
 
 

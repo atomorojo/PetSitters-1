@@ -50,6 +50,8 @@ public class UserPetSitters {
     @NotBlank
     Date birthdate;
 
+    private boolean active;
+
     public UserPetSitters() {}
 
     private String encrypt(String password) {
@@ -65,6 +67,7 @@ public class UserPetSitters {
         this.email = R.getEmail();
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
         this.birthdate = format.parse(R.getBirthdate());
+        this.active=false;
     }
 
     public String getId() {
@@ -121,6 +124,14 @@ public class UserPetSitters {
 
     public void setBirthdate(Date birthdate) {
         this.birthdate = birthdate;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     @Override
