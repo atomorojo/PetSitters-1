@@ -1,17 +1,18 @@
 package PetSitters.security;
 
-import PetSitters.entity.UserPetSitters;
+import PetSitters.repository.UserRepository;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.annotation.Id;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+
 @Entity
 public class VerificationToken {
     public static final String STATUS_PENDING = "PENDING";
     public static final String STATUS_VERIFIED = "VERIFIED";
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -21,13 +22,38 @@ public class VerificationToken {
     private LocalDateTime expiredDateTime;
     private LocalDateTime issuedDateTime;
     private LocalDateTime confirmedDateTime;
-    private UserPetSitters user;
+    private String username;
+    private String email;
 
     public VerificationToken(){
         this.token = UUID.randomUUID().toString();
         this.issuedDateTime = LocalDateTime.now();
         this.expiredDateTime = this.issuedDateTime.plusDays(1);
         this.status = STATUS_PENDING;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public static String getStatusPending() {
+        return STATUS_PENDING;
+    }
+
+    public static String getStatusVerified() {
+        return STATUS_VERIFIED;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getId() {
@@ -76,15 +102,5 @@ public class VerificationToken {
 
     public void setConfirmedDateTime(LocalDateTime confirmedDateTime) {
         this.confirmedDateTime = confirmedDateTime;
-    }
-
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id")
-    public UserPetSitters getUser() {
-        return user;
-    }
-
-    public void setUser(UserPetSitters user) {
-        this.user = user;
     }
 }

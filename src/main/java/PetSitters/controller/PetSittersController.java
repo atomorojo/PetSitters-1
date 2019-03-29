@@ -48,13 +48,7 @@ public class PetSittersController {
     VerificationTokenService verificationTokenService;
 
 
-/*
-    @PostMapping("/email-verification")
-    public String formPost(@RequestBody VerificationForm verificationForm) {
-        verificationTokenService.createVerification(verificationForm.getEmail());
-        return "verification-form";
-    }
-*/
+
     @GetMapping("/verify-email")
     @ResponseBody
     public String verifyEmail(@RequestParam String code) {
@@ -65,10 +59,13 @@ public class PetSittersController {
     @ApiOperation(value = "Login process.")
     public ApiResponse<AuthToken> register(@RequestBody LoginSchema loginUser) throws AuthenticationException {
         loginUser.validate();
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginUser.getUsername(), loginUser.getPassword()));
         final UserPetSitters user = userService.findOne(loginUser.getUsername());
-        final String token = jwtTokenUtil.generateToken(user);
-        return new ApiResponse<>(200, "success",new AuthToken(token, user.getUsername()));
+        if (user.isActive()) {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginUser.getUsername(), loginUser.getPassword()));
+            final String token = jwtTokenUtil.generateToken(user);
+            return new ApiResponse<>(200, "success", new AuthToken(token, user.getUsername()));
+        }
+        else return new ApiResponse<>(401, "Account not activated",null);
     }
 
     @PostMapping(value = "register",headers="Accept=application/json")

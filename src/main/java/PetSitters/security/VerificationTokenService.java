@@ -25,17 +25,13 @@ public class VerificationTokenService {
 
     public void createVerification(String email){
         UserPetSitters user = userRepository.findByEmail(email);
-        List<VerificationToken> verificationTokens = verificationTokenRepository.findByUserEmail(email);
-        VerificationToken verificationToken;
-        if (verificationTokens.isEmpty()) {
+        VerificationToken verificationToken = verificationTokenRepository.findByEmail(email);
+        if (verificationToken==null) {
             verificationToken = new VerificationToken();
-            verificationToken.setUser(user);
+            verificationToken.setUsername(user.getUsername());
+            verificationToken.setEmail(email);
             verificationTokenRepository.save(verificationToken);
-        } else {
-            verificationToken = verificationTokens.get(0);
         }
-        System.out.println(verificationToken.getToken());
-        System.out.println(email);
         sendingMailService.sendVerificationMail(email, verificationToken.getToken());
     }
 
@@ -52,7 +48,9 @@ public class VerificationTokenService {
 
         verificationToken.setConfirmedDateTime(LocalDateTime.now());
         verificationToken.setStatus(VerificationToken.STATUS_VERIFIED);
-        verificationToken.getUser().setActive(true);
+        UserPetSitters user=userRepository.findByUsername(verificationToken.getUsername());
+        user.setActive(true);
+        userRepository.save(user);
         verificationTokenRepository.save(verificationToken);
 
         return ResponseEntity.ok("You have successfully verified your email address.");
