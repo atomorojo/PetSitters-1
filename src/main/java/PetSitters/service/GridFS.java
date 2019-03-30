@@ -42,9 +42,6 @@ public class GridFS {
         System.out.println(filename);
         DBObject metaData = new BasicDBObject();
         metaData.put("status", "active");
-        String extension=file.getContentType();
-        String[] content=extension.split("/");
-        filename=filename+"."+content[1];
         gridFsTemplate.store(file.getInputStream(), filename, file.getContentType(), metaData);
         return filename;
     }
