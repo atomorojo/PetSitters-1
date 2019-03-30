@@ -6,12 +6,19 @@ import PetSitters.schemas.DeleteAccountSchema;
 import PetSitters.schemas.LoginSchema;
 import PetSitters.schemas.RegisterSchema;
 import PetSitters.security.*;
+import PetSitters.service.GridFS;
 import PetSitters.service.PetSittersService;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.gridfs.GridFSBucket;
+import com.mongodb.client.gridfs.GridFSBuckets;
+import com.mongodb.client.gridfs.model.GridFSFile;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.mongodb.gridfs.GridFsResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +30,11 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.text.ParseException;
 
 @SuppressWarnings("ALL")
@@ -47,7 +57,31 @@ public class PetSittersController {
     @Autowired
     VerificationTokenService verificationTokenService;
 
+    @Autowired
+    GridFS gridFS;
 
+
+
+    @PostMapping(value = "store")
+    @ApiOperation(value = "Store a file.")
+    public ResponseEntity store(@RequestParam("file") MultipartFile file, @RequestHeader("Authorization") String token) throws ParseException, IOException {
+        String username=jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length()));
+        String name=gridFS.saveFile(file,username);
+        return new ResponseEntity(name,HttpStatus.OK);
+    }
+
+    @GetMapping(value = "get/{name}")
+    @ApiOperation(value = "Retrieve a file.")
+    public ResponseEntity retrieve(@PathVariable String name) throws ParseException, IOException {
+        GridFsResource file=gridFS.getFile(name);
+        HttpHeaders headers = new HttpHeaders();
+        if (file!=null) {
+            return ResponseEntity.ok().contentType(MediaType.parseMediaType(file.getContentType())).contentLength(file.contentLength()).body(file);
+        }
+        else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("");
+        }
+    }
 
     @GetMapping("/verify-email")
     @ResponseBody
@@ -98,6 +132,7 @@ public class PetSittersController {
         petSittersService.deleteAccount(account, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(HttpStatus.OK);
     }
+
 
 }
 
