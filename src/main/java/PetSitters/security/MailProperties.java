@@ -48,7 +48,8 @@ public class MailProperties {
     private SMTP smtp;
     private String from;
     private String fromName;
-    private String verificationapi;
+    private String verificationapilocal;
+    private String verificationapiheroku;
 
     public SMTP getSmtp() {
         return smtp;
@@ -74,11 +75,19 @@ public class MailProperties {
         this.fromName = fromName;
     }
 
-    public String getVerificationapi() {
-        return verificationapi;
+    public String getVerificationapilocal() {
+        return verificationapilocal;
     }
 
-    public void setVerificationapi(String verificationapi) {
-        this.verificationapi = verificationapi;
+    public void setVerificationapilocal(String verificationapilocal) {
+        this.verificationapilocal = verificationapilocal;
+    }
+
+    public String getVerificationapiheroku() {
+        return verificationapiheroku;
+    }
+
+    public void setVerificationapiheroku(String verificationapiheroku) {
+        this.verificationapiheroku = verificationapiheroku;
     }
 }

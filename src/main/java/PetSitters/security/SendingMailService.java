@@ -34,7 +34,8 @@ public class SendingMailService {
         try {
             Template t = templates.getTemplate("email-verification.ftl");
             Map<String, String> map = new HashMap<>();
-            map.put("VERIFICATION_URL", mailProperties.getVerificationapi() + verificationCode);
+            map.put("VERIFICATION_URL_LOCAL", mailProperties.getVerificationapilocal() + verificationCode);
+            map.put("VERIFICATION_URL_HEROKU", mailProperties.getVerificationapiheroku() + verificationCode);
             body = FreeMarkerTemplateUtils.processTemplateIntoString(t, map);
         } catch (Exception ex) {
             Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
