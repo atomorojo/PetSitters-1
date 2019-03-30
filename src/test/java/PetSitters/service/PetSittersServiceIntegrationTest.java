@@ -3,6 +3,7 @@ package PetSitters.service;
 import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.repository.VerificationTokenRepository;
+import PetSitters.schemas.ChangePasswordSchema;
 import PetSitters.schemas.DeleteAccountSchema;
 import PetSitters.repository.UserRepository;
 import PetSitters.schemas.LoginSchema;
@@ -11,6 +12,7 @@ import PetSitters.security.*;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.batch.item.validator.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DuplicateKeyException;
@@ -74,6 +76,11 @@ public class PetSittersServiceIntegrationTest {
     DeleteAccountSchema getFilledSchemaDeletion() {
         DeleteAccountSchema deleteAccount = new DeleteAccountSchema("123");
         return deleteAccount;
+    }
+
+    ChangePasswordSchema getFilledSchemaChangePassword() {
+        ChangePasswordSchema changePasswordSchema = new ChangePasswordSchema("123", "54321");
+        return changePasswordSchema;
     }
 
     @Test
@@ -158,6 +165,7 @@ public class PetSittersServiceIntegrationTest {
         }
         assertTrue("Email token did not verify correctly",good);
     }
+
     public void testInvalidEmailVerify() {
         String token="random string";
         Boolean good=false;
@@ -167,7 +175,6 @@ public class PetSittersServiceIntegrationTest {
         assertFalse("Email wrongly verified correctly",good);
     }
 
-
     public void testValidLogin() throws ParseException {
         RegisterSchema registerSchema = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema);
@@ -175,6 +182,46 @@ public class PetSittersServiceIntegrationTest {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginUser.getUsername(), loginUser.getPassword()));
         final UserPetSitters user = userService.findOne(loginUser.getUsername());
         final String token = jwtTokenUtil.generateToken(user);
+    }
 
+    @Test
+    public void testChangePasswordNormal() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema);
+        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
+        ChangePasswordSchema changePasswordSchema = getFilledSchemaChangePassword();
+        PSS.changePassword(changePasswordSchema, "rod98");
+        UserPetSitters u = UserRep.findByUsername("rod98");
+        assertTrue("The new password should be '54321'", u.isTheSamePassword("54321"));
+    }
+
+    @Test(expected = ExceptionInvalidAccount.class)
+    public void testChangePasswordWithWrongOldPassword() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema);
+        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
+        ChangePasswordSchema changePasswordSchema = getFilledSchemaChangePassword();
+        changePasswordSchema.setOldPassword("321");
+        PSS.changePassword(changePasswordSchema, "rod98");
+    }
+
+    @Test(expected = ValidationException.class)
+    public void testChangePasswordWithBlankNewPassword() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema);
+        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
+        ChangePasswordSchema changePasswordSchema = getFilledSchemaChangePassword();
+        changePasswordSchema.setOldPassword("");
+        PSS.changePassword(changePasswordSchema, "rod98");
+    }
+
+    @Test(expected = ValidationException.class)
+    public void testChangePasswordWithNullNewPassword() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema);
+        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
+        ChangePasswordSchema changePasswordSchema = getFilledSchemaChangePassword();
+        changePasswordSchema.setOldPassword(null);
+        PSS.changePassword(changePasswordSchema, "rod98");
     }
 }

@@ -2,20 +2,16 @@ package PetSitters.controller;
 
 import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
+import PetSitters.schemas.ChangePasswordSchema;
 import PetSitters.schemas.DeleteAccountSchema;
 import PetSitters.schemas.LoginSchema;
 import PetSitters.schemas.RegisterSchema;
 import PetSitters.security.*;
 import PetSitters.service.GridFS;
 import PetSitters.service.PetSittersService;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.gridfs.GridFSBucket;
-import com.mongodb.client.gridfs.GridFSBuckets;
-import com.mongodb.client.gridfs.model.GridFSFile;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.http.HttpHeaders;
@@ -25,15 +21,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.Valid;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
 
@@ -83,13 +73,20 @@ public class PetSittersController {
         }
     }
 
+    @PostMapping(value="changePassword", headers="Accept=application/json")
+    @ApiOperation(value ="Change the password of a user.")
+    public ResponseEntity changePassword(@RequestBody ChangePasswordSchema changePassword, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
+        petSittersService.changePassword(changePassword, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
     @GetMapping("/verify-email")
     @ResponseBody
     public String verifyEmail(@RequestParam String code) {
         return verificationTokenService.verifyEmail(code).getBody();
     }
 
-    @RequestMapping(value = "login", method = RequestMethod.POST,headers="Accept=application/json")
+    @PostMapping(value="login", headers="Accept=application/json")
     @ApiOperation(value = "Login process.")
     public ApiResponse<AuthToken> register(@RequestBody LoginSchema loginUser) throws AuthenticationException {
         loginUser.validate();
@@ -132,7 +129,5 @@ public class PetSittersController {
         petSittersService.deleteAccount(account, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(HttpStatus.OK);
     }
-
-
 }
 

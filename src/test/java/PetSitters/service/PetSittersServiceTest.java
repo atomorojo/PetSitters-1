@@ -3,12 +3,14 @@ package PetSitters.service;
 import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.repository.UserRepository;
+import PetSitters.schemas.ChangePasswordSchema;
 import PetSitters.schemas.DeleteAccountSchema;
 import PetSitters.schemas.RegisterSchema;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.springframework.batch.item.validator.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DuplicateKeyException;
@@ -64,6 +66,13 @@ public class PetSittersServiceTest {
         DeleteAccountSchema deleteAccount = Mockito.mock(DeleteAccountSchema.class);
         Mockito.when(deleteAccount.getPassword()).thenReturn("123");
         return deleteAccount;
+    }
+
+    ChangePasswordSchema getFilledSchemaChangePassword() {
+        ChangePasswordSchema changePasswordSchema = Mockito.mock(ChangePasswordSchema.class);
+        Mockito.when(changePasswordSchema.getOldPassword()).thenReturn("123");
+        Mockito.when(changePasswordSchema.getNewPassword()).thenReturn("54321");
+        return changePasswordSchema;
     }
 
     @Test
@@ -133,4 +142,24 @@ public class PetSittersServiceTest {
         PSS.deleteAccount(deleteAccount, "rod98");
     }
 
+    @Test
+    public void testChangePasswordNormal() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema);
+        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
+        ChangePasswordSchema changePasswordSchema = getFilledSchemaChangePassword();
+        PSS.changePassword(changePasswordSchema, "rod98");
+        UserPetSitters u = UserRep.findByUsername("rod98");
+        assertTrue("The new password should be '54321'", u.isTheSamePassword("54321"));
+    }
+
+    @Test(expected = ExceptionInvalidAccount.class)
+    public void testChangePasswordWithWrongOldPassword() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema);
+        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
+        ChangePasswordSchema changePasswordSchema = getFilledSchemaChangePassword();
+        Mockito.when(changePasswordSchema.getOldPassword()).thenReturn("321");
+        PSS.changePassword(changePasswordSchema, "rod98");
+    }
 }
