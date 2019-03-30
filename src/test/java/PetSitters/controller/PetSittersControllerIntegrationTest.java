@@ -54,7 +54,7 @@ public class PetSittersControllerIntegrationTest {
     }
 
     ResultActions register(String cont) throws Exception {
-        return mvc.perform(post("/petsitters/register")
+        return mvc.perform(post("/petsitters/registerNoMail")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(cont));
     }
@@ -303,6 +303,9 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\"\n" +
                 "}";
+        UserPetSitters user=UserRep.findByUsername("andy.luc24");
+        user.setActive(true);
+        UserRep.save(user);
         String token = loginOkAndGetToken(cont);
         JwtTokenUtil jwtTokenUtil = new JwtTokenUtil();
         assertEquals("Expected user is andy.luc24", jwtTokenUtil.getUsernameFromToken(token), "andy.luc24");
@@ -323,6 +326,9 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\"\n" +
                 "}";
+        UserPetSitters user=UserRep.findByUsername("andy.luc24");
+        user.setActive(true);
+        UserRep.save(user);
         String token = loginOkAndGetToken(cont);
         cont = "{\n" +
                 "\t\"password\":\"1234\"\n" +
@@ -342,6 +348,9 @@ public class PetSittersControllerIntegrationTest {
                 "}";
         register(cont).andExpect(status().isOk());
         assertTrue("The User 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
+        UserPetSitters user=UserRep.findByUsername("andy.luc24");
+        user.setActive(true);
+        UserRep.save(user);
         cont = "{\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\"\n" +
@@ -365,6 +374,9 @@ public class PetSittersControllerIntegrationTest {
                 "}";
         register(cont).andExpect(status().isOk());
         assertTrue("The User 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
+        UserPetSitters user=UserRep.findByUsername("andy.luc24");
+        user.setActive(true);
+        UserRep.save(user);
         cont = "{\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\"\n" +

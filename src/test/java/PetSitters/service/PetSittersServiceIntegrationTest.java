@@ -2,18 +2,20 @@ package PetSitters.service;
 
 import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
+import PetSitters.repository.VerificationTokenRepository;
 import PetSitters.schemas.DeleteAccountSchema;
 import PetSitters.repository.UserRepository;
 import PetSitters.schemas.LoginSchema;
 import PetSitters.schemas.RegisterSchema;
-import PetSitters.security.JwtTokenUtil;
-import PetSitters.security.UserServiceImpl;
+import PetSitters.security.*;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -38,8 +40,14 @@ public class PetSittersServiceIntegrationTest {
     private JwtTokenUtil jwtTokenUtil;
 
     @Autowired
+    private VerificationTokenRepository verToken;
+
+
+    @Autowired
     private UserServiceImpl userService;
 
+    @Autowired
+    VerificationTokenService verificationTokenService;
 
     @Autowired
     UserRepository UserRep;
@@ -141,6 +149,24 @@ public class PetSittersServiceIntegrationTest {
         final UserPetSitters user = userService.findOne(loginUser.getUsername());
         final String token = jwtTokenUtil.generateToken(user);
     }
+
+    public void testValidEmailVerify() {
+        String token=new VerificationToken().getToken();
+        Boolean good=false;
+        if (ResponseEntity.status(HttpStatus.OK).equals(verificationTokenService.verifyEmail(token).getStatusCode())){
+            good=true;
+        }
+        assertTrue("Email token did not verify correctly",good);
+    }
+    public void testInvalidEmailVerify() {
+        String token="random string";
+        Boolean good=false;
+        if (ResponseEntity.status(HttpStatus.OK).equals(verificationTokenService.verifyEmail(token).getStatusCode())){
+            good=true;
+        }
+        assertFalse("Email wrongly verified correctly",good);
+    }
+
 
     public void testValidLogin() throws ParseException {
         RegisterSchema registerSchema = getFilledSchemaRegistrationPersona1();

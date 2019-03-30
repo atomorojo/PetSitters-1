@@ -80,6 +80,18 @@ public class PetSittersController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
+    @PostMapping(value = "registerNoMail",headers="Accept=application/json")
+    @ApiOperation(value = "Register process.")
+    public ResponseEntity registerNoMail(@RequestBody RegisterSchema register) throws ParseException {
+        try {
+            petSittersService.register(register);
+        } catch (DuplicateKeyException e) {
+            throw new DuplicateKeyException("Username and/or email already exists");
+        }
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+
     @PostMapping(value = "deleteAccount",headers="Accept=application/json")
     @ApiOperation(value = "Deletes an existent account.")
     public ResponseEntity deleteAccount(@RequestBody DeleteAccountSchema account, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
