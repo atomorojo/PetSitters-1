@@ -39,4 +39,12 @@ public class RestErrorHandler extends ResponseEntityExceptionHandler {
         map.addAttribute("error", ex.getMessage());
         return map;
     }
+    @ExceptionHandler(value = NullPointerException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    protected ModelMap ExceptionNullPointer(Exception ex, WebRequest request) {
+        ModelMap map = new ModelMap();
+        map.addAttribute("error", ex.getMessage());
+        return map;
+    }
 }

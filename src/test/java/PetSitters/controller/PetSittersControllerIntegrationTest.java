@@ -2,33 +2,52 @@ package PetSitters.controller;
 
 import PetSitters.entity.UserPetSitters;
 import PetSitters.repository.UserRepository;
+import PetSitters.schemas.RegisterSchema;
 import PetSitters.schemas.ResultActionLoginSchemaTest;
 import PetSitters.security.JwtTokenUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.NestedServletException;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static org.junit.Assert.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -386,5 +405,36 @@ public class PetSittersControllerIntegrationTest {
                 "}";
         deleteAccountWithHeader(cont, token).andExpect(status().is5xxServerError());
     }
+    @Test
+    public void Store() throws Exception {
+        MockMultipartFile file = new MockMultipartFile("file", "hello.txt", MediaType.TEXT_PLAIN_VALUE, "Hello, World!".getBytes());
+        mvc.perform(MockMvcRequestBuilders.multipart("/petsitters/store").file(file).header("Authorization", validToken()))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void StoreNoAuth() throws Exception {
+        MockMultipartFile file = new MockMultipartFile("file", "hello.txt", MediaType.TEXT_PLAIN_VALUE, "Hello, World!".getBytes());
+        mvc.perform(MockMvcRequestBuilders.multipart("/petsitters/store").file(file).header("Not a real header", "lol"))
+                .andDo(print())
+                .andExpect(status().is4xxClientError());
+    }
+
+    private String validToken() throws ParseException {
+        UserPetSitters guy;
+        if (UserRep.findByUsername("guy")==null) {
+            guy = new UserPetSitters(new RegisterSchema("Guy", "Guy2", "guy", "pass", "NotARealOne", "1-1-1111"));
+            guy.setActive(true);
+            UserRep.save(guy);
+        }
+        else guy=UserRep.findByUsername("guy");
+        JwtTokenUtil util=new JwtTokenUtil();
+        String token=util.generateToken(guy);
+        return "Bearer "+token;
+    }
+
+
+
 
 }

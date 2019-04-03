@@ -8,20 +8,31 @@ import PetSitters.repository.UserRepository;
 import PetSitters.schemas.LoginSchema;
 import PetSitters.schemas.RegisterSchema;
 import PetSitters.security.*;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -167,7 +178,7 @@ public class PetSittersServiceIntegrationTest {
         assertFalse("Email wrongly verified correctly",good);
     }
 
-
+    @Test
     public void testValidLogin() throws ParseException {
         RegisterSchema registerSchema = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema);
@@ -175,6 +186,9 @@ public class PetSittersServiceIntegrationTest {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginUser.getUsername(), loginUser.getPassword()));
         final UserPetSitters user = userService.findOne(loginUser.getUsername());
         final String token = jwtTokenUtil.generateToken(user);
-
     }
+
+
+
+
 }

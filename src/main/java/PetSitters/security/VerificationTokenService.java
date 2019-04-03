@@ -51,7 +51,7 @@ public class VerificationTokenService {
         UserPetSitters user=userRepository.findByUsername(verificationToken.getUsername());
         user.setActive(true);
         userRepository.save(user);
-        verificationTokenRepository.save(verificationToken);
+        verificationTokenRepository.delete(verificationToken);
 
         return ResponseEntity.ok("You have successfully verified your email address.");
     }

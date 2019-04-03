@@ -5,6 +5,7 @@ import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.repository.UserRepository;
 import PetSitters.schemas.DeleteAccountSchema;
 import PetSitters.schemas.RegisterSchema;
+import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,8 +13,16 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.mongodb.gridfs.GridFsResource;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -31,6 +40,10 @@ public class PetSittersServiceTest {
 
     @Autowired
     UserRepository UserRep;
+
+    @Autowired
+    GridFS gridFs;
+
 
     @After
     public void tearDown() {
@@ -131,6 +144,34 @@ public class PetSittersServiceTest {
         DeleteAccountSchema deleteAccount = getFilledSchemaDeletion();
         assertFalse("The user 'rod98' should not exist", UserRep.existsByUsername("rod98"));
         PSS.deleteAccount(deleteAccount, "rod98");
+    }
+
+    @Test
+    public void testValidStorage() throws IOException {
+        MultipartFile result=loadFile();
+        String filename=gridFs.saveFile(result, "test");
+        GridFsResource res=gridFs.getFile(filename);
+        assertTrue("Same files", IOUtils.contentEquals( result.getInputStream(), res.getInputStream()));
+    }
+    @Test
+    public void testInvalidStorage() throws IOException {
+        MultipartFile result=loadFile();
+        gridFs.saveFile(result,"fail");
+        GridFsResource res=gridFs.getFile("notFail");
+    }
+
+    private MultipartFile loadFile() {
+        Path path = Paths.get("/PetSitters/files/image.jpg");
+        String name = "file.txt";
+        String originalFileName = "file.txt";
+        String contentType = "text/plain";
+        byte[] content = null;
+        try {
+            content = Files.readAllBytes(path);
+        } catch (final IOException e) {
+        }
+        MultipartFile result = new MockMultipartFile(name,originalFileName, contentType, content);
+        return result;
     }
 
 }
