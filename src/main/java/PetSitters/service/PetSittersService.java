@@ -3,6 +3,7 @@ package PetSitters.service;
 import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.repository.UserRepository;
+import PetSitters.schemas.ChangePasswordSchema;
 import PetSitters.schemas.DeleteAccountSchema;
 import PetSitters.schemas.RegisterSchema;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,5 +36,19 @@ public class PetSittersService {
             throw new ExceptionInvalidAccount("The username or password provided are incorrect");
         }
         UserRep.deleteByUsername(username);
+    }
+
+    public void changePassword(ChangePasswordSchema changePassword, String username) throws ExceptionInvalidAccount {
+        changePassword.validate();
+        String password = changePassword.getOldPassword();
+        UserPetSitters u = UserRep.findByUsername(username);
+        if (u == null) {
+            throw new ExceptionInvalidAccount("The account with the username '" + username + "' does not exist");
+        }
+        if (!u.isTheSamePassword(password)) {
+            throw new ExceptionInvalidAccount("The username or password provided are incorrect");
+        }
+        u.setPassword(changePassword.getNewPassword());
+        UserRep.save(u);
     }
 }

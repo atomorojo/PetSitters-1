@@ -22,13 +22,13 @@ public class DeleteAccountSchemaTest {
         deleteSchema = null;
     }
 
-    void fillDeleteSchemaAndValidate() {
+    void fillDeleteSchema() {
         deleteSchema = new DeleteAccountSchema("1234");
     }
 
     @Test
     public void validateAllIsCorrect() {
-        fillDeleteSchemaAndValidate();
+        fillDeleteSchema();
         deleteSchema.validate();
         assertEquals("The password should be '1234'", deleteSchema.getPassword(), "1234");
     }
@@ -36,14 +36,14 @@ public class DeleteAccountSchemaTest {
 
     @Test(expected = ValidationException.class)
     public void validatePasswordIsBlank() {
-        fillDeleteSchemaAndValidate();
+        fillDeleteSchema();
         deleteSchema.setPassword("");
         deleteSchema.validate();
     }
 
     @Test(expected = ValidationException.class)
     public void validatePasswordIsNull() {
-        fillDeleteSchemaAndValidate();
+        fillDeleteSchema();
         deleteSchema.setPassword(null);
         deleteSchema.validate();
     }

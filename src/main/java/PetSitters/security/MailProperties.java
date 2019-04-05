@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "mail")
 public class MailProperties {
+
     public static class SMTP {
         String host;
         String port;
@@ -50,6 +51,8 @@ public class MailProperties {
     private String fromName;
     private String verificationapilocal;
     private String verificationapiheroku;
+    private String changePasswordapilocal;
+    private String changePasswordapiheroku;
 
     public SMTP getSmtp() {
         return smtp;
@@ -89,5 +92,21 @@ public class MailProperties {
 
     public void setVerificationapiheroku(String verificationapiheroku) {
         this.verificationapiheroku = verificationapiheroku;
+    }
+
+    public String getChangePasswordapilocal() {
+        return changePasswordapilocal;
+    }
+
+    public void setChangePasswordapilocal(String changePasswordapilocal) {
+        this.changePasswordapilocal = changePasswordapilocal;
+    }
+
+    public String getChangePasswordapiheroku() {
+        return changePasswordapiheroku;
+    }
+
+    public void setChangePasswordapiheroku(String changePasswordapiheroku) {
+        this.changePasswordapiheroku = changePasswordapiheroku;
     }
 }

@@ -45,4 +45,9 @@ public class UserServiceImpl implements UserDetailsService {
     public UserPetSitters findOne(String username) {
         return userDao.findByUsername(username);
     }
+
+    public UserPetSitters findOneByEmail(String email) {
+        return userDao.findByEmail(email);
+    }
+
 }

@@ -1,7 +1,9 @@
 package PetSitters.controller;
 
 import PetSitters.entity.UserPetSitters;
+import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.repository.UserRepository;
+import PetSitters.schemas.ChangePasswordSchema;
 import PetSitters.schemas.RegisterSchema;
 import PetSitters.schemas.ResultActionLoginSchemaTest;
 import PetSitters.security.JwtTokenUtil;
@@ -13,6 +15,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import org.springframework.batch.item.validator.ValidationException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
@@ -84,6 +88,13 @@ public class PetSittersControllerIntegrationTest {
 
     ResultActions login(String cont) throws Exception {
         return mvc.perform(post("/petsitters/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(cont));
+    }
+
+    ResultActions changePassword(String cont, String token) throws Exception {
+        return mvc.perform(post("/petsitters/changePassword")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(cont));
     }
@@ -442,5 +453,116 @@ public class PetSittersControllerIntegrationTest {
 
 
 
+
+    @Test
+    public void testChangePasswordNormal() throws Exception {
+        String cont = "{\n" +
+                "\t\"firstName\":\"andy\",\n" +
+                "\t\"lastName\":\"lucas\",\n" +
+                "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"a@b.com\",\n" +
+                "\t\"birthdate\":\"22-9-1982\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        assertTrue("The User 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
+        UserPetSitters user=UserRep.findByUsername("andy.luc24");
+        user.setActive(true);
+        UserRep.save(user);
+        cont = "{\n" +
+                "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"password\":\"1234\"\n" +
+                "}";
+        String token = loginOkAndGetToken(cont);
+        assertTrue("The user 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
+        cont = "{\n" +
+                "\t\"oldPassword\":\"1234\",\n" +
+                "\t\"newPassword\":\"54321\"\n" +
+                "}";
+        changePassword(cont, token).andExpect(status().isOk());
+
+        UserPetSitters u = UserRep.findByUsername("andy.luc24");
+        assertTrue("The new password should be '54321'", u.isTheSamePassword("54321"));
+    }
+
+    public void testChangePasswordWithWrongOldPassword() throws Exception {
+        String cont = "{\n" +
+                "\t\"firstName\":\"andy\",\n" +
+                "\t\"lastName\":\"lucas\",\n" +
+                "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"a@b.com\",\n" +
+                "\t\"birthdate\":\"22-9-1982\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        assertTrue("The User 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
+        UserPetSitters user=UserRep.findByUsername("andy.luc24");
+        user.setActive(true);
+        UserRep.save(user);
+        cont = "{\n" +
+                "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"password\":\"1234\"\n" +
+                "}";
+        String token = loginOkAndGetToken(cont);
+        assertTrue("The user 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
+        cont = "{\n" +
+                "\t\"oldPassword\":\"12\",\n" +
+                "\t\"newPassword\":\"54321\"\n" +
+                "}";
+        changePassword(cont, token).andExpect(status().is4xxClientError());
+    }
+
+    public void testChangePasswordWithBlankNewPassword() throws Exception {
+        String cont = "{\n" +
+                "\t\"firstName\":\"andy\",\n" +
+                "\t\"lastName\":\"lucas\",\n" +
+                "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"a@b.com\",\n" +
+                "\t\"birthdate\":\"22-9-1982\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        assertTrue("The User 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
+        UserPetSitters user=UserRep.findByUsername("andy.luc24");
+        user.setActive(true);
+        UserRep.save(user);
+        cont = "{\n" +
+                "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"password\":\"1234\"\n" +
+                "}";
+        String token = loginOkAndGetToken(cont);
+        assertTrue("The user 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
+        cont = "{\n" +
+                "\t\"oldPassword\":\"1234\",\n" +
+                "\t\"newPassword\":\"\"\n" +
+                "}";
+        changePassword(cont, token).andExpect(status().is4xxClientError());
+    }
+
+    public void testChangePasswordWithNullNewPassword() throws Exception {
+        String cont = "{\n" +
+                "\t\"firstName\":\"andy\",\n" +
+                "\t\"lastName\":\"lucas\",\n" +
+                "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"a@b.com\",\n" +
+                "\t\"birthdate\":\"22-9-1982\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        assertTrue("The User 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
+        UserPetSitters user=UserRep.findByUsername("andy.luc24");
+        user.setActive(true);
+        UserRep.save(user);
+        cont = "{\n" +
+                "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"password\":\"1234\"\n" +
+                "}";
+        String token = loginOkAndGetToken(cont);
+        assertTrue("The user 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
+        cont = "{\n" +
+                "\t\"oldPassword\":\"1234\"\n" +
+                "}";
+        changePassword(cont, token).andExpect(status().is4xxClientError());
+    }
 
 }
