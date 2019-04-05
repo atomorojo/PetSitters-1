@@ -202,4 +202,6 @@ public class PetSittersServiceTest {
         Mockito.when(changePasswordSchema.getOldPassword()).thenReturn("321");
         PSS.changePassword(changePasswordSchema, "rod98");
     }
+
+
 }

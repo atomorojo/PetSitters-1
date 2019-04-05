@@ -4,6 +4,7 @@ import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.repository.UserRepository;
 import PetSitters.schemas.ChangePasswordSchema;
+import PetSitters.schemas.ModifySchema;
 import PetSitters.schemas.RegisterSchema;
 import PetSitters.schemas.ResultActionLoginSchemaTest;
 import PetSitters.security.JwtTokenUtil;
@@ -20,6 +21,7 @@ import org.springframework.batch.item.validator.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -77,6 +79,19 @@ public class PetSittersControllerIntegrationTest {
         return mvc.perform(post("/petsitters/deleteAccount")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(cont));
+    }
+
+    private String validToken() throws ParseException {
+        UserPetSitters guy;
+        if (UserRep.findByUsername("guy")==null) {
+            guy = new UserPetSitters(new RegisterSchema("Guy", "Guy2", "guy", "pass", "NotARealOne", "1-1-1111"));
+            guy.setActive(true);
+            UserRep.save(guy);
+        }
+        else guy=UserRep.findByUsername("guy");
+        JwtTokenUtil util=new JwtTokenUtil();
+        String token=util.generateToken(guy);
+        return "Bearer "+token;
     }
 
     ResultActions deleteAccountWithHeader(String cont, String token) throws Exception {
@@ -438,21 +453,6 @@ public class PetSittersControllerIntegrationTest {
     }
 
 
-    private String validToken() throws ParseException {
-        UserPetSitters guy;
-        if (UserRep.findByUsername("guy")==null) {
-            guy = new UserPetSitters(new RegisterSchema("Guy", "Guy2", "guy", "pass", "NotARealOne", "1-1-1111"));
-            guy.setActive(true);
-            UserRep.save(guy);
-        }
-        else guy=UserRep.findByUsername("guy");
-        JwtTokenUtil util=new JwtTokenUtil();
-        String token=util.generateToken(guy);
-        return "Bearer "+token;
-    }
-
-
-
 
     @Test
     public void testChangePasswordNormal() throws Exception {
@@ -564,5 +564,27 @@ public class PetSittersControllerIntegrationTest {
                 "}";
         changePassword(cont, token).andExpect(status().is4xxClientError());
     }
+
+    @Test
+    public void SetDescription() throws Exception {
+        mvc.perform(post("/petsitters/modify/description").content("{ \"toModify\":\"Dummy Text\"}").header("Authorization",validToken())).andExpect(status().is2xxSuccessful());
+    }
+    @Test
+    public void SetImage() throws Exception {
+        mvc.perform(post("/petsitters/modify/image").content("{ \"toModify\":\"Dummy Text\"}").header("Authorization",validToken())).andExpect(status().is2xxSuccessful());
+    }
+    @Test
+    public void SetAvailability() throws Exception {
+        mvc.perform(post("/petsitters/modify/availability").content("{ \"toModify\":\"Dummy Text\"}").header("Authorization",validToken())).andExpect(status().is2xxSuccessful());
+    }
+    @Test
+    public void SetExpert() throws Exception {
+        mvc.perform(post("/petsitters/modify/expert").content("{ \"toModify\":\"Dummy Text\"}").header("Authorization",validToken())).andExpect(status().is2xxSuccessful());
+    }
+    @Test
+    public void SetCity() throws Exception {
+        mvc.perform(post("/petsitters/modify/city").content("{ \"toModify\":\"Dummy Text\"}").header("Authorization",validToken())).andExpect(status().is2xxSuccessful());
+    }
+
 
 }

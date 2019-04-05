@@ -53,6 +53,15 @@ public class PetSittersController {
 
 
 
+    @PostMapping(value = "modify/{name}")
+    @ApiOperation(value = "Retrieve a file.")
+    public ResponseEntity modify(@PathVariable("name") String name,@RequestBody ModifySchema mod,@RequestHeader("Authorization") String token) throws ParseException, IOException {
+        System.out.println(name);
+        petSittersService.modify(name, mod, jwtTokenUtil.getUsernameFromToken(token));
+        return new ResponseEntity(name,HttpStatus.OK);
+    }
+
+
     @PostMapping(value = "store")
     @ApiOperation(value = "Store a file.")
     public ResponseEntity store(@RequestParam("file") MultipartFile file, @RequestHeader("Authorization") String token) throws ParseException, IOException {
