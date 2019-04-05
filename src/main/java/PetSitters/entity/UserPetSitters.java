@@ -1,5 +1,6 @@
 package PetSitters.entity;
 
+import PetSitters.domain.Availability;
 import PetSitters.schemas.RegisterSchema;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -15,6 +16,7 @@ import javax.validation.constraints.NotBlank;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 @ApiModel("User")
 @Document
@@ -49,6 +51,26 @@ public class UserPetSitters {
     @ApiModelProperty(value = "The user's bitrhdate", required = true)
     @NotBlank
     Date birthdate;
+
+
+    @ApiModelProperty(value = "Where the user resides")
+    private String city;
+
+    @ApiModelProperty(value = "The user's score")
+    private Double stars;
+
+    @ApiModelProperty(value = "The user's profile image")
+    private String image;
+
+    @ApiModelProperty(value = "The user's description")
+    private String description;
+
+    @ApiModelProperty(value = "The user's list of animals that he can care")
+    private List<String> expert;
+
+
+    @ApiModelProperty(value = "The user's availabilityy")
+    private Availability availability;
 
     private boolean active;
 
@@ -132,6 +154,54 @@ public class UserPetSitters {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public Double getStars() {
+        return stars;
+    }
+
+    public void setStars(Double stars) {
+        this.stars = stars;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public List<String> getExpert() {
+        return expert;
+    }
+
+    public void setExpert(List<String> expert) {
+        this.expert = expert;
+    }
+
+    public Availability getAvailability() {
+        return availability;
+    }
+
+    public void setAvailability(Availability availability) {
+        this.availability = availability;
     }
 
     @Override
