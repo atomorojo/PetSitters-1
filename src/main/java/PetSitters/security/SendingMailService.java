@@ -43,6 +43,21 @@ public class SendingMailService {
         return sendMail(toEmail, subject, body);
     }
 
+    public boolean sendChangePassword(String toEmail, String verificationCode) {
+        String subject = "Change your password";
+        String body = "";
+        try {
+            Template t = templates.getTemplate("change-password.ftl");
+            Map<String, String> map = new HashMap<>();
+            map.put("VERIFICATION_URL_LOCAL", mailProperties.getChangePasswordapilocal() + verificationCode);
+            map.put("VERIFICATION_URL_HEROKU", mailProperties.getChangePasswordapiheroku() + verificationCode);
+            body = FreeMarkerTemplateUtils.processTemplateIntoString(t, map);
+        } catch (Exception ex) {
+            Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+        }
+        return sendMail(toEmail, subject, body);
+    }
+
     private boolean sendMail(String toEmail, String subject, String body) {
         try {
             Properties props = System.getProperties();

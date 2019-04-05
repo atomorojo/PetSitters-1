@@ -2,13 +2,11 @@ package PetSitters.controller;
 
 import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
-import PetSitters.schemas.ChangePasswordSchema;
-import PetSitters.schemas.DeleteAccountSchema;
-import PetSitters.schemas.LoginSchema;
-import PetSitters.schemas.RegisterSchema;
+import PetSitters.schemas.*;
 import PetSitters.security.*;
 import PetSitters.service.GridFS;
 import PetSitters.service.PetSittersService;
+import freemarker.template.TemplateException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +46,9 @@ public class PetSittersController {
     VerificationTokenService verificationTokenService;
 
     @Autowired
+    PasswordResetTokenService passwordResetTokenRepository;
+
+    @Autowired
     GridFS gridFS;
 
 
@@ -84,6 +85,27 @@ public class PetSittersController {
     @ResponseBody
     public String verifyEmail(@RequestParam String code) {
         return verificationTokenService.verifyEmail(code).getBody();
+    }
+
+    @GetMapping("/resetPassword")
+    @ApiOperation(value ="Checks the token sent by email and allows the user to reset his/her password. Afterwards, it shows a form which allow the user to introduce a new password.")
+    @ResponseBody
+    public String resetPassword(@RequestParam String code) throws ExceptionInvalidAccount, IOException, TemplateException {
+        return passwordResetTokenRepository.sendFormPasswordReset(code).getBody();
+    }
+
+    @PostMapping(value="/resetPassword", headers="Accept=application/json")
+    @ApiOperation(value ="Checks the token sent by email and allows the user to reset his/her password. It must be sent together with the new password.")
+    @ResponseBody
+    public String setAnotherPassword(@RequestParam String code, @RequestBody SetAnotherPasswordSchema setAnotherPasswordSchema) throws ExceptionInvalidAccount, IOException, TemplateException {
+        return passwordResetTokenRepository.setAnotherPassword(code, setAnotherPasswordSchema).getBody();
+    }
+
+    @PostMapping(value="/requestResetPassword", headers="Accept=application/json")
+    @ApiOperation(value ="Sends an email with a link to a web page which allow a user to change his/her passoword.")
+    public ResponseEntity requestResetPassword(@RequestBody ResetPasswordSchema resetPasswordSchema) throws ExceptionInvalidAccount {
+        passwordResetTokenRepository.createRequest(resetPasswordSchema);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     @PostMapping(value="login", headers="Accept=application/json")
