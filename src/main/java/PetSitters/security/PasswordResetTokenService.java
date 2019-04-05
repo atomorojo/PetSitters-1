@@ -95,7 +95,6 @@ public class PasswordResetTokenService {
             ChangePasswordToken changePasswordToken = p.getSecond();
             changePasswordToken.setConfirmedDateTime(LocalDateTime.now());
             changePasswordToken.setStatus(ChangePasswordToken.PASSWORD_CHANGED);
-            resetPasswordTokenRepository.save(changePasswordToken);
             UserPetSitters user=userRepository.findByUsername(changePasswordToken.getUsername());
             user.setPassword(setAnotherPasswordSchema.getNewPassword());
             userRepository.save(user);
