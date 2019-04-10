@@ -176,6 +176,7 @@ public class PetSittersServiceIntegrationTest {
         final String token = jwtTokenUtil.generateToken(user);
     }
 
+    @Test
     public void testValidEmailVerify() {
         String token=new VerificationToken().getToken();
         Boolean good=false;
@@ -185,6 +186,7 @@ public class PetSittersServiceIntegrationTest {
         assertTrue("Email token did not verify correctly",good);
     }
 
+    @Test
     public void testInvalidEmailVerify() {
         String token="random string";
         Boolean good=false;
@@ -245,10 +247,11 @@ public class PetSittersServiceIntegrationTest {
         PSS.changePassword(changePasswordSchema, "rod98");
     }
 
+    @Test
     public void reportAUserNormal() throws ParseException, ExceptionInvalidAccount {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
-        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona1();
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
         PSS.register(registerSchema2);
         assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
         assertTrue("The user 'casjua92' should exist", UserRep.existsByUsername("casjua92"));
@@ -257,8 +260,8 @@ public class PetSittersServiceIntegrationTest {
         List<Report> reports = ReportRep.findByReporter(registerSchema1.getEmail());
         Report rep = reports.get(0);
         assertEquals("The reported should be 'rod98'", rep.getReported(), UserRep.findByUsername(report.getReported()).getEmail());
-        assertEquals("The reported should be 'casjua92'", rep.getReporter(), UserRep.findByUsername("rod98").getEmail());
-        assertEquals("The descriprion should be 'No description'", rep.getDescription(), report.getDescription());
+        assertEquals("The reporter should be 'casjua92'", rep.getReporter(), UserRep.findByUsername("rod98").getEmail());
+        assertEquals("The description should be 'No description'", rep.getDescription(), report.getDescription());
     }
 
     @Test(expected = ExceptionInvalidAccount.class)

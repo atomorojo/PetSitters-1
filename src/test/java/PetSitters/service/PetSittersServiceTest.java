@@ -1,11 +1,14 @@
 package PetSitters.service;
 
+import PetSitters.entity.Report;
 import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
+import PetSitters.repository.ReportRepository;
 import PetSitters.repository.UserRepository;
 import PetSitters.schemas.ChangePasswordSchema;
 import PetSitters.schemas.DeleteAccountSchema;
 import PetSitters.schemas.RegisterSchema;
+import PetSitters.schemas.ReportSchema;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Test;
@@ -28,6 +31,7 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertFalse;
@@ -42,6 +46,9 @@ public class PetSittersServiceTest {
 
     @Autowired
     UserRepository UserRep;
+
+    @Autowired
+    ReportRepository ReportRep;
 
     @Autowired
     GridFS gridFs;
@@ -86,6 +93,13 @@ public class PetSittersServiceTest {
         Mockito.when(changePasswordSchema.getOldPassword()).thenReturn("123");
         Mockito.when(changePasswordSchema.getNewPassword()).thenReturn("54321");
         return changePasswordSchema;
+    }
+
+    ReportSchema getFilledReportSchema() {
+        ReportSchema reportSchema = Mockito.mock(ReportSchema.class);
+        Mockito.when(reportSchema.getReported()).thenReturn("casjua92");
+        Mockito.when(reportSchema.getDescription()).thenReturn("No description");
+        return reportSchema;
     }
 
     @Test
@@ -183,6 +197,7 @@ public class PetSittersServiceTest {
         return result;
     }
 
+    @Test
     public void testChangePasswordNormal() throws ParseException, ExceptionInvalidAccount {
         RegisterSchema registerSchema = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema);
@@ -201,5 +216,50 @@ public class PetSittersServiceTest {
         ChangePasswordSchema changePasswordSchema = getFilledSchemaChangePassword();
         Mockito.when(changePasswordSchema.getOldPassword()).thenReturn("321");
         PSS.changePassword(changePasswordSchema, "rod98");
+    }
+
+    @Test
+    public void reportAUserNormal() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
+        assertTrue("The user 'casjua92' should exist", UserRep.existsByUsername("casjua92"));
+        ReportSchema report = getFilledReportSchema();
+        PSS.report(report, "rod98");
+        List<Report> reports = ReportRep.findByReporter(registerSchema1.getEmail());
+        Report rep = reports.get(0);
+        assertEquals("The reported should be 'rod98'", rep.getReported(), UserRep.findByUsername(report.getReported()).getEmail());
+        assertEquals("The reporter should be 'casjua92'", rep.getReporter(), UserRep.findByUsername("rod98").getEmail());
+        assertEquals("The description should be 'No description'", rep.getDescription(), report.getDescription());
+    }
+
+    @Test(expected = ExceptionInvalidAccount.class)
+    public void reportAUserWithNonExistingReporter() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+        assertFalse("The user 'rod98' should not exist", UserRep.existsByUsername("rod98"));
+        assertTrue("The user 'casjua92' should exist", UserRep.existsByUsername("casjua92"));
+        ReportSchema report = getFilledReportSchema();
+        PSS.report(report, "rod98");
+    }
+
+    @Test(expected = ExceptionInvalidAccount.class)
+    public void reportAUserWithNonExistingReported() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
+        assertFalse("The user 'casjua92' should not exist", UserRep.existsByUsername("casjua92"));
+        ReportSchema report = getFilledReportSchema();
+        PSS.report(report, "rod98");
+    }
+
+    @Test(expected = ExceptionInvalidAccount.class)
+    public void reportAUserWithNonExistingUsersReporterAndReported() throws ParseException, ExceptionInvalidAccount {
+        assertFalse("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
+        assertFalse("The user 'casjua92' should not exist", UserRep.existsByUsername("casjua92"));
+        ReportSchema report = getFilledReportSchema();
+        PSS.report(report, "rod98");
     }
 }

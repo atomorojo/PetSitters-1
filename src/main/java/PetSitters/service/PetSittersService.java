@@ -26,7 +26,6 @@ public class PetSittersService {
     ReportRepository ReportRep;
 
     private void checkExistence(UserPetSitters u, String username) throws ExceptionInvalidAccount {
-        System.out.println("The user which is being checked is " + username + " pass? " + String.valueOf(u == null));
         if (u == null) {
             throw new ExceptionInvalidAccount("The account with the username '" + username + "' does not exist");
         }
