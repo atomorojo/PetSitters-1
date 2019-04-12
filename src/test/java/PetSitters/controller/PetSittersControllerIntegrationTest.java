@@ -1,10 +1,9 @@
 package PetSitters.controller;
 
+import PetSitters.entity.Report;
 import PetSitters.entity.UserPetSitters;
-import PetSitters.exception.ExceptionInvalidAccount;
+import PetSitters.repository.ReportRepository;
 import PetSitters.repository.UserRepository;
-import PetSitters.schemas.ChangePasswordSchema;
-import PetSitters.schemas.ModifySchema;
 import PetSitters.schemas.RegisterSchema;
 import PetSitters.schemas.ResultActionLoginSchemaTest;
 import PetSitters.security.JwtTokenUtil;
@@ -16,7 +15,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import org.springframework.batch.item.validator.ValidationException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,6 +35,7 @@ import org.springframework.web.util.NestedServletException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -52,6 +51,9 @@ public class PetSittersControllerIntegrationTest {
 
     @Autowired
     UserRepository UserRep;
+
+    @Autowired
+    ReportRepository ReportRep;
 
     @Autowired
     GridFS gridFs;
@@ -81,19 +83,6 @@ public class PetSittersControllerIntegrationTest {
                 .content(cont));
     }
 
-    private String validToken() throws ParseException {
-        UserPetSitters guy;
-        if (UserRep.findByUsername("guy")==null) {
-            guy = new UserPetSitters(new RegisterSchema("Guy", "Guy2", "guy", "pass", "NotARealOne", "1-1-1111"));
-            guy.setActive(true);
-            UserRep.save(guy);
-        }
-        else guy=UserRep.findByUsername("guy");
-        JwtTokenUtil util=new JwtTokenUtil();
-        String token=util.generateToken(guy);
-        return token;
-    }
-
     ResultActions deleteAccountWithHeader(String cont, String token) throws Exception {
         return mvc.perform(post("/petsitters/deleteAccount")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)
@@ -114,7 +103,17 @@ public class PetSittersControllerIntegrationTest {
                 .content(cont));
     }
 
-    String loginOkAndGetToken(String cont) throws Exception {
+    ResultActions reportUser(String cont, String token) throws Exception {
+        return mvc.perform(post("/petsitters/report")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(cont));
+    }
+
+    String ActivateUserAndLoginOkAndGetToken(String cont, String username) throws Exception {
+        UserPetSitters user=UserRep.findByUsername(username);
+        user.setActive(true);
+        UserRep.save(user);
         ResultActions result = login(cont).andExpect(status().isOk());
         ObjectMapper objectMapper = new ObjectMapper();
         String resJson = result.andReturn().getResponse().getContentAsString();
@@ -339,10 +338,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\"\n" +
                 "}";
-        UserPetSitters user=UserRep.findByUsername("andy.luc24");
-        user.setActive(true);
-        UserRep.save(user);
-        String token = loginOkAndGetToken(cont);
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "andy.luc24");
         JwtTokenUtil jwtTokenUtil = new JwtTokenUtil();
         assertEquals("Expected user is andy.luc24", jwtTokenUtil.getUsernameFromToken(token), "andy.luc24");
     }
@@ -362,10 +358,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\"\n" +
                 "}";
-        UserPetSitters user=UserRep.findByUsername("andy.luc24");
-        user.setActive(true);
-        UserRep.save(user);
-        String token = loginOkAndGetToken(cont);
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "andy.luc24");
         cont = "{\n" +
                 "\t\"password\":\"1234\"\n" +
                 "}";
@@ -384,14 +377,11 @@ public class PetSittersControllerIntegrationTest {
                 "}";
         register(cont).andExpect(status().isOk());
         assertTrue("The User 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
-        UserPetSitters user=UserRep.findByUsername("andy.luc24");
-        user.setActive(true);
-        UserRep.save(user);
         cont = "{\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\"\n" +
                 "}";
-        String token = loginOkAndGetToken(cont);
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "andy.luc24");
         cont = "{\n" +
                 "\t\"password\":\"asdasd\"\n" +
                 "}";
@@ -410,18 +400,16 @@ public class PetSittersControllerIntegrationTest {
                 "}";
         register(cont).andExpect(status().isOk());
         assertTrue("The User 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
-        UserPetSitters user=UserRep.findByUsername("andy.luc24");
-        user.setActive(true);
-        UserRep.save(user);
         cont = "{\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\"\n" +
                 "}";
-        String token = loginOkAndGetToken(cont);
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "andy.luc24");
         cont = "{\n" +
                 "}";
         deleteAccountWithHeader(cont, token).andExpect(status().is5xxServerError());
     }
+
     @Test
     public void Store() throws Exception {
         MockMultipartFile file = new MockMultipartFile("file", "hello.txt", MediaType.TEXT_PLAIN_VALUE, "Hello, World!".getBytes());
@@ -445,6 +433,7 @@ public class PetSittersControllerIntegrationTest {
         mvc.perform(get("/petsitters/get/"+filename).header("Not a real header","lol"))
                 .andExpect(status().is2xxSuccessful());
     }
+
     @Test(expected=NestedServletException.class)
     public void GetFail() throws Exception {
         MockMultipartFile file = new MockMultipartFile("file", "hello.txt", MediaType.TEXT_PLAIN_VALUE, "Hello, World!".getBytes());
@@ -452,7 +441,18 @@ public class PetSittersControllerIntegrationTest {
         mvc.perform(get("/petsitters/get/"+filename+"error").header("Not a real header","lol"));
     }
 
-
+    private String validToken() throws ParseException {
+        UserPetSitters guy;
+        if (UserRep.findByUsername("guy")==null) {
+            guy = new UserPetSitters(new RegisterSchema("Guy", "Guy2", "guy", "pass", "NotARealOne", "1-1-1111"));
+            guy.setActive(true);
+            UserRep.save(guy);
+        }
+        else guy=UserRep.findByUsername("guy");
+        JwtTokenUtil util=new JwtTokenUtil();
+        String token=util.generateToken(guy);
+        return token;
+    }
 
     @Test
     public void testChangePasswordNormal() throws Exception {
@@ -466,14 +466,11 @@ public class PetSittersControllerIntegrationTest {
                 "}";
         register(cont).andExpect(status().isOk());
         assertTrue("The User 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
-        UserPetSitters user=UserRep.findByUsername("andy.luc24");
-        user.setActive(true);
-        UserRep.save(user);
         cont = "{\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\"\n" +
                 "}";
-        String token = loginOkAndGetToken(cont);
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "andy.luc24");
         assertTrue("The user 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
         cont = "{\n" +
                 "\t\"oldPassword\":\"1234\",\n" +
@@ -485,6 +482,7 @@ public class PetSittersControllerIntegrationTest {
         assertTrue("The new password should be '54321'", u.isTheSamePassword("54321"));
     }
 
+    @Test
     public void testChangePasswordWithWrongOldPassword() throws Exception {
         String cont = "{\n" +
                 "\t\"firstName\":\"andy\",\n" +
@@ -496,14 +494,11 @@ public class PetSittersControllerIntegrationTest {
                 "}";
         register(cont).andExpect(status().isOk());
         assertTrue("The User 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
-        UserPetSitters user=UserRep.findByUsername("andy.luc24");
-        user.setActive(true);
-        UserRep.save(user);
         cont = "{\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\"\n" +
                 "}";
-        String token = loginOkAndGetToken(cont);
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "andy.luc24");
         assertTrue("The user 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
         cont = "{\n" +
                 "\t\"oldPassword\":\"12\",\n" +
@@ -512,6 +507,7 @@ public class PetSittersControllerIntegrationTest {
         changePassword(cont, token).andExpect(status().is4xxClientError());
     }
 
+    @Test
     public void testChangePasswordWithBlankNewPassword() throws Exception {
         String cont = "{\n" +
                 "\t\"firstName\":\"andy\",\n" +
@@ -523,22 +519,20 @@ public class PetSittersControllerIntegrationTest {
                 "}";
         register(cont).andExpect(status().isOk());
         assertTrue("The User 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
-        UserPetSitters user=UserRep.findByUsername("andy.luc24");
-        user.setActive(true);
-        UserRep.save(user);
         cont = "{\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\"\n" +
                 "}";
-        String token = loginOkAndGetToken(cont);
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "andy.luc24");
         assertTrue("The user 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
         cont = "{\n" +
                 "\t\"oldPassword\":\"1234\",\n" +
                 "\t\"newPassword\":\"\"\n" +
                 "}";
-        changePassword(cont, token).andExpect(status().is4xxClientError());
+        changePassword(cont, token).andExpect(status().is5xxServerError());
     }
 
+    @Test
     public void testChangePasswordWithNullNewPassword() throws Exception {
         String cont = "{\n" +
                 "\t\"firstName\":\"andy\",\n" +
@@ -550,19 +544,112 @@ public class PetSittersControllerIntegrationTest {
                 "}";
         register(cont).andExpect(status().isOk());
         assertTrue("The User 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
-        UserPetSitters user=UserRep.findByUsername("andy.luc24");
-        user.setActive(true);
-        UserRep.save(user);
         cont = "{\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\"\n" +
                 "}";
-        String token = loginOkAndGetToken(cont);
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "andy.luc24");
         assertTrue("The user 'andy.luc24' should exist", UserRep.existsByUsername("andy.luc24"));
         cont = "{\n" +
                 "\t\"oldPassword\":\"1234\"\n" +
                 "}";
-        changePassword(cont, token).andExpect(status().is4xxClientError());
+        changePassword(cont, token).andExpect(status().is5xxServerError());
+    }
+
+    @Test
+    public void reportAUserNormal() throws Exception {
+        String cont = "{\n" +                           //reported
+                "\t\"firstName\":\"andy\",\n" +
+                "\t\"lastName\":\"lucas\",\n" +
+                "\t\"username\":\"casjua92\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"a@b.com\",\n" +
+                "\t\"birthdate\":\"22-9-1982\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        cont = "{\n" +                                  //reporter
+                "\t\"firstName\":\"rodrigo\",\n" +
+                "\t\"lastName\":\"gomez\",\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"c@desco.es\",\n" +
+                "\t\"birthdate\":\"2-11-1842\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
+        assertTrue("The user 'casjua92' should exist", UserRep.existsByUsername("casjua92"));
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"1234\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+        cont = "{\n" +
+                "\t\"reported\":\"casjua92\",\n" +
+                "\t\"description\":\"No description\"\n" +
+                "}";
+        reportUser(cont,token);
+        List<Report> reports = ReportRep.findByReporter(UserRep.findByUsername("rod98").getEmail());
+        Report rep = reports.get(0);
+        System.out.println(String.valueOf(rep != null));
+        assertEquals("The reported should be 'casjua92'", rep.getReported(), UserRep.findByUsername("casjua92").getEmail());
+        assertEquals("The reporter should be 'rod98'", rep.getReporter(), UserRep.findByUsername("rod98").getEmail());
+        assertEquals("The description should be 'No description'", rep.getDescription(), rep.getDescription());
+    }
+
+    @Test
+    public void reportAUserWithNonExistingReporter() throws Exception {
+        String cont = "{\n" +                           //reported
+                "\t\"firstName\":\"andy\",\n" +
+                "\t\"lastName\":\"lucas\",\n" +
+                "\t\"username\":\"casjua92\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"a@b.com\",\n" +
+                "\t\"birthdate\":\"22-9-1982\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        assertFalse("The user 'rod98' should not exist", UserRep.existsByUsername("rod98"));
+        assertTrue("The user 'casjua92' should exist", UserRep.existsByUsername("casjua92"));
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"1234\"\n" +
+                "}";
+        login(cont).andExpect(status().is5xxServerError());
+    }
+
+    @Test
+    public void reportAUserWithNonExistingReported() throws Exception {
+        String cont = "{\n" +                                  //reporter
+                "\t\"firstName\":\"rodrigo\",\n" +
+                "\t\"lastName\":\"gomez\",\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"c@desco.es\",\n" +
+                "\t\"birthdate\":\"2-11-1842\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
+        assertFalse("The user 'casjua92' should not exist", UserRep.existsByUsername("casjua92"));
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"1234\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+        cont = "{\n" +
+                "\t\"reported\":\"casjua92\",\n" +
+                "\t\"description\":\"No description\"\n" +
+                "}";
+        reportUser(cont,token).andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    public void reportAUserWithNonExistingUsersReporterAndReported() throws Exception {
+        assertFalse("The user 'rod98' should not exist", UserRep.existsByUsername("rod98"));
+        assertFalse("The user 'casjua92' should not exist", UserRep.existsByUsername("casjua92"));
+        String cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"1234\"\n" +
+                "}";
+        login(cont).andExpect(status().is5xxServerError());
     }
 
     @Test

@@ -161,5 +161,13 @@ public class PetSittersController {
         petSittersService.deleteAccount(account, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(HttpStatus.OK);
     }
+
+    @PostMapping(value="/report", headers="Accept=application/json")
+    @ApiOperation(value ="Reports a user using its username.")
+    @ResponseBody
+    public ResponseEntity report(@RequestBody ReportSchema reportSchema, @RequestHeader("Authorization") String token)  throws ExceptionInvalidAccount {
+        petSittersService.report(reportSchema, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(HttpStatus.OK);
+    }
 }
 

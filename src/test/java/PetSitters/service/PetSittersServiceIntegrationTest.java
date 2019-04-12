@@ -1,7 +1,9 @@
 package PetSitters.service;
 
+import PetSitters.entity.Report;
 import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
+import PetSitters.repository.ReportRepository;
 import PetSitters.repository.VerificationTokenRepository;
 import PetSitters.schemas.*;
 import PetSitters.repository.UserRepository;
@@ -65,6 +67,9 @@ public class PetSittersServiceIntegrationTest {
     UserRepository UserRep;
 
     @Autowired
+    ReportRepository ReportRep;
+
+    @Autowired
     AuthenticationManager authenticationManager;
 
     @After
@@ -95,6 +100,10 @@ public class PetSittersServiceIntegrationTest {
 
     UserPetSitters createUser() throws ParseException {
         return UserRep.save(new UserPetSitters(getFilledSchemaRegistrationPersona1()));
+    }
+    ReportSchema getFilledReportSchema() {
+        ReportSchema reportSchema = new ReportSchema("casjua92", "No description");
+        return reportSchema;
     }
 
     @Test
@@ -180,6 +189,7 @@ public class PetSittersServiceIntegrationTest {
         verToken.save(aux);
         assertEquals("Email token did not verify correctly",verificationTokenService.verifyEmail(token).getStatusCode(),HttpStatus.OK);
     }
+
     @Test
     public void testInvalidEmailVerify() {
         String token="random string";
@@ -290,7 +300,47 @@ public class PetSittersServiceIntegrationTest {
     }
 
 
+    public void reportAUserNormal() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
+        assertTrue("The user 'casjua92' should exist", UserRep.existsByUsername("casjua92"));
+        ReportSchema report = getFilledReportSchema();
+        PSS.report(report, "rod98");
+        List<Report> reports = ReportRep.findByReporter(registerSchema1.getEmail());
+        Report rep = reports.get(0);
+        assertEquals("The reported should be 'rod98'", rep.getReported(), UserRep.findByUsername(report.getReported()).getEmail());
+        assertEquals("The reporter should be 'casjua92'", rep.getReporter(), UserRep.findByUsername("rod98").getEmail());
+        assertEquals("The description should be 'No description'", rep.getDescription(), report.getDescription());
+    }
 
+    @Test(expected = ExceptionInvalidAccount.class)
+    public void reportAUserWithNonExistingReporter() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+        assertFalse("The user 'rod98' should not exist", UserRep.existsByUsername("rod98"));
+        assertTrue("The user 'casjua92' should exist", UserRep.existsByUsername("casjua92"));
+        ReportSchema report = getFilledReportSchema();
+        PSS.report(report, "rod98");
+    }
 
+    @Test(expected = ExceptionInvalidAccount.class)
+    public void reportAUserWithNonExistingReported() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
+        assertFalse("The user 'casjua92' should not exist", UserRep.existsByUsername("casjua92"));
+        ReportSchema report = getFilledReportSchema();
+        PSS.report(report, "rod98");
+    }
 
+    @Test(expected = ExceptionInvalidAccount.class)
+    public void reportAUserWithNonExistingUsersReporterAndReported() throws ParseException, ExceptionInvalidAccount {
+        assertFalse("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
+        assertFalse("The user 'casjua92' should not exist", UserRep.existsByUsername("casjua92"));
+        ReportSchema report = getFilledReportSchema();
+        PSS.report(report, "rod98");
+    }
 }
