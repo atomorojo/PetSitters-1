@@ -56,7 +56,7 @@ public class PetSittersService {
         UserRep.save(u);
     }
 
-    public void modify(String name, ModifySchema value, String user) {
+    public void modify(String name, String value, String user) {
         switch(name) {
             case "availability":
                 modifyAvailability(value,user);
@@ -78,21 +78,21 @@ public class PetSittersService {
         }
     }
 
-    private void modifyDescription(ModifySchema value,String user) {
+    private void modifyDescription(String value,String user) {
         UserPetSitters person=UserRep.findByUsername(user);
-        person.setDescription(value.getToModify());
+        person.setDescription(value);
         UserRep.save(person);
     }
 
-    private void modifyCity(ModifySchema value,String user) {
+    private void modifyCity(String value,String user) {
         UserPetSitters person=UserRep.findByUsername(user);
-        person.setCity(value.getToModify());
+        person.setCity(value);
         UserRep.save(person);
     }
 
-    private void modifyExpert(ModifySchema value,String user) {
+    private void modifyExpert(String value,String user) {
         UserPetSitters person=UserRep.findByUsername(user);
-        person.setExpert(experts(value.getToModify()));
+        person.setExpert(experts(value));
         UserRep.save(person);
     }
 
@@ -103,15 +103,15 @@ public class PetSittersService {
         return new ArrayList<String>(toret);
     }
 
-    private void modifyImage(ModifySchema value,String user) {
+    private void modifyImage(String value,String user) {
         UserPetSitters person=UserRep.findByUsername(user);
-        person.setImage(value.getToModify());
+        person.setImage(value);
         UserRep.save(person);
     }
 
-    private void modifyAvailability(ModifySchema value, String user) {
+    private void modifyAvailability(String value, String user) {
         UserPetSitters person=UserRep.findByUsername(user);
-        Availability ava=new Availability(value.getToModify());
+        Availability ava=new Availability(value);
         person.setAvailability(ava);
         UserRep.save(person);
     }

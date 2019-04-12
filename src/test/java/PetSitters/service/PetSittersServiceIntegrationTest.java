@@ -245,7 +245,7 @@ public class PetSittersServiceIntegrationTest {
     public void setDescription() throws ParseException, ExceptionInvalidAccount {
         ModifySchema mod=new ModifySchema("Dummy Text");
         String username=createUser().getUsername();
-        PSS.modify("description",mod,username);
+        PSS.modify("description","Dummy Text",username);
         String description=UserRep.findByUsername(username).getDescription();
         assertEquals("Description changed",description, "Dummy Text");
     }
@@ -254,7 +254,7 @@ public class PetSittersServiceIntegrationTest {
     public void setCity() throws ParseException, ExceptionInvalidAccount {
         ModifySchema mod=new ModifySchema("Dummy Text");
         String username=createUser().getUsername();
-        PSS.modify("city",mod,username);
+        PSS.modify("city","Dummy Text",username);
         String description=UserRep.findByUsername(username).getCity();
         assertEquals("City changed",description, "Dummy Text");
     }
@@ -263,7 +263,7 @@ public class PetSittersServiceIntegrationTest {
     public void setImage() throws ParseException, ExceptionInvalidAccount {
         ModifySchema mod=new ModifySchema("Dummy Text");
         String username=createUser().getUsername();
-        PSS.modify("image",mod,username);
+        PSS.modify("image","Dummy Text",username);
         String description=UserRep.findByUsername(username).getImage();
         assertEquals("City changed",description, "Dummy Text");
     }
@@ -272,7 +272,7 @@ public class PetSittersServiceIntegrationTest {
     public void setAvailability() throws ParseException, ExceptionInvalidAccount {
         ModifySchema mod=new ModifySchema("Dummy Text");
         String username=createUser().getUsername();
-        PSS.modify("availability",mod,username);
+        PSS.modify("availability","Dummy Text",username);
         String description=UserRep.findByUsername(username).getAvailability().getWhatIsThis();
         assertEquals("City changed",description, "Dummy Text");
     }
@@ -281,7 +281,7 @@ public class PetSittersServiceIntegrationTest {
     public void setExpert() throws ParseException, ExceptionInvalidAccount {
         ModifySchema mod=new ModifySchema("Dummy Text");
         String username=createUser().getUsername();
-        PSS.modify("expert",mod,username);
+        PSS.modify("expert","Dummy Text",username);
         List<String> description=UserRep.findByUsername(username).getExpert();
         List<String> tocheck= new ArrayList<String>();
         tocheck.add("Dummy");

@@ -91,7 +91,7 @@ public class PetSittersControllerIntegrationTest {
         else guy=UserRep.findByUsername("guy");
         JwtTokenUtil util=new JwtTokenUtil();
         String token=util.generateToken(guy);
-        return "Bearer "+token;
+        return token;
     }
 
     ResultActions deleteAccountWithHeader(String cont, String token) throws Exception {
@@ -425,7 +425,7 @@ public class PetSittersControllerIntegrationTest {
     @Test
     public void Store() throws Exception {
         MockMultipartFile file = new MockMultipartFile("file", "hello.txt", MediaType.TEXT_PLAIN_VALUE, "Hello, World!".getBytes());
-        mvc.perform(MockMvcRequestBuilders.multipart("/petsitters/store").file(file).header("Authorization", validToken()))
+        mvc.perform(MockMvcRequestBuilders.multipart("/petsitters/store").file(file).header(HttpHeaders.AUTHORIZATION,"Bearer: "+ validToken()))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
@@ -567,23 +567,33 @@ public class PetSittersControllerIntegrationTest {
 
     @Test
     public void SetDescription() throws Exception {
-        mvc.perform(post("/petsitters/modify/description").content("{ \"toModify\":\"Dummy Text\"}").header("Authorization",validToken())).andExpect(status().is2xxSuccessful());
+        String token = validToken();
+        System.out.println(token);
+        mvc.perform(post("/petsitters/modify/description").content("{ \"toModify\":\"Dummy Text\"}").contentType("application/json").header(HttpHeaders.AUTHORIZATION,"Bearer: "+ token)).andExpect(status().is2xxSuccessful());
     }
     @Test
     public void SetImage() throws Exception {
-        mvc.perform(post("/petsitters/modify/image").content("{ \"toModify\":\"Dummy Text\"}").header("Authorization",validToken())).andExpect(status().is2xxSuccessful());
+        String token = validToken();
+        System.out.println(token);
+        mvc.perform(post("/petsitters/modify/image").content("{ \"toModify\":\"Dummy Text\"}").contentType("application/json").header(HttpHeaders.AUTHORIZATION,"Bearer: "+token)).andExpect(status().is2xxSuccessful());
     }
     @Test
     public void SetAvailability() throws Exception {
-        mvc.perform(post("/petsitters/modify/availability").content("{ \"toModify\":\"Dummy Text\"}").header("Authorization",validToken())).andExpect(status().is2xxSuccessful());
+        String token = validToken();
+        System.out.println(token);
+        mvc.perform(post("/petsitters/modify/availability").content("{ \"toModify\": \"Dummy Text\" }").contentType("application/json").header(HttpHeaders.AUTHORIZATION,"Bearer: "+ token)).andExpect(status().is2xxSuccessful());
     }
     @Test
     public void SetExpert() throws Exception {
-        mvc.perform(post("/petsitters/modify/expert").content("{ \"toModify\":\"Dummy Text\"}").header("Authorization",validToken())).andExpect(status().is2xxSuccessful());
+        String token = validToken();
+        System.out.println(token);
+        mvc.perform(post("/petsitters/modify/expert").content("{ \"toModify\":\"Dummy Text\"}").contentType("application/json").header(HttpHeaders.AUTHORIZATION,"Bearer: "+ token)).andExpect(status().is2xxSuccessful());
     }
     @Test
     public void SetCity() throws Exception {
-        mvc.perform(post("/petsitters/modify/city").content("{ \"toModify\":\"Dummy Text\"}").header("Authorization",validToken())).andExpect(status().is2xxSuccessful());
+        String token = validToken();
+        System.out.println(token);
+        mvc.perform(post("/petsitters/modify/city").content("{ \"toModify\":\"Dummy Text\"}").contentType("application/json").header(HttpHeaders.AUTHORIZATION,"Bearer: "+ token)).andExpect(status().is2xxSuccessful());
     }
 
 

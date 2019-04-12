@@ -55,11 +55,12 @@ public class PetSittersController {
 
     @PostMapping(value = "modify/{name}")
     @ApiOperation(value = "Retrieve a file.")
-    public ResponseEntity modify(@PathVariable("name") String name,@RequestBody ModifySchema mod,@RequestHeader("Authorization") String token) throws ParseException, IOException {
+    public ResponseEntity modify(@PathVariable String name,@RequestBody String toModify,@RequestHeader("Authorization") String token) throws ParseException, IOException {
         System.out.println(name);
-        petSittersService.modify(name, mod, jwtTokenUtil.getUsernameFromToken(token));
+        petSittersService.modify(name, toModify, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(name,HttpStatus.OK);
     }
+
 
 
     @PostMapping(value = "store")
