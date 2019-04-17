@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.time.*;
 import java.util.Date;
 
 import static PetSitters.security.Constants.ACCESS_TOKEN_VALIDITY_SECONDS;
@@ -40,6 +41,8 @@ public class JwtTokenUtil implements Serializable {
     }
 
     private Boolean isTokenExpired(String token) {
+        System.out.println(getExpirationDateFromToken(token));
+        System.out.println(new Date());
         final Date expiration = getExpirationDateFromToken(token);
         return expiration.before(new Date());
     }
@@ -52,12 +55,13 @@ public class JwtTokenUtil implements Serializable {
 
         Claims claims = Jwts.claims().setSubject(subject);
         claims.put("scopes", Arrays.asList(new SimpleGrantedAuthority("ROLE_ADMIN")));
-
+        System.out.println(new Date(System.currentTimeMillis()));
+        System.out.println(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY_SECONDS*1000));
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuer("issuer")
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY_SECONDS * 1000))
+                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY_SECONDS*1000))
                 .signWith(SignatureAlgorithm.HS256, SIGNING_KEY)
                 .compact();
     }

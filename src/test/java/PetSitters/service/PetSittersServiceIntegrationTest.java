@@ -343,4 +343,16 @@ public class PetSittersServiceIntegrationTest {
         ReportSchema report = getFilledReportSchema();
         PSS.report(report, "rod98");
     }
+
+    @Test
+    public void getAllUsersLight() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        Boolean good=false;
+        List<LightUserSchema> users= PSS.getUsersLight();
+        if (UserRep.findAll().size()==users.size()) {
+            good=true;
+        }
+        assertTrue("All users received",good);
+    }
 }

@@ -683,5 +683,11 @@ public class PetSittersControllerIntegrationTest {
         mvc.perform(post("/petsitters/modify/city").content("{ \"toModify\":\"Dummy Text\"}").contentType("application/json").header(HttpHeaders.AUTHORIZATION,"Bearer: "+ token)).andExpect(status().is2xxSuccessful());
     }
 
+    @Test
+    public void getUsersLight() throws Exception {
+        String token = validToken();
+        mvc.perform(get("/petsitters/users").content("").contentType("application/json").header(HttpHeaders.AUTHORIZATION,"Bearer: "+ token)).andExpect(status().is2xxSuccessful());
+    }
+
 
 }

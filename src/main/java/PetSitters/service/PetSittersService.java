@@ -6,11 +6,7 @@ import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.repository.ReportRepository;
 import PetSitters.repository.UserRepository;
-import PetSitters.schemas.ChangePasswordSchema;
-import PetSitters.schemas.DeleteAccountSchema;
-import PetSitters.schemas.ModifySchema;
-import PetSitters.schemas.RegisterSchema;
-import PetSitters.schemas.ReportSchema;
+import PetSitters.schemas.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.stereotype.Service;
@@ -136,5 +132,21 @@ public class PetSittersService {
 
         Report r = new Report(reporterEmail, reportedEmail, reportSchema.getDescription());
         ReportRep.save(r);
+    }
+
+    public List<LightUserSchema> getUsersLight() {
+       List<UserPetSitters> users=UserRep.findAll();
+       List<LightUserSchema> ret=new ArrayList<LightUserSchema>();
+       for (UserPetSitters user:users) {
+           LightUserSchema us=new LightUserSchema();
+           if (user.getStars()==null) {
+               us.setStars(0);
+           }
+           else us.setStars(user.getStars().intValue());
+           us.setName(user.getFirstName()+ " " + user.getLastName());
+           us.setProfile_pic(user.getImage());
+           ret.add(us);
+       }
+       return ret;
     }
 }

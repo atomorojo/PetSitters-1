@@ -6,9 +6,10 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.constraints.NotBlank;
+import java.io.Serializable;
 import java.util.Set;
 
-public class DeleteAccountSchema {
+public class DeleteAccountSchema implements Serializable {
 
     @NotBlank
     String password;

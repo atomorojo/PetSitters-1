@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.List;
 
 @SuppressWarnings("ALL")
 @RestController
@@ -54,14 +55,19 @@ public class PetSittersController {
 
 
     @PostMapping(value = "modify/{name}")
-    @ApiOperation(value = "Retrieve a file.")
+    @ApiOperation(value = "Modify the camp specified.")
     public ResponseEntity modify(@PathVariable String name,@RequestBody String toModify,@RequestHeader("Authorization") String token) throws ParseException, IOException {
         System.out.println(name);
         petSittersService.modify(name, toModify, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(name,HttpStatus.OK);
     }
 
-
+    @GetMapping(value = "users")
+    @ApiOperation(value = "Retrieve all users.")
+    public ResponseEntity getUsers() throws ParseException, IOException {
+        List<LightUserSchema> users= petSittersService.getUsersLight();
+        return new ResponseEntity(users,HttpStatus.OK);
+    }
 
     @PostMapping(value = "store")
     @ApiOperation(value = "Store a file.")
