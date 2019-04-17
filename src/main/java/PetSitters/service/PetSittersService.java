@@ -145,8 +145,31 @@ public class PetSittersService {
            else us.setStars(user.getStars().intValue());
            us.setName(user.getFirstName()+ " " + user.getLastName());
            us.setProfile_pic(user.getImage());
+           us.setUsername(user.getUsername());
            ret.add(us);
        }
        return ret;
+    }
+
+    public FullUserSchema getUserFull(String name) {
+        UserPetSitters user=UserRep.findByUsername(name);
+        FullUserSchema ret=new FullUserSchema();
+        ret.setCommentaries(null);
+        ret.setDescription(user.getDescription());
+        ret.setName(user.getFirstName()+ " " + user.getLastName());
+        if (user.getStars()==null) {
+            ret.setStars(0);
+        }
+        else ret.setStars(user.getStars().intValue());
+        if (user.getCity()==null) {
+            ret.setLocalization("");
+        }
+        else ret.setLocalization(user.getCity());
+        if (user.getImage()==null) {
+            ret.setProfile_image("");
+        }
+        else ret.setProfile_image(user.getImage());
+        ret.setUsername(user.getUsername());
+        return ret;
     }
 }

@@ -5,6 +5,15 @@ public class LightUserSchema {
     private Integer stars;
     private String profile_pic;
     private String name;
+    private String username;
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
     public Integer getStars() {
         return stars;

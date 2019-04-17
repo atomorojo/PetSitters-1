@@ -689,5 +689,20 @@ public class PetSittersControllerIntegrationTest {
         mvc.perform(get("/petsitters/users").content("").contentType("application/json").header(HttpHeaders.AUTHORIZATION,"Bearer: "+ token)).andExpect(status().is2xxSuccessful());
     }
 
+    @Test
+    public void getFullUser() throws Exception {
+        String token = validToken();
+        String cont = "{\n" +                                  //reporter
+                "\t\"firstName\":\"rodrigo\",\n" +
+                "\t\"lastName\":\"gomez\",\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"c@desco.es\",\n" +
+                "\t\"birthdate\":\"2-11-1842\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        mvc.perform(get("/petsitters/user/rod98").content("").contentType("application/json").header(HttpHeaders.AUTHORIZATION,"Bearer: "+ token)).andExpect(status().is2xxSuccessful());
+    }
+
 
 }

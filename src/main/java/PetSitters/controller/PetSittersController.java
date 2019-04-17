@@ -69,6 +69,13 @@ public class PetSittersController {
         return new ResponseEntity(users,HttpStatus.OK);
     }
 
+    @GetMapping(value = "/user/{name}")
+    @ApiOperation(value = "Retrieve all information of a single user.")
+    public ResponseEntity getSingleUser(@PathVariable String name) throws ParseException, IOException {
+        FullUserSchema answer= petSittersService.getUserFull(name);
+        return new ResponseEntity(answer,HttpStatus.OK);
+    }
+
     @PostMapping(value = "store")
     @ApiOperation(value = "Store a file.")
     public ResponseEntity store(@RequestParam("file") MultipartFile file, @RequestHeader("Authorization") String token) throws ParseException, IOException {

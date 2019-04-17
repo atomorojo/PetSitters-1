@@ -355,4 +355,14 @@ public class PetSittersServiceIntegrationTest {
         }
         assertTrue("All users received",good);
     }
+
+    @Test
+    public void getUserFull() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        Boolean good=false;
+        FullUserSchema user= PSS.getUserFull(registerSchema1.getUsername());
+        assertTrue("All users received",user.getName().equals(registerSchema1.getFirstName()+" "+registerSchema1.getLastName()));
+    }
+
 }
