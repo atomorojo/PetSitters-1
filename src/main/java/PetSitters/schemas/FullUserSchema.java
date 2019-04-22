@@ -1,6 +1,9 @@
 package PetSitters.schemas;
 
+import PetSitters.domain.Availability;
+
 import java.io.Serializable;
+import java.util.List;
 
 public class FullUserSchema implements Serializable {
 
@@ -11,6 +14,8 @@ public class FullUserSchema implements Serializable {
     private String description;
     private String commentaries;
     private String username;
+    private String availability;
+    private List<String> expert;
 
     public String getUsername() {
         return username;
@@ -66,5 +71,21 @@ public class FullUserSchema implements Serializable {
 
     public void setCommentaries(String commentaries) {
         this.commentaries = commentaries;
+    }
+
+    public List<String> getExpert() {
+        return expert;
+    }
+
+    public void setExpert(List<String> expert) {
+        this.expert = expert;
+    }
+
+    public String getAvailability() {
+        return availability;
+    }
+
+    public void setAvailability(String availability) {
+        this.availability = availability;
     }
 }

@@ -8,8 +8,6 @@ import PetSitters.repository.VerificationTokenRepository;
 import PetSitters.schemas.*;
 import PetSitters.repository.UserRepository;
 import PetSitters.security.*;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,23 +15,14 @@ import org.springframework.batch.item.validator.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -289,14 +278,14 @@ public class PetSittersServiceIntegrationTest {
 
     @Test
     public void setExpert() throws ParseException, ExceptionInvalidAccount {
-        ModifySchema mod=new ModifySchema("Dummy Text");
+        ModifySchema mod=new ModifySchema("Dummy''Text");
         String username=createUser().getUsername();
-        PSS.modify("expert","Dummy Text",username);
+        PSS.modify("expert","Dummy''Text",username);
         List<String> description=UserRep.findByUsername(username).getExpert();
         List<String> tocheck= new ArrayList<String>();
         tocheck.add("Dummy");
         tocheck.add("Text");
-        assertEquals("City changed",description,tocheck);
+        assertEquals("Expert is different",description,tocheck);
     }
 
 
@@ -349,7 +338,7 @@ public class PetSittersServiceIntegrationTest {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
         Boolean good=false;
-        List<LightUserSchema> users= PSS.getUsersLight();
+        List<LightUserSchema> users= PSS.getUsersLight("rod98");
         if (UserRep.findAll().size()==users.size()) {
             good=true;
         }
@@ -365,4 +354,39 @@ public class PetSittersServiceIntegrationTest {
         assertTrue("All users received",user.getName().equals(registerSchema1.getFirstName()+" "+registerSchema1.getLastName()));
     }
 
+    @Test
+    public void getUserName() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        UserPetSitters myUser=UserRep.findByUsername("rod98");
+        UserRep.save(myUser);
+        Boolean good=false;
+        List<LightUserSchema> users= PSS.getUsersName("Rodrigo","rod98");
+        for (LightUserSchema user:users)  {
+            if (user.getName().equals(registerSchema1.getFirstName()+" "+registerSchema1.getLastName())) good=true;
+            else {
+                break;
+            }
+        }
+        assertTrue("User with name Rodrigo received",good);
+    }
+    @Test
+    public void getUserExpert() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        UserPetSitters myUser=UserRep.findByUsername("rod98");
+        List<String> why=new ArrayList<String>();
+        why.add("cat");
+        myUser.setExpert(why);
+        UserRep.save(myUser);
+        Boolean good=false;
+        List<LightUserSchema> users= PSS.getUsersExpert("cat","rod98");
+        for (LightUserSchema user:users)  {
+            if (user.getName().equals(registerSchema1.getFirstName()+" "+registerSchema1.getLastName())) good=true;
+            else {
+                break;
+            }
+        }
+        assertTrue("User with cat received",good);
+    }
 }

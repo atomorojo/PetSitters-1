@@ -64,8 +64,22 @@ public class PetSittersController {
 
     @GetMapping(value = "users")
     @ApiOperation(value = "Retrieve all users.")
-    public ResponseEntity getUsers() throws ParseException, IOException {
-        List<LightUserSchema> users= petSittersService.getUsersLight();
+    public ResponseEntity getUsers(@RequestHeader("Authorization") String token) throws ParseException, IOException {
+        List<LightUserSchema> users= petSittersService.getUsersLight(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(users,HttpStatus.OK);
+    }
+
+    @GetMapping(value = "user/filterExpert")
+    @ApiOperation(value = "Retrieve all users that are expert in that animal.")
+    public ResponseEntity getUsersExpert(@RequestBody String animal,@RequestHeader("Authorization") String token) throws ParseException, IOException {
+        List<LightUserSchema> users= petSittersService.getUsersExpert(animal,jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(users,HttpStatus.OK);
+    }
+
+    @GetMapping(value = "user/filterName")
+    @ApiOperation(value = "Retrieve all users that are expert in that animal.")
+    public ResponseEntity getUsersName(@RequestBody String name,@RequestHeader("Authorization") String token) throws ParseException, IOException {
+        List<LightUserSchema> users= petSittersService.getUsersName(name,jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(users,HttpStatus.OK);
     }
 

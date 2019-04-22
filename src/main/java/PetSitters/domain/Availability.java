@@ -17,4 +17,8 @@ public class Availability {
     public void setWhatIsThis(String whatIsThis) {
         this.whatIsThis = whatIsThis;
     }
+
+    public String toString() {
+        return whatIsThis;
+    }
 }

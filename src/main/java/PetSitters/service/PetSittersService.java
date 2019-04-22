@@ -13,7 +13,11 @@ import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import static java.lang.Math.min;
 
 @Service
 @EnableAutoConfiguration
@@ -100,7 +104,7 @@ public class PetSittersService {
     }
 
     private List<String> experts(String toModify) {
-        String[] aux=toModify.split(" ");
+        String[] aux=toModify.split("''");
         ArrayList<String> toret=new ArrayList<String>();
         for (String s:aux) toret.add(s);
         return new ArrayList<String>(toret);
@@ -134,19 +138,12 @@ public class PetSittersService {
         ReportRep.save(r);
     }
 
-    public List<LightUserSchema> getUsersLight() {
+    public List<LightUserSchema> getUsersLight(String username) {
        List<UserPetSitters> users=UserRep.findAll();
-       List<LightUserSchema> ret=new ArrayList<LightUserSchema>();
+        UserPetSitters trueUser=UserRep.findByUsername(username);
+        List<LightUserSchema> ret=new ArrayList<LightUserSchema>();
        for (UserPetSitters user:users) {
-           LightUserSchema us=new LightUserSchema();
-           if (user.getStars()==null) {
-               us.setStars(0);
-           }
-           else us.setStars(user.getStars().intValue());
-           us.setName(user.getFirstName()+ " " + user.getLastName());
-           us.setProfile_pic(user.getImage());
-           us.setUsername(user.getUsername());
-           ret.add(us);
+           if (notReported(trueUser.getEmail(),user.getEmail())) assignLightUserSchema(ret, user);
        }
        return ret;
     }
@@ -170,6 +167,89 @@ public class PetSittersService {
         }
         else ret.setProfile_image(user.getImage());
         ret.setUsername(user.getUsername());
+        if (user.getExpert()==null) {
+            ret.setExpert(null);
+        }
+        else ret.setExpert(user.getExpert());
+        if (user.getAvailability()==null) {
+            ret.setAvailability("None");
+        }
+        else ret.setAvailability(user.getAvailability().toString());
         return ret;
+    }
+
+    public List<LightUserSchema> getUsersExpert(String animal, String username) {
+        List<UserPetSitters> users=UserRep.findAll();
+        UserPetSitters trueUser=UserRep.findByUsername(username);
+        List<LightUserSchema> toret= new ArrayList<LightUserSchema>();
+        for (UserPetSitters user:users) {
+            if (user.getExpert()!=null) {
+                for (String expert : user.getExpert()) {
+                    if (distance(animal, expert) <= 0.2 && notReported(trueUser.getEmail(), user.getEmail())) {
+                        assignLightUserSchema(toret, user);
+                    }
+                    break;
+                }
+            }
+        }
+        return toret;
+    }
+
+    public List<LightUserSchema> getUsersName(String name, String username) {
+        List<UserPetSitters> users=UserRep.findAll();
+        UserPetSitters trueUser=UserRep.findByUsername(username);
+        List<LightUserSchema> toret= new ArrayList<LightUserSchema>();
+        for (UserPetSitters user:users) {
+            String trueName=user.getFirstName()+" "+user.getLastName();
+             if (trueName.toLowerCase().contains(name.toLowerCase()) && notReported(trueUser.getEmail(),user.getEmail())) {
+                 assignLightUserSchema(toret, user);
+             }
+        }
+        return toret;
+    }
+
+    private boolean notReported(String email1, String email2) {
+        Boolean found=true;
+        for (Report rep:ReportRep.findByReporter(email1)) {
+            if (rep.getReported().equals(email2)) {
+                found=false;
+                break;
+            }
+        }
+        return found;
+    }
+
+    private void assignLightUserSchema(List<LightUserSchema> toret, UserPetSitters user) {
+        LightUserSchema us = new LightUserSchema();
+        if (user.getStars() == null) {
+            us.setStars(0);
+        } else us.setStars(user.getStars().intValue());
+        us.setName(user.getFirstName() + " " + user.getLastName());
+        us.setProfile_pic(user.getImage());
+        us.setUsername(user.getUsername());
+        toret.add(us);
+    }
+
+
+    private double distance(String a, String b) {
+        char[] arrayA=a.toCharArray();
+        char[] arrayB=b.toCharArray();
+        Integer union=0;
+        Integer intersection=0;
+        Integer i=0;
+        while (i<arrayA.length && i<arrayB.length) {
+            if (arrayA[i]==arrayB[i]) {
+                intersection++;
+            }
+            ++union;
+            ++i;
+        }
+        if (i<arrayA.length) {
+            union=union+(arrayA.length-i);
+        }
+        else if (i<arrayB.length) {
+            union=union+(arrayB.length-i);
+        }
+        return 1-((double) intersection / union);
     }
 }
