@@ -269,6 +269,7 @@ public class PetSittersServiceTest {
         PSS.report(report, "rod98");
     }
 
+    @Test
     public void getCoordinatesFromService() throws IOException, JSONException, ExceptionServiceError {
         GetCoordinatesSchema getCoordinatesSchema = getFilledGetCoordinatesSchema();
         Coordinates c = PSS.getCoordinates(getCoordinatesSchema);
@@ -276,6 +277,7 @@ public class PetSittersServiceTest {
         assertEquals("The longitude should be -118.2427666", c.getLongitude(), -118.2427666, 0.05);
     }
 
+    @Test
     public void getCoordinatesFromServiceWithCachedResult() throws IOException, JSONException, ExceptionServiceError {
         GetCoordinatesSchema getCoordinatesSchema = getFilledGetCoordinatesSchema();
         Coordinates c = PSS.getCoordinates(getCoordinatesSchema);

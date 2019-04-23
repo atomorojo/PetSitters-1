@@ -28,6 +28,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -379,6 +380,7 @@ public class PetSittersServiceIntegrationTest {
         GetCoordinatesSchema getCoordinatesSchema = getFilledGetCoordinatesSchema();
         getCoordinatesSchema.setCity(null);
         Coordinates c = PSS.getCoordinates(getCoordinatesSchema);
+    }
 
     @Test
     public void getAllUsersLight() throws ParseException, ExceptionInvalidAccount {
