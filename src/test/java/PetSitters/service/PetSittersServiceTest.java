@@ -1,15 +1,15 @@
 package PetSitters.service;
 
+import PetSitters.domain.Coordinates;
 import PetSitters.entity.Report;
 import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
+import PetSitters.exception.ExceptionServiceError;
 import PetSitters.repository.ReportRepository;
 import PetSitters.repository.UserRepository;
-import PetSitters.schemas.ChangePasswordSchema;
-import PetSitters.schemas.DeleteAccountSchema;
-import PetSitters.schemas.RegisterSchema;
-import PetSitters.schemas.ReportSchema;
+import PetSitters.schemas.*;
 import org.apache.commons.io.IOUtils;
+import org.codehaus.jettison.json.JSONException;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -100,6 +100,12 @@ public class PetSittersServiceTest {
         Mockito.when(reportSchema.getReported()).thenReturn("casjua92");
         Mockito.when(reportSchema.getDescription()).thenReturn("No description");
         return reportSchema;
+    }
+
+    GetCoordinatesSchema getFilledGetCoordinatesSchema() {
+        GetCoordinatesSchema getCoordinatesSchema = Mockito.mock(GetCoordinatesSchema.class);
+        Mockito.when(getCoordinatesSchema.getCity()).thenReturn("Los Angeles");
+        return getCoordinatesSchema;
     }
 
     @Test
@@ -262,4 +268,29 @@ public class PetSittersServiceTest {
         ReportSchema report = getFilledReportSchema();
         PSS.report(report, "rod98");
     }
+
+    public void getCoordinatesFromService() throws IOException, JSONException, ExceptionServiceError {
+        GetCoordinatesSchema getCoordinatesSchema = getFilledGetCoordinatesSchema();
+        Coordinates c = PSS.getCoordinates(getCoordinatesSchema);
+        assertEquals("The latitude should be 34.0536909", c.getLatitude(), 34.0536909, 0.05);
+        assertEquals("The longitude should be -118.2427666", c.getLongitude(), -118.2427666, 0.05);
+    }
+
+    public void getCoordinatesFromServiceWithCachedResult() throws IOException, JSONException, ExceptionServiceError {
+        GetCoordinatesSchema getCoordinatesSchema = getFilledGetCoordinatesSchema();
+        Coordinates c = PSS.getCoordinates(getCoordinatesSchema);
+        assertEquals("The latitude should be 34.0536909", c.getLatitude(), 34.0536909, 0.05);
+        assertEquals("The longitude should be -118.2427666", c.getLongitude(), -118.2427666, 0.05);
+        c = PSS.getCoordinates(getCoordinatesSchema);
+        assertEquals("The latitude should be 34.0536909", c.getLatitude(), 34.0536909, 0.05);
+        assertEquals("The longitude should be -118.2427666", c.getLongitude(), -118.2427666, 0.05);
+    }
+
+    @Test(expected = ExceptionServiceError.class)
+    public void getCoordinatesFromServiceWithNonExistingCity() throws IOException, JSONException, ExceptionServiceError {
+        GetCoordinatesSchema getCoordinatesSchema = getFilledGetCoordinatesSchema();
+        Mockito.when(getCoordinatesSchema.getCity()).thenReturn("Llefsdfida");
+        Coordinates c = PSS.getCoordinates(getCoordinatesSchema);
+    }
+
 }

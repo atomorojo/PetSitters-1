@@ -1,18 +1,20 @@
 package PetSitters.service;
 
+import PetSitters.domain.City;
+import PetSitters.domain.Coordinates;
 import PetSitters.entity.Report;
 import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
+import PetSitters.exception.ExceptionServiceError;
 import PetSitters.repository.ReportRepository;
 import PetSitters.repository.UserRepository;
-import PetSitters.schemas.ChangePasswordSchema;
-import PetSitters.schemas.DeleteAccountSchema;
-import PetSitters.schemas.RegisterSchema;
-import PetSitters.schemas.ReportSchema;
+import PetSitters.schemas.*;
+import org.codehaus.jettison.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.text.ParseException;
 
 @Service
@@ -73,5 +75,12 @@ public class PetSittersService {
 
         Report r = new Report(reporterEmail, reportedEmail, reportSchema.getDescription());
         ReportRep.save(r);
+    }
+
+    public Coordinates getCoordinates(GetCoordinatesSchema getCoordinatesSchema) throws JSONException, IOException, ExceptionServiceError {
+        getCoordinatesSchema.validate();
+        City city = new City(getCoordinatesSchema.getCity());
+        Coordinates coordinates = city.getCoordinates();
+        return coordinates;
     }
 }

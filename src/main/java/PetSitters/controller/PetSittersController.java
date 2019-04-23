@@ -1,7 +1,9 @@
 package PetSitters.controller;
 
+import PetSitters.domain.Coordinates;
 import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
+import PetSitters.exception.ExceptionServiceError;
 import PetSitters.schemas.*;
 import PetSitters.security.*;
 import PetSitters.service.GridFS;
@@ -9,6 +11,7 @@ import PetSitters.service.PetSittersService;
 import freemarker.template.TemplateException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.codehaus.jettison.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.gridfs.GridFsResource;
@@ -158,6 +161,14 @@ public class PetSittersController {
     public ResponseEntity report(@RequestBody ReportSchema reportSchema, @RequestHeader("Authorization") String token)  throws ExceptionInvalidAccount {
         petSittersService.report(reportSchema, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @PostMapping(value="/getCoordinates", headers="Accept=application/json")
+    @ApiOperation(value = "Given the name of a city, returns the geographical position (latitude and longitude)")
+    @ResponseBody
+    public ResponseEntity getCoordinates(@RequestBody GetCoordinatesSchema getCoordinatesSchema) throws IOException, ExceptionServiceError, JSONException {
+        Coordinates coordinates = petSittersService.getCoordinates(getCoordinatesSchema);
+        return new ResponseEntity(coordinates, HttpStatus.OK);
     }
 }
 

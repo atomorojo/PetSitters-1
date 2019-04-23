@@ -1,8 +1,10 @@
 package PetSitters.service;
 
+import PetSitters.domain.Coordinates;
 import PetSitters.entity.Report;
 import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
+import PetSitters.exception.ExceptionServiceError;
 import PetSitters.repository.ReportRepository;
 import PetSitters.repository.VerificationTokenRepository;
 import PetSitters.schemas.*;
@@ -10,6 +12,7 @@ import PetSitters.repository.UserRepository;
 import PetSitters.security.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.codehaus.jettison.json.JSONException;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -100,6 +103,11 @@ public class PetSittersServiceIntegrationTest {
     ReportSchema getFilledReportSchema() {
         ReportSchema reportSchema = new ReportSchema("casjua92", "No description");
         return reportSchema;
+    }
+
+    GetCoordinatesSchema getFilledGetCoordinatesSchema() {
+        GetCoordinatesSchema getCoordinatesSchema = new GetCoordinatesSchema("Los Angeles");
+        return getCoordinatesSchema;
     }
 
     @Test
@@ -290,5 +298,43 @@ public class PetSittersServiceIntegrationTest {
         assertFalse("The user 'casjua92' should not exist", UserRep.existsByUsername("casjua92"));
         ReportSchema report = getFilledReportSchema();
         PSS.report(report, "rod98");
+    }
+
+    public void getCoordinatesFromService() throws IOException, JSONException, ExceptionServiceError {
+        GetCoordinatesSchema getCoordinatesSchema = getFilledGetCoordinatesSchema();
+        Coordinates c = PSS.getCoordinates(getCoordinatesSchema);
+        assertEquals("The latitude should be 34.0536909", c.getLatitude(), 34.0536909, 0.05);
+        assertEquals("The longitude should be -118.2427666", c.getLongitude(), -118.2427666, 0.05);
+    }
+
+    public void getCoordinatesFromServiceWithCachedResult() throws IOException, JSONException, ExceptionServiceError {
+        GetCoordinatesSchema getCoordinatesSchema = getFilledGetCoordinatesSchema();
+        Coordinates c = PSS.getCoordinates(getCoordinatesSchema);
+        assertEquals("The latitude should be 34.0536909", c.getLatitude(), 34.0536909, 0.05);
+        assertEquals("The longitude should be -118.2427666", c.getLongitude(), -118.2427666, 0.05);
+        c = PSS.getCoordinates(getCoordinatesSchema);
+        assertEquals("The latitude should be 34.0536909", c.getLatitude(), 34.0536909, 0.05);
+        assertEquals("The longitude should be -118.2427666", c.getLongitude(), -118.2427666, 0.05);
+    }
+
+    @Test(expected = ExceptionServiceError.class)
+    public void getCoordinatesFromServiceWithNonExistingCity() throws IOException, JSONException, ExceptionServiceError {
+        GetCoordinatesSchema getCoordinatesSchema = getFilledGetCoordinatesSchema();
+        getCoordinatesSchema.setCity("Llefsdfida");
+        Coordinates c = PSS.getCoordinates(getCoordinatesSchema);
+    }
+
+    @Test(expected = ValidationException.class)
+    public void getCoordinatesFromServiceEmptyCity() throws IOException, JSONException, ExceptionServiceError {
+        GetCoordinatesSchema getCoordinatesSchema = getFilledGetCoordinatesSchema();
+        getCoordinatesSchema.setCity("");
+        Coordinates c = PSS.getCoordinates(getCoordinatesSchema);
+    }
+
+    @Test(expected = ValidationException.class)
+    public void getCoordinatesFromServiceNullCity() throws IOException, JSONException, ExceptionServiceError {
+        GetCoordinatesSchema getCoordinatesSchema = getFilledGetCoordinatesSchema();
+        getCoordinatesSchema.setCity(null);
+        Coordinates c = PSS.getCoordinates(getCoordinatesSchema);
     }
 }

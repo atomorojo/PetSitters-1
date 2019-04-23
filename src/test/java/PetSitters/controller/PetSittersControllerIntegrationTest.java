@@ -109,6 +109,13 @@ public class PetSittersControllerIntegrationTest {
                 .content(cont));
     }
 
+    ResultActions getCoordinates(String cont, String token) throws Exception {
+        return mvc.perform(post("/petsitters/getCoordinates")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(cont));
+    }
+
     String ActivateUserAndLoginOkAndGetToken(String cont, String username) throws Exception {
         UserPetSitters user=UserRep.findByUsername(username);
         user.setActive(true);
@@ -652,4 +659,118 @@ public class PetSittersControllerIntegrationTest {
         login(cont).andExpect(status().is5xxServerError());
     }
 
+    @Test
+    public void getCoordinatesFromService() throws Exception {
+        String cont = "{\n" +
+                "\t\"firstName\":\"rodrigo\",\n" +
+                "\t\"lastName\":\"gomez\",\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"c@desco.es\",\n" +
+                "\t\"birthdate\":\"2-11-1842\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"1234\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+        cont = "{\n" +
+                "\t\"city\":\"Lleida\"\n" +
+                "}";
+        getCoordinates(cont,token).andExpect(status().isOk());
+    }
+
+    @Test
+    public void getCoordinatesFromServiceWithCachedResult() throws Exception {
+        String cont = "{\n" +
+                "\t\"firstName\":\"rodrigo\",\n" +
+                "\t\"lastName\":\"gomez\",\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"c@desco.es\",\n" +
+                "\t\"birthdate\":\"2-11-1842\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"1234\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+        cont = "{\n" +
+                "\t\"city\":\"Lleida\"\n" +
+                "}";
+        getCoordinates(cont,token).andExpect(status().isOk());
+        getCoordinates(cont,token).andExpect(status().isOk());
+    }
+
+    @Test
+    public void getCoordinatesFromServiceWithNonExistingCity() throws Exception {
+        String cont = "{\n" +
+                "\t\"firstName\":\"rodrigo\",\n" +
+                "\t\"lastName\":\"gomez\",\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"c@desco.es\",\n" +
+                "\t\"birthdate\":\"2-11-1842\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"1234\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+        cont = "{\n" +
+                "\t\"city\":\"Llefsdfida\"\n" +
+                "}";
+        getCoordinates(cont,token).andExpect(status().is5xxServerError());
+    }
+
+    @Test
+    public void getCoordinatesFromServiceEmptyCity() throws Exception {
+        String cont = "{\n" +
+                "\t\"firstName\":\"rodrigo\",\n" +
+                "\t\"lastName\":\"gomez\",\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"c@desco.es\",\n" +
+                "\t\"birthdate\":\"2-11-1842\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"1234\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+        cont = "{\n" +
+                "\t\"city\":\"\"\n" +
+                "}";
+        getCoordinates(cont,token).andExpect(status().is5xxServerError());
+    }
+
+    @Test
+    public void getCoordinatesFromServiceNullCity() throws Exception {
+        String cont = "{\n" +
+                "\t\"firstName\":\"rodrigo\",\n" +
+                "\t\"lastName\":\"gomez\",\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"c@desco.es\",\n" +
+                "\t\"birthdate\":\"2-11-1842\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"1234\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+        cont = "{\n" +
+                "}";
+        getCoordinates(cont,token).andExpect(status().is5xxServerError());
+    }
 }
