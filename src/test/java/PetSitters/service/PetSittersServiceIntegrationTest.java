@@ -20,25 +20,17 @@ import org.springframework.batch.item.validator.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -100,6 +92,9 @@ public class PetSittersServiceIntegrationTest {
         return changePasswordSchema;
     }
 
+    UserPetSitters createUser() throws ParseException {
+        return UserRep.save(new UserPetSitters(getFilledSchemaRegistrationPersona1()));
+    }
     ReportSchema getFilledReportSchema() {
         ReportSchema reportSchema = new ReportSchema("casjua92", "No description");
         return reportSchema;
@@ -183,15 +178,15 @@ public class PetSittersServiceIntegrationTest {
         final UserPetSitters user = userService.findOne(loginUser.getUsername());
         final String token = jwtTokenUtil.generateToken(user);
     }
-
     @Test
-    public void testValidEmailVerify() {
-        String token=new VerificationToken().getToken();
-        Boolean good=false;
-        if (ResponseEntity.status(HttpStatus.OK).equals(verificationTokenService.verifyEmail(token).getStatusCode())){
-            good=true;
-        }
-        assertTrue("Email token did not verify correctly",good);
+    public void testValidEmailVerify() throws ParseException {
+        UserPetSitters user=createUser();
+        VerificationToken aux=new VerificationToken();
+        aux.setUsername(user.getUsername());
+        aux.setEmail(user.getEmail());
+        String token=aux.getToken();
+        verToken.save(aux);
+        assertEquals("Email token did not verify correctly",verificationTokenService.verifyEmail(token).getStatusCode(),HttpStatus.OK);
     }
 
     @Test
@@ -256,6 +251,54 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test
+    public void setDescription() throws ParseException, ExceptionInvalidAccount {
+        ModifySchema mod=new ModifySchema("Dummy Text");
+        String username=createUser().getUsername();
+        PSS.modify("description","Dummy Text",username);
+        String description=UserRep.findByUsername(username).getDescription();
+        assertEquals("Description changed",description, "Dummy Text");
+    }
+
+    @Test
+    public void setCity() throws ParseException, ExceptionInvalidAccount {
+        ModifySchema mod=new ModifySchema("Dummy Text");
+        String username=createUser().getUsername();
+        PSS.modify("city","Dummy Text",username);
+        String description=UserRep.findByUsername(username).getCity();
+        assertEquals("City changed",description, "Dummy Text");
+    }
+
+    @Test
+    public void setImage() throws ParseException, ExceptionInvalidAccount {
+        ModifySchema mod=new ModifySchema("Dummy Text");
+        String username=createUser().getUsername();
+        PSS.modify("image","Dummy Text",username);
+        String description=UserRep.findByUsername(username).getImage();
+        assertEquals("City changed",description, "Dummy Text");
+    }
+
+    @Test
+    public void setAvailability() throws ParseException, ExceptionInvalidAccount {
+        ModifySchema mod=new ModifySchema("Dummy Text");
+        String username=createUser().getUsername();
+        PSS.modify("availability","Dummy Text",username);
+        String description=UserRep.findByUsername(username).getAvailability().getWhatIsThis();
+        assertEquals("City changed",description, "Dummy Text");
+    }
+
+    @Test
+    public void setExpert() throws ParseException, ExceptionInvalidAccount {
+        ModifySchema mod=new ModifySchema("Dummy''Text");
+        String username=createUser().getUsername();
+        PSS.modify("expert","Dummy''Text",username);
+        List<String> description=UserRep.findByUsername(username).getExpert();
+        List<String> tocheck= new ArrayList<String>();
+        tocheck.add("Dummy");
+        tocheck.add("Text");
+        assertEquals("Expert is different",description,tocheck);
+    }
+
+
     public void reportAUserNormal() throws ParseException, ExceptionInvalidAccount {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
@@ -336,5 +379,61 @@ public class PetSittersServiceIntegrationTest {
         GetCoordinatesSchema getCoordinatesSchema = getFilledGetCoordinatesSchema();
         getCoordinatesSchema.setCity(null);
         Coordinates c = PSS.getCoordinates(getCoordinatesSchema);
+
+    @Test
+    public void getAllUsersLight() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        Boolean good=false;
+        List<LightUserSchema> users= PSS.getUsersLight("rod98");
+        if (UserRep.findAll().size()==users.size()) {
+            good=true;
+        }
+        assertTrue("All users received",good);
+    }
+
+    @Test
+    public void getUserFull() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        Boolean good=false;
+        FullUserSchema user= PSS.getUserFull(registerSchema1.getUsername());
+        assertTrue("All users received",user.getName().equals(registerSchema1.getFirstName()+" "+registerSchema1.getLastName()));
+    }
+
+    @Test
+    public void getUserName() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        UserPetSitters myUser=UserRep.findByUsername("rod98");
+        UserRep.save(myUser);
+        Boolean good=false;
+        List<LightUserSchema> users= PSS.getUsersName("Rodrigo","rod98");
+        for (LightUserSchema user:users)  {
+            if (user.getName().equals(registerSchema1.getFirstName()+" "+registerSchema1.getLastName())) good=true;
+            else {
+                break;
+            }
+        }
+        assertTrue("User with name Rodrigo received",good);
+    }
+    @Test
+    public void getUserExpert() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        UserPetSitters myUser=UserRep.findByUsername("rod98");
+        List<String> why=new ArrayList<String>();
+        why.add("cat");
+        myUser.setExpert(why);
+        UserRep.save(myUser);
+        Boolean good=false;
+        List<LightUserSchema> users= PSS.getUsersExpert("cat","rod98");
+        for (LightUserSchema user:users)  {
+            if (user.getName().equals(registerSchema1.getFirstName()+" "+registerSchema1.getLastName())) good=true;
+            else {
+                break;
+            }
+        }
+        assertTrue("User with cat received",good);
     }
 }

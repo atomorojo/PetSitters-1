@@ -27,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.List;
 
 @SuppressWarnings("ALL")
 @RestController
@@ -55,6 +56,42 @@ public class PetSittersController {
     GridFS gridFS;
 
 
+
+    @PostMapping(value = "modify/{name}")
+    @ApiOperation(value = "Modify the camp specified.")
+    public ResponseEntity modify(@PathVariable String name,@RequestBody String toModify,@RequestHeader("Authorization") String token) throws ParseException, IOException {
+        System.out.println(name);
+        petSittersService.modify(name, toModify, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(name,HttpStatus.OK);
+    }
+
+    @GetMapping(value = "users")
+    @ApiOperation(value = "Retrieve all users.")
+    public ResponseEntity getUsers(@RequestHeader("Authorization") String token) throws ParseException, IOException {
+        List<LightUserSchema> users= petSittersService.getUsersLight(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(users,HttpStatus.OK);
+    }
+
+    @GetMapping(value = "user/filterExpert")
+    @ApiOperation(value = "Retrieve all users that are expert in that animal.")
+    public ResponseEntity getUsersExpert(@RequestBody String animal,@RequestHeader("Authorization") String token) throws ParseException, IOException {
+        List<LightUserSchema> users= petSittersService.getUsersExpert(animal,jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(users,HttpStatus.OK);
+    }
+
+    @GetMapping(value = "user/filterName")
+    @ApiOperation(value = "Retrieve all users that have that string as a subset of their name.")
+    public ResponseEntity getUsersName(@RequestBody String name,@RequestHeader("Authorization") String token) throws ParseException, IOException {
+        List<LightUserSchema> users= petSittersService.getUsersName(name,jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(users,HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/user/{name}")
+    @ApiOperation(value = "Retrieve all information of a single user.")
+    public ResponseEntity getSingleUser(@PathVariable String name) throws ParseException, IOException {
+        FullUserSchema answer= petSittersService.getUserFull(name);
+        return new ResponseEntity(answer,HttpStatus.OK);
+    }
 
     @PostMapping(value = "store")
     @ApiOperation(value = "Store a file.")
