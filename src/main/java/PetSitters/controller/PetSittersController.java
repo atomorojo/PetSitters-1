@@ -79,6 +79,13 @@ public class PetSittersController {
         return new ResponseEntity(users,HttpStatus.OK);
     }
 
+    @GetMapping(value = "user/filterDistance")
+    @ApiOperation(value = "Retrieve all users that are in a radius equal to the paramater's value in km.")
+    public ResponseEntity getUsersExpert(@RequestHeader("Authorization") String token,@RequestParam Integer rad) throws ParseException, IOException, JSONException, ExceptionServiceError {
+        List<LightUserSchema> users= petSittersService.getUsersDistance(rad,jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(users,HttpStatus.OK);
+    }
+
     @GetMapping(value = "user/filterName")
     @ApiOperation(value = "Retrieve all users that have that string as a subset of their name.")
     public ResponseEntity getUsersName(@RequestBody String name,@RequestHeader("Authorization") String token) throws ParseException, IOException {

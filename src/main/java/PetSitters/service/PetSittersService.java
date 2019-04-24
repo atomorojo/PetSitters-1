@@ -205,16 +205,41 @@ public class PetSittersService {
         List<LightUserSchema> toret= new ArrayList<LightUserSchema>();
         for (UserPetSitters user:users) {
             if (user.getExpert()!=null) {
-                for (String expert : user.getExpert()) {
+                if (!trueUser.getUsername().equals(user.getUsername()))
+                    for (String expert : user.getExpert()) {
                     if (distance(animal, expert) <= 0.2 && notReported(trueUser.getEmail(), user.getEmail())) {
                         assignLightUserSchema(toret, user);
+                        break;
                     }
-                    break;
                 }
             }
         }
         return toret;
     }
+
+    public List<LightUserSchema> getUsersDistance(Integer rad, String username) throws JSONException, IOException, ExceptionServiceError {
+        List<LightUserSchema> toret = new ArrayList<LightUserSchema>();
+        UserPetSitters trueUser = UserRep.findByUsername(username);
+        if (trueUser.getCity() != null) {
+            List<UserPetSitters> users = UserRep.findAll();
+            for (UserPetSitters user : users) {
+                if (!trueUser.getUsername().equals(user.getUsername()))
+                    if (user.getCity() != null) {
+                    City city1 = new City(user.getCity());
+                    City city2 = new City(trueUser.getCity());
+                    Coordinates coord2 = city1.getCoordinates();
+                    Coordinates coord1 = city2.getCoordinates();
+                    Double distanceKm = distance(coord1.getLatitude(), coord1.getLongitude(), coord2.getLatitude(), coord2.getLongitude());
+                    System.out.println(distanceKm);
+                    if (distanceKm <= rad) {
+                        assignLightUserSchema(toret, user);
+                    }
+                }
+            }
+        }
+        return toret;
+    }
+
 
     public List<LightUserSchema> getUsersName(String name, String username) {
         List<UserPetSitters> users=UserRep.findAll();
@@ -222,7 +247,8 @@ public class PetSittersService {
         List<LightUserSchema> toret= new ArrayList<LightUserSchema>();
         for (UserPetSitters user:users) {
             String trueName=user.getFirstName()+" "+user.getLastName();
-             if (trueName.toLowerCase().contains(name.toLowerCase()) && notReported(trueUser.getEmail(),user.getEmail())) {
+            if (!trueUser.getUsername().equals(user.getUsername()))
+                if (trueName.toLowerCase().contains(name.toLowerCase()) && notReported(trueUser.getEmail(),user.getEmail())) {
                  assignLightUserSchema(toret, user);
              }
         }
@@ -270,6 +296,7 @@ public class PetSittersService {
         else if (i<arrayB.length) {
             union=union+(arrayB.length-i);
         }
+        System.out.println(1-((double) intersection / union));
         return 1-((double) intersection / union);
 	}
 
@@ -298,4 +325,22 @@ public class PetSittersService {
         Chat chat = new Chat(usernameA, usernameB);
         ChatRep.save(chat);
     }
+
+    private double distance(double lat1, double lon1, double lat2, double lon2) {
+        double theta = Math.abs(lon1 - lon2);
+        double dist = Math.sin(deg2rad(lat1)) * Math.sin(deg2rad(lat2)) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.cos(deg2rad(theta));
+        dist = Math.acos(dist);
+        dist = rad2deg(dist);
+        dist = dist * 60 * 1.1515;
+        dist = dist * 1.609344;
+        return (dist);
+    }
+
+    private double deg2rad(double deg) {
+        return (deg * Math.PI / 180.0);
+    }
+    private double rad2deg(double rad) {
+        return (rad * 180.0 / Math.PI);
+    }
+
 }

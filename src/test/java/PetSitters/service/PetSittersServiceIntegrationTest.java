@@ -12,8 +12,6 @@ import PetSitters.repository.VerificationTokenRepository;
 import PetSitters.schemas.*;
 import PetSitters.repository.UserRepository;
 import PetSitters.security.*;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.junit.After;
 import org.junit.Test;
@@ -430,15 +428,16 @@ public class PetSittersServiceIntegrationTest {
         PSS.register(registerSchema1);
         UserPetSitters myUser=UserRep.findByUsername("rod98");
         UserRep.save(myUser);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+        UserPetSitters myUser2=UserRep.findByUsername("casjua92");
+        UserRep.save(myUser2);
         Boolean good=false;
-        List<LightUserSchema> users= PSS.getUsersName("Rodrigo","rod98");
+        List<LightUserSchema> users= PSS.getUsersName("Juan","rod98");
         for (LightUserSchema user:users)  {
-            if (user.getName().equals(registerSchema1.getFirstName()+" "+registerSchema1.getLastName())) good=true;
-            else {
-                break;
-            }
+            if (user.getName().equals(registerSchema2.getFirstName()+" "+registerSchema2.getLastName())) good=true;
         }
-        assertTrue("User with name Rodrigo received",good);
+        assertTrue("User with name Juan received",good);
     }
     @Test
     public void getUserExpert() throws ParseException, ExceptionInvalidAccount {
@@ -449,13 +448,16 @@ public class PetSittersServiceIntegrationTest {
         why.add("cat");
         myUser.setExpert(why);
         UserRep.save(myUser);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+        UserPetSitters myUser2=UserRep.findByUsername("casjua92");
+        myUser2.setExpert(why);
+        UserRep.save(myUser2);
         Boolean good=false;
         List<LightUserSchema> users= PSS.getUsersExpert("cat","rod98");
         for (LightUserSchema user:users)  {
-            if (user.getName().equals(registerSchema1.getFirstName()+" "+registerSchema1.getLastName())) good=true;
-            else {
-                break;
-            }
+            if (user.getName().equals(registerSchema2.getFirstName()+" "+registerSchema2.getLastName())) good=true;
+
         }
         assertTrue("User with cat received",good);
     }
@@ -530,4 +532,35 @@ public class PetSittersServiceIntegrationTest {
         assertEquals("UsernameA should be 'casjua92'", c.getUsernameA(), "casjua92");
         assertEquals("UsernameA should be 'rod98'", c.getUsernameB(), "rod98");
     }
+    @Test
+    public void distanceCalc() throws IOException, JSONException, ExceptionServiceError, ParseException {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        UserPetSitters myUser=UserRep.findByUsername("rod98");
+        myUser.setCity("Barcelona");
+        UserRep.save(myUser);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+        UserPetSitters myUser2=UserRep.findByUsername("casjua92");
+        myUser2.setCity("Sant Boi de Llobregat");
+        UserRep.save(myUser2);
+        List<LightUserSchema> people=PSS.getUsersDistance(100,"rod98");
+        assertTrue("They are within 100km",people.size()>0);
+    }
+    @Test
+    public void distanceCalcError() throws IOException, JSONException, ExceptionServiceError, ParseException {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        UserPetSitters myUser=UserRep.findByUsername("rod98");
+        myUser.setCity("Barcelona");
+        UserRep.save(myUser);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+        UserPetSitters myUser2=UserRep.findByUsername("casjua92");
+        myUser2.setCity("Los Angeles");
+        UserRep.save(myUser2);
+        List<LightUserSchema> people=PSS.getUsersDistance(100,"rod98");
+        assertTrue("They are not within 100km",people.size()==0);
+    }
+
 }

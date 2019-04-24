@@ -1042,4 +1042,39 @@ public class PetSittersControllerIntegrationTest {
                 "}";
         startChat(cont,token).andExpect(status().is4xxClientError());
     }
+
+    @Test
+    public void getUsersDistance() throws Exception {
+        String cont = "{\n" +
+                "\t\"firstName\":\"rodrigo\",\n" +
+                "\t\"lastName\":\"gomez\",\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"c@desco.es\",\n" +
+                "\t\"birthdate\":\"2-11-1842\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
+        UserPetSitters user1=UserRep.findByUsername("rod98");
+        user1.setCity("Barcelona");
+        UserRep.save(user1);
+        cont = "{\n" +
+                "\t\"firstName\":\"amie\",\n" +
+                "\t\"lastName\":\"gomez\",\n" +
+                "\t\"username\":\"stt1\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"c@desca.es\",\n" +
+                "\t\"birthdate\":\"2-11-1442\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        assertTrue("The user 'stt1' should exist", UserRep.existsByUsername("stt1"));
+        UserPetSitters user2=UserRep.findByUsername("stt1");
+        user2.setCity("Sant Boi de Llobregat");
+        UserRep.save(user2);
+        String token = validToken();
+        mvc.perform(get("/petsitters/user/filterDistance?rad=100").content("").contentType("application/json").header(HttpHeaders.AUTHORIZATION,"Bearer: "+ token)).andExpect(status().is2xxSuccessful());
+
+
+    }
+
 }
