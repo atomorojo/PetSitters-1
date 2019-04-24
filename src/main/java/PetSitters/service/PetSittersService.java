@@ -136,6 +136,10 @@ public class PetSittersService {
     public void report(ReportSchema reportSchema, String reporterUsername) throws ExceptionInvalidAccount {
         reportSchema.validate();
         String reportedUsername = reportSchema.getReported();
+        if (reporterUsername.equals(reportedUsername)) {
+            throw new ExceptionInvalidAccount("A user cannot report himself");
+        }
+
         UserPetSitters reporter = UserRep.findByUsername(reporterUsername);
         checkExistence(reporter, reporterUsername);
         UserPetSitters reported = UserRep.findByUsername(reportedUsername);
@@ -278,16 +282,17 @@ public class PetSittersService {
         if (!UserRep.existsByUsername(userWhoStarts)) {
             throw new ExceptionInvalidAccount("The specified username '" + userWhoStarts + "' does not belong to any user in the system");
         }
+        if (userWhoStarts.equals(otherUser)) {
+            throw new ExceptionInvalidAccount("A user cannot start a chat with himself");
+        }
         // We sort the usernames lexicographically so as to know which one comes first
         String usernameA, usernameB;
         if (userWhoStarts.compareTo(otherUser) < 0) {
             usernameA = userWhoStarts;
             usernameB = otherUser;
-        } else if (userWhoStarts.compareTo(otherUser) > 0) {
+        } else {
             usernameA = otherUser;
             usernameB = userWhoStarts;
-        } else {
-            throw new ExceptionInvalidAccount("A user cannot start a chat with himself");
         }
 
         Chat chat = new Chat(usernameA, usernameB);

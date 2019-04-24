@@ -607,7 +607,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"reported\":\"casjua92\",\n" +
                 "\t\"description\":\"No description\"\n" +
                 "}";
-        reportUser(cont,token);
+        reportUser(cont,token).andExpect(status().isOk());
         List<Report> reports = ReportRep.findByReporter(UserRep.findByUsername("rod98").getEmail());
         Report rep = reports.get(0);
         System.out.println(String.valueOf(rep != null));
@@ -634,6 +634,30 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"password\":\"1234\"\n" +
                 "}";
         login(cont).andExpect(status().is5xxServerError());
+    }
+
+    @Test
+    public void reportTheReporterUser() throws Exception {
+        String cont = "{\n" +                           //reporter and reported
+                "\t\"firstName\":\"andy\",\n" +
+                "\t\"lastName\":\"lucas\",\n" +
+                "\t\"username\":\"casjua92\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"a@b.com\",\n" +
+                "\t\"birthdate\":\"22-9-1982\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        assertTrue("The user 'casjua92' should exist", UserRep.existsByUsername("casjua92"));
+        cont = "{\n" +
+                "\t\"username\":\"casjua92\",\n" +
+                "\t\"password\":\"1234\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "casjua92");
+        cont = "{\n" +
+                "\t\"reported\":\"casjua92\",\n" +
+                "\t\"description\":\"No description\"\n" +
+                "}";
+        reportUser(cont,token).andExpect(status().is4xxClientError());
     }
 
     @Test
