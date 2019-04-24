@@ -207,5 +207,16 @@ public class PetSittersController {
         Coordinates coordinates = petSittersService.getCoordinates(getCoordinatesSchema);
         return new ResponseEntity(coordinates, HttpStatus.OK);
     }
+
+    @PostMapping(value="/startChat", headers="Accept=application/json")
+    @ApiOperation(value = "Given the username of another user, starts a chat between both users.")
+    public ResponseEntity startChat(@RequestBody StartChatSchema startChatSchema, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
+        try {
+            petSittersService.startChat(startChatSchema, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        } catch (DuplicateKeyException e) {
+            throw new DuplicateKeyException("Chat already exists");
+        }
+        return new ResponseEntity(HttpStatus.OK);
+    }
 }
 

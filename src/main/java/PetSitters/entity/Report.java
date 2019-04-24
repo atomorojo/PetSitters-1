@@ -1,27 +1,31 @@
 package PetSitters.entity;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.validation.constraints.NotBlank;
 
+@ApiModel("Report")
+@Document
 public class Report {
     @Id
-    @ApiModelProperty(value = "The report's id", required = false)
+    @ApiModelProperty(value = "Report's id", required = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
 
-    @ApiModelProperty(value = "The reporter's email", required = true)
+    @ApiModelProperty(value = "Reporter's email", required = true)
     @NotBlank
     private String reporter; //email
 
-    @ApiModelProperty(value = "The reported email", required = true)
+    @ApiModelProperty(value = "Reported email", required = true)
     @NotBlank
     private String reported; //email
 
-    @ApiModelProperty(value = "The description of the report", required = true)
+    @ApiModelProperty(value = "Description of the report", required = true)
     @NotBlank
     private String description;
 

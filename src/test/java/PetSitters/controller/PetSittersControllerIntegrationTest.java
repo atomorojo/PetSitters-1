@@ -2,6 +2,7 @@ package PetSitters.controller;
 
 import PetSitters.entity.Report;
 import PetSitters.entity.UserPetSitters;
+import PetSitters.repository.ChatRepository;
 import PetSitters.repository.ReportRepository;
 import PetSitters.repository.UserRepository;
 import PetSitters.schemas.RegisterSchema;
@@ -56,6 +57,9 @@ public class PetSittersControllerIntegrationTest {
     ReportRepository ReportRep;
 
     @Autowired
+    ChatRepository ChatRep;
+
+    @Autowired
     GridFS gridFs;
 
     private MockMvc mvc;
@@ -67,8 +71,10 @@ public class PetSittersControllerIntegrationTest {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() { // Add here all the repositories
         UserRep.deleteAll();
+        ReportRep.deleteAll();
+        ChatRep.deleteAll();
     }
 
     ResultActions register(String cont) throws Exception {
@@ -112,6 +118,13 @@ public class PetSittersControllerIntegrationTest {
 
     ResultActions getCoordinates(String cont, String token) throws Exception {
         return mvc.perform(post("/petsitters/getCoordinates")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(cont));
+    }
+
+    ResultActions startChat(String cont, String token) throws Exception {
+        return mvc.perform(post("/petsitters/startChat")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(cont));
@@ -837,4 +850,172 @@ public class PetSittersControllerIntegrationTest {
         register(cont).andExpect(status().isOk());
 		mvc.perform(get("/petsitters/user/rod98").content("").contentType("application/json").header(HttpHeaders.AUTHORIZATION,"Bearer: "+ token)).andExpect(status().is2xxSuccessful());
 	}
+
+    @Test
+    public void startNewChatWithAnotherUser() throws Exception {
+        String cont = "{\n" +
+                "\t\"firstName\":\"rodrigo\",\n" +
+                "\t\"lastName\":\"gomez\",\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"c@desco.es\",\n" +
+                "\t\"birthdate\":\"2-11-1842\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
+
+        cont = "{\n" +
+                "\t\"firstName\":\"amie\",\n" +
+                "\t\"lastName\":\"gomez\",\n" +
+                "\t\"username\":\"stt1\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"c@desca.es\",\n" +
+                "\t\"birthdate\":\"2-11-1442\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        assertTrue("The user 'stt1' should exist", UserRep.existsByUsername("stt1"));
+
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"1234\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+        cont =  "{\n" +
+                "\t\"otherUsername\":\"stt1\"\n" +
+                "}";
+        startChat(cont,token).andExpect(status().isOk());
+    }
+
+    @Test
+    public void startNewChatWithHimself() throws Exception {
+        String cont = "{\n" +
+                "\t\"firstName\":\"rodrigo\",\n" +
+                "\t\"lastName\":\"gomez\",\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"c@desco.es\",\n" +
+                "\t\"birthdate\":\"2-11-1842\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
+
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"1234\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+        cont =  "{\n" +
+                "    \"otherUsername\":\"rod98\"\n" +
+                "}";
+        startChat(cont,token).andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    public void startNewChatWithAnotherUserDuplicated() throws Exception {
+        String cont = "{\n" +
+                "\t\"firstName\":\"rodrigo\",\n" +
+                "\t\"lastName\":\"gomez\",\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"c@desco.es\",\n" +
+                "\t\"birthdate\":\"2-11-1842\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
+
+        cont = "{\n" +
+                "\t\"firstName\":\"amie\",\n" +
+                "\t\"lastName\":\"gomez\",\n" +
+                "\t\"username\":\"stt1\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"c@desca.es\",\n" +
+                "\t\"birthdate\":\"2-11-1442\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        assertTrue("The user 'stt1' should exist", UserRep.existsByUsername("stt1"));
+
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"1234\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+        cont =  "{\n" +
+                "\t\"otherUsername\":\"stt1\"\n" +
+                "}";
+
+        startChat(cont,token).andExpect(status().isOk());
+        startChat(cont,token).andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    public void startNewChatWithDuplicateReversed() throws Exception {
+        String cont = "{\n" +
+                "\t\"firstName\":\"rodrigo\",\n" +
+                "\t\"lastName\":\"gomez\",\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"c@desco.es\",\n" +
+                "\t\"birthdate\":\"2-11-1842\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
+
+        cont = "{\n" +
+                "\t\"firstName\":\"amie\",\n" +
+                "\t\"lastName\":\"gomez\",\n" +
+                "\t\"username\":\"stt1\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"c@desca.es\",\n" +
+                "\t\"birthdate\":\"2-11-1442\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        assertTrue("The user 'stt1' should exist", UserRep.existsByUsername("stt1"));
+
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"1234\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+
+        cont =  "{\n" +
+                "    \"otherUsername\":\"stt1\"\n" +
+                "}";
+        startChat(cont,token).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "\t\"username\":\"stt1\",\n" +
+                "\t\"password\":\"1234\"\n" +
+                "}";
+        token = ActivateUserAndLoginOkAndGetToken(cont, "stt1");
+
+        cont =  "{\n" +
+                "    \"otherUsername\":\"rod98\"\n" +
+                "}";
+        startChat(cont,token).andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    public void startNewChatWithNonExistingUser() throws Exception {
+        String cont = "{\n" +
+                "\t\"firstName\":\"rodrigo\",\n" +
+                "\t\"lastName\":\"gomez\",\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"c@desco.es\",\n" +
+                "\t\"birthdate\":\"2-11-1842\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
+        assertFalse("The user 'qqwe' should not exist", UserRep.existsByUsername("qqwe"));
+
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"1234\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+        cont =  "{\n" +
+                "\t\"otherUsername\":\"qqwe\"\n" +
+                "}";
+        startChat(cont,token).andExpect(status().is4xxClientError());
+    }
 }

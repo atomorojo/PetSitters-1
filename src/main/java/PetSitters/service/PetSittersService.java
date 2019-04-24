@@ -3,10 +3,12 @@ package PetSitters.service;
 import PetSitters.domain.City;
 import PetSitters.domain.Coordinates;
 import PetSitters.domain.Availability;
+import PetSitters.entity.Chat;
 import PetSitters.entity.Report;
 import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.exception.ExceptionServiceError;
+import PetSitters.repository.ChatRepository;
 import PetSitters.repository.ReportRepository;
 import PetSitters.repository.UserRepository;
 import PetSitters.schemas.*;
@@ -33,6 +35,9 @@ public class PetSittersService {
 
     @Autowired
     ReportRepository ReportRep;
+
+    @Autowired
+    ChatRepository ChatRep;
 
     private void checkExistence(UserPetSitters u, String username) throws ExceptionInvalidAccount {
         if (u == null) {
@@ -263,4 +268,29 @@ public class PetSittersService {
         }
         return 1-((double) intersection / union);
 	}
+
+    public void startChat(StartChatSchema startChatSchema, String userWhoStarts) throws ExceptionInvalidAccount {
+        startChatSchema.validate();
+        String otherUser = startChatSchema.getOtherUsername();
+        if (!UserRep.existsByUsername(otherUser)) {
+            throw new ExceptionInvalidAccount("The specified username '" + otherUser + "' does not belong to any user in the system");
+        }
+        if (!UserRep.existsByUsername(userWhoStarts)) {
+            throw new ExceptionInvalidAccount("The specified username '" + userWhoStarts + "' does not belong to any user in the system");
+        }
+        // We sort the usernames lexicographically so as to know which one comes first
+        String usernameA, usernameB;
+        if (userWhoStarts.compareTo(otherUser) < 0) {
+            usernameA = userWhoStarts;
+            usernameB = otherUser;
+        } else if (userWhoStarts.compareTo(otherUser) > 0) {
+            usernameA = otherUser;
+            usernameB = userWhoStarts;
+        } else {
+            throw new ExceptionInvalidAccount("A user cannot start a chat with himself");
+        }
+
+        Chat chat = new Chat(usernameA, usernameB);
+        ChatRep.save(chat);
+    }
 }

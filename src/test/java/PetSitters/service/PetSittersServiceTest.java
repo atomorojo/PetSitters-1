@@ -1,10 +1,12 @@
 package PetSitters.service;
 
 import PetSitters.domain.Coordinates;
+import PetSitters.entity.Chat;
 import PetSitters.entity.Report;
 import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.exception.ExceptionServiceError;
+import PetSitters.repository.ChatRepository;
 import PetSitters.repository.ReportRepository;
 import PetSitters.repository.UserRepository;
 import PetSitters.schemas.*;
@@ -53,11 +55,16 @@ public class PetSittersServiceTest {
     @Autowired
     GridFS gridFs;
 
+    @Autowired
+    ChatRepository ChatRep;
+
 
     @After
-    public void tearDown() {
+    public void tearDown() {  // Add here all the repositories
         PSS = null;
         UserRep.deleteAll();
+        ReportRep.deleteAll();
+        ChatRep.deleteAll();
     }
 
     RegisterSchema getFilledSchemaRegistrationPersona1() {
@@ -106,6 +113,12 @@ public class PetSittersServiceTest {
         GetCoordinatesSchema getCoordinatesSchema = Mockito.mock(GetCoordinatesSchema.class);
         Mockito.when(getCoordinatesSchema.getCity()).thenReturn("Los Angeles");
         return getCoordinatesSchema;
+    }
+
+    StartChatSchema getFilledStartChatSchema() {
+        StartChatSchema startChatSchema = Mockito.mock(StartChatSchema.class);
+        Mockito.when(startChatSchema.getOtherUsername()).thenReturn("rod98");
+        return startChatSchema;
     }
 
     @Test
@@ -293,6 +306,77 @@ public class PetSittersServiceTest {
         GetCoordinatesSchema getCoordinatesSchema = getFilledGetCoordinatesSchema();
         Mockito.when(getCoordinatesSchema.getCity()).thenReturn("Llefsdfida");
         Coordinates c = PSS.getCoordinates(getCoordinatesSchema);
+    }
+
+    @Test
+    public void startNewChatWithAnotherUser() throws ExceptionInvalidAccount, ParseException {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+
+        StartChatSchema startChatSchema = getFilledStartChatSchema();
+        PSS.startChat(startChatSchema, "casjua92");
+        Chat c = ChatRep.findByUsernameAAndUsernameB("casjua92","rod98");
+        assertEquals("UsernameA should be 'casjua92'", c.getUsernameA(), "casjua92");
+        assertEquals("UsernameA should be 'rod98'", c.getUsernameB(), "rod98");
+    }
+
+    @Test(expected = ExceptionInvalidAccount.class)
+    public void startNewChatWithHimself() throws Exception {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+
+        StartChatSchema startChatSchema = getFilledStartChatSchema();
+        PSS.startChat(startChatSchema, "rod98");
+        ChatRep.findByUsernameAAndUsernameB("rod98","casjua92");
+    }
+
+    @Test(expected = DuplicateKeyException.class)
+    public void startNewChatWithAnotherUserDuplicated() throws Exception {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+
+        StartChatSchema startChatSchema = getFilledStartChatSchema();
+        PSS.startChat(startChatSchema, "casjua92");
+        Chat c = ChatRep.findByUsernameAAndUsernameB("casjua92","rod98");
+        assertEquals("UsernameA should be 'casjua92'", c.getUsernameA(), "casjua92");
+        assertEquals("UsernameA should be 'rod98'", c.getUsernameB(), "rod98");
+        PSS.startChat(startChatSchema, "casjua92");
+    }
+
+    @Test(expected = DuplicateKeyException.class)
+    public void startNewChatWithDuplicateReversed() throws Exception {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+
+        StartChatSchema startChatSchema = getFilledStartChatSchema();
+
+        Mockito.when(startChatSchema.getOtherUsername()).thenReturn("casjua92");
+
+        PSS.startChat(startChatSchema, "rod98");
+        Chat c = ChatRep.findByUsernameAAndUsernameB("casjua92","rod98");
+        assertEquals("UsernameA should be 'casjua92'", c.getUsernameA(), "casjua92");
+        assertEquals("UsernameA should be 'rod98'", c.getUsernameB(), "rod98");
+
+        startChatSchema = getFilledStartChatSchema();
+        PSS.startChat(startChatSchema, "casjua92");
+    }
+
+    @Test(expected = ExceptionInvalidAccount.class)
+    public void startNewChatWithNonExistingUser() throws Exception {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+
+        StartChatSchema startChatSchema = getFilledStartChatSchema();
+        PSS.startChat(startChatSchema, "casjua92");
+        Chat c = ChatRep.findByUsernameAAndUsernameB("casjua92","rod98");
+        assertEquals("UsernameA should be 'casjua92'", c.getUsernameA(), "casjua92");
+        assertEquals("UsernameA should be 'rod98'", c.getUsernameB(), "rod98");
     }
 
 }
