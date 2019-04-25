@@ -26,11 +26,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.util.List;
 
 @SuppressWarnings("ALL")
 @RestController
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequestMapping("/petsitters")
 @Api(value = "PetSittersApi", produces = MediaType.APPLICATION_JSON_VALUE )
 public class PetSittersController {
@@ -54,7 +56,6 @@ public class PetSittersController {
 
     @Autowired
     GridFS gridFS;
-
 
 
     @PostMapping(value = "modify/{name}")
@@ -137,7 +138,7 @@ public class PetSittersController {
     @PostMapping(value="/resetPassword", headers="Accept=application/json")
     @ApiOperation(value ="Checks the token sent by email and allows the user to reset his/her password. It must be sent together with the new password.")
     @ResponseBody
-    public String setAnotherPassword(@RequestParam String code, @RequestBody SetAnotherPasswordSchema setAnotherPasswordSchema) throws ExceptionInvalidAccount, IOException, TemplateException {
+    public String setAnotherPassword(@RequestParam String code, @RequestBody SetAnotherPasswordSchema setAnotherPasswordSchema) throws ExceptionInvalidAccount, IOException, TemplateException, NoSuchAlgorithmException {
         return passwordResetTokenRepository.setAnotherPassword(code, setAnotherPasswordSchema).getBody();
     }
 

@@ -12,10 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -87,7 +90,7 @@ public class PasswordResetTokenService {
     }
 
 
-    public ResponseEntity<String> setAnotherPassword(String token, SetAnotherPasswordSchema setAnotherPasswordSchema) {
+    public ResponseEntity<String> setAnotherPassword(String token, SetAnotherPasswordSchema setAnotherPasswordSchema) throws NoSuchAlgorithmException {
         setAnotherPasswordSchema.validate();
         Pair<ResponseEntity<String>, ChangePasswordToken> p = checkTokenIntegrity(token);
         ResponseEntity re = p.getFirst();
@@ -96,7 +99,14 @@ public class PasswordResetTokenService {
             changePasswordToken.setConfirmedDateTime(LocalDateTime.now());
             changePasswordToken.setStatus(ChangePasswordToken.PASSWORD_CHANGED);
             UserPetSitters user=userRepository.findByUsername(changePasswordToken.getUsername());
-            user.setPassword(setAnotherPasswordSchema.getNewPassword());
+
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            String inputHash = "petsitterplot420 " + setAnotherPasswordSchema.getNewPassword();
+            md.update(inputHash.getBytes());
+            byte[] digest = md.digest();
+            String hash = DatatypeConverter.printHexBinary(digest).toLowerCase();
+            user.setPassword(hash);
+
             userRepository.save(user);
             resetPasswordTokenRepository.delete(changePasswordToken);
             return ResponseEntity.ok("You have successfully reset your password.");
