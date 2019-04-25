@@ -88,7 +88,7 @@ public class PetSittersController {
 
     @GetMapping(value = "user/filterName")
     @ApiOperation(value = "Retrieve all users that have that string as a subset of their name.")
-    public ResponseEntity getUsersName(@RequestBody String name,@RequestHeader("Authorization") String token) throws ParseException, IOException {
+    public ResponseEntity getUsersName(@RequestParam String name,@RequestHeader("Authorization") String token) throws ParseException, IOException {
         List<LightUserSchema> users= petSittersService.getUsersName(name,jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(users,HttpStatus.OK);
     }

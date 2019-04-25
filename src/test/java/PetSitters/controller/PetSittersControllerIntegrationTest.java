@@ -857,7 +857,7 @@ public class PetSittersControllerIntegrationTest {
     @Test
     public void getUsersName() throws Exception {
         String token = validToken();
-        mvc.perform(get("/petsitters/user/filterName").content("{ \"name\":\"Rodrigo\"}").contentType("application/json").header(HttpHeaders.AUTHORIZATION,"Bearer: "+ token)).andExpect(status().is2xxSuccessful());
+        mvc.perform(get("/petsitters/user/filterName?name=Rodr").content("").contentType("application/json").header(HttpHeaders.AUTHORIZATION,"Bearer: "+ token)).andExpect(status().is2xxSuccessful());
     }
 
     @Test
