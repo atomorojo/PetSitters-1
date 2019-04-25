@@ -74,7 +74,7 @@ public class PetSittersController {
 
     @GetMapping(value = "user/filterExpert")
     @ApiOperation(value = "Retrieve all users that are expert in that animal.")
-    public ResponseEntity getUsersExpert(@RequestBody String animal,@RequestHeader("Authorization") String token) throws ParseException, IOException {
+    public ResponseEntity getUsersExpert(@RequestParam String animal,@RequestHeader("Authorization") String token) throws ParseException, IOException {
         List<LightUserSchema> users= petSittersService.getUsersExpert(animal,jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(users,HttpStatus.OK);
     }
