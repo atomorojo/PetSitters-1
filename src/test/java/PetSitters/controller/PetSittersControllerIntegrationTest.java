@@ -131,7 +131,7 @@ public class PetSittersControllerIntegrationTest {
     }
 
     String ActivateUserAndLoginOkAndGetToken(String cont, String username) throws Exception {
-        UserPetSitters user=UserRep.findByUsername(username);
+        UserPetSitters user = UserRep.findByUsername(username);
         user.setActive(true);
         UserRep.save(user);
         ResultActions result = login(cont).andExpect(status().isOk());
@@ -433,7 +433,7 @@ public class PetSittersControllerIntegrationTest {
     @Test
     public void Store() throws Exception {
         MockMultipartFile file = new MockMultipartFile("file", "hello.txt", MediaType.TEXT_PLAIN_VALUE, "Hello, World!".getBytes());
-        mvc.perform(MockMvcRequestBuilders.multipart("/petsitters/store").file(file).header(HttpHeaders.AUTHORIZATION,"Bearer: "+ validToken()))
+        mvc.perform(MockMvcRequestBuilders.multipart("/petsitters/store").file(file).header(HttpHeaders.AUTHORIZATION, "Bearer: " + validToken()))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
@@ -449,28 +449,27 @@ public class PetSittersControllerIntegrationTest {
     @Test
     public void Get() throws Exception {
         MockMultipartFile file = new MockMultipartFile("file", "hello.txt", MediaType.TEXT_PLAIN_VALUE, "Hello, World!".getBytes());
-        String filename=gridFs.saveFile(file,"dude");
-        mvc.perform(get("/petsitters/get/"+filename).header("Not a real header","lol"))
+        String filename = gridFs.saveFile(file, "dude");
+        mvc.perform(get("/petsitters/get/" + filename).header("Not a real header", "lol"))
                 .andExpect(status().is2xxSuccessful());
     }
 
-    @Test(expected=NestedServletException.class)
+    @Test(expected = NestedServletException.class)
     public void GetFail() throws Exception {
         MockMultipartFile file = new MockMultipartFile("file", "hello.txt", MediaType.TEXT_PLAIN_VALUE, "Hello, World!".getBytes());
-        String filename=gridFs.saveFile(file,"dude");
-        mvc.perform(get("/petsitters/get/"+filename+"error").header("Not a real header","lol"));
+        String filename = gridFs.saveFile(file, "dude");
+        mvc.perform(get("/petsitters/get/" + filename + "error").header("Not a real header", "lol"));
     }
 
     private String validToken() throws ParseException {
         UserPetSitters guy;
-        if (UserRep.findByUsername("guy")==null) {
+        if (UserRep.findByUsername("guy") == null) {
             guy = new UserPetSitters(new RegisterSchema("Guy", "Guy2", "guy", "pass", "NotARealOne", "1-1-1111"));
             guy.setActive(true);
             UserRep.save(guy);
-        }
-        else guy=UserRep.findByUsername("guy");
-        JwtTokenUtil util=new JwtTokenUtil();
-        String token=util.generateToken(guy);
+        } else guy = UserRep.findByUsername("guy");
+        JwtTokenUtil util = new JwtTokenUtil();
+        String token = util.generateToken(guy);
         return token;
     }
 
@@ -607,7 +606,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"reported\":\"casjua92\",\n" +
                 "\t\"description\":\"No description\"\n" +
                 "}";
-        reportUser(cont,token).andExpect(status().isOk());
+        reportUser(cont, token).andExpect(status().isOk());
         List<Report> reports = ReportRep.findByReporter(UserRep.findByUsername("rod98").getEmail());
         Report rep = reports.get(0);
         System.out.println(String.valueOf(rep != null));
@@ -657,7 +656,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"reported\":\"casjua92\",\n" +
                 "\t\"description\":\"No description\"\n" +
                 "}";
-        reportUser(cont,token).andExpect(status().is4xxClientError());
+        reportUser(cont, token).andExpect(status().is4xxClientError());
     }
 
     @Test
@@ -682,7 +681,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"reported\":\"casjua92\",\n" +
                 "\t\"description\":\"No description\"\n" +
                 "}";
-        reportUser(cont,token).andExpect(status().is4xxClientError());
+        reportUser(cont, token).andExpect(status().is4xxClientError());
     }
 
     @Test
@@ -716,7 +715,7 @@ public class PetSittersControllerIntegrationTest {
         cont = "{\n" +
                 "\t\"city\":\"Lleida\"\n" +
                 "}";
-        getCoordinates(cont,token).andExpect(status().isOk());
+        getCoordinates(cont, token).andExpect(status().isOk());
     }
 
     @Test
@@ -739,8 +738,8 @@ public class PetSittersControllerIntegrationTest {
         cont = "{\n" +
                 "\t\"city\":\"Lleida\"\n" +
                 "}";
-        getCoordinates(cont,token).andExpect(status().isOk());
-        getCoordinates(cont,token).andExpect(status().isOk());
+        getCoordinates(cont, token).andExpect(status().isOk());
+        getCoordinates(cont, token).andExpect(status().isOk());
     }
 
     @Test
@@ -763,7 +762,7 @@ public class PetSittersControllerIntegrationTest {
         cont = "{\n" +
                 "\t\"city\":\"Llefsdfida\"\n" +
                 "}";
-        getCoordinates(cont,token).andExpect(status().is5xxServerError());
+        getCoordinates(cont, token).andExpect(status().is5xxServerError());
     }
 
     @Test
@@ -786,7 +785,7 @@ public class PetSittersControllerIntegrationTest {
         cont = "{\n" +
                 "\t\"city\":\"\"\n" +
                 "}";
-        getCoordinates(cont,token).andExpect(status().is5xxServerError());
+        getCoordinates(cont, token).andExpect(status().is5xxServerError());
     }
 
     @Test
@@ -808,56 +807,60 @@ public class PetSittersControllerIntegrationTest {
         String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
         cont = "{\n" +
                 "}";
-        getCoordinates(cont,token).andExpect(status().is5xxServerError());
+        getCoordinates(cont, token).andExpect(status().is5xxServerError());
     }
 
-	@Test
-	public void SetDescription() throws Exception {
+    @Test
+    public void SetDescription() throws Exception {
         String token = validToken();
         System.out.println(token);
-        mvc.perform(post("/petsitters/modify/description").content("{ \"toModify\":\"Dummy Text\"}").contentType("application/json").header(HttpHeaders.AUTHORIZATION,"Bearer: "+ token)).andExpect(status().is2xxSuccessful());
+        mvc.perform(post("/petsitters/modify/description").content("{ \"toModify\":\"Dummy Text\"}").contentType("application/json").header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)).andExpect(status().is2xxSuccessful());
     }
+
     @Test
     public void SetImage() throws Exception {
         String token = validToken();
         System.out.println(token);
-        mvc.perform(post("/petsitters/modify/image").content("{ \"toModify\":\"Dummy Text\"}").contentType("application/json").header(HttpHeaders.AUTHORIZATION,"Bearer: "+token)).andExpect(status().is2xxSuccessful());
+        mvc.perform(post("/petsitters/modify/image").content("{ \"toModify\":\"Dummy Text\"}").contentType("application/json").header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)).andExpect(status().is2xxSuccessful());
     }
+
     @Test
     public void SetAvailability() throws Exception {
         String token = validToken();
         System.out.println(token);
-        mvc.perform(post("/petsitters/modify/availability").content("{ \"toModify\": \"Dummy Text\" }").contentType("application/json").header(HttpHeaders.AUTHORIZATION,"Bearer: "+ token)).andExpect(status().is2xxSuccessful());
+        mvc.perform(post("/petsitters/modify/availability").content("{ \"toModify\": \"Dummy Text\" }").contentType("application/json").header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)).andExpect(status().is2xxSuccessful());
     }
+
     @Test
     public void SetExpert() throws Exception {
         String token = validToken();
         System.out.println(token);
-        mvc.perform(post("/petsitters/modify/expert").content("{ \"toModify\":\"Dummy Text\"}").contentType("application/json").header(HttpHeaders.AUTHORIZATION,"Bearer: "+ token)).andExpect(status().is2xxSuccessful());
+        mvc.perform(post("/petsitters/modify/expert").content("{ \"toModify\":\"Dummy Text\"}").contentType("application/json").header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)).andExpect(status().is2xxSuccessful());
     }
+
     @Test
     public void SetCity() throws Exception {
         String token = validToken();
         System.out.println(token);
-        mvc.perform(post("/petsitters/modify/city").content("{ \"toModify\":\"Dummy Text\"}").contentType("application/json").header(HttpHeaders.AUTHORIZATION,"Bearer: "+ token)).andExpect(status().is2xxSuccessful());
+        mvc.perform(post("/petsitters/modify/city").content("{ \"toModify\":\"Dummy Text\"}").contentType("application/json").header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)).andExpect(status().is2xxSuccessful());
     }
 
     @Test
     public void getUsersLight() throws Exception {
         String token = validToken();
-        mvc.perform(get("/petsitters/users").content("").contentType("application/json").header(HttpHeaders.AUTHORIZATION,"Bearer: "+ token)).andExpect(status().is2xxSuccessful());
+        mvc.perform(get("/petsitters/users").content("").contentType("application/json").header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)).andExpect(status().is2xxSuccessful());
     }
 
     @Test
     public void getUsersExpert() throws Exception {
         String token = validToken();
-        mvc.perform(get("/petsitters/user/filterExpert?animal=cat").content("").contentType("application/json").header(HttpHeaders.AUTHORIZATION,"Bearer: "+ token)).andExpect(status().is2xxSuccessful());
+        mvc.perform(get("/petsitters/user/filterExpert?animal=cat").content("").contentType("application/json").header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)).andExpect(status().is2xxSuccessful());
     }
 
     @Test
     public void getUsersName() throws Exception {
         String token = validToken();
-        mvc.perform(get("/petsitters/user/filterName?name=Rodr").content("").contentType("application/json").header(HttpHeaders.AUTHORIZATION,"Bearer: "+ token)).andExpect(status().is2xxSuccessful());
+        mvc.perform(get("/petsitters/user/filterName?name=Rodr").content("").contentType("application/json").header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)).andExpect(status().is2xxSuccessful());
     }
 
     @Test
@@ -872,8 +875,8 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"birthdate\":\"2-11-1842\"\n" +
                 "}";
         register(cont).andExpect(status().isOk());
-		mvc.perform(get("/petsitters/user/rod98").content("").contentType("application/json").header(HttpHeaders.AUTHORIZATION,"Bearer: "+ token)).andExpect(status().is2xxSuccessful());
-	}
+        mvc.perform(get("/petsitters/user/rod98").content("").contentType("application/json").header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)).andExpect(status().is2xxSuccessful());
+    }
 
     @Test
     public void startNewChatWithAnotherUser() throws Exception {
@@ -904,10 +907,10 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"password\":\"1234\"\n" +
                 "}";
         String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
-        cont =  "{\n" +
+        cont = "{\n" +
                 "\t\"otherUsername\":\"stt1\"\n" +
                 "}";
-        startChat(cont,token).andExpect(status().isOk());
+        startChat(cont, token).andExpect(status().isOk());
     }
 
     @Test
@@ -928,10 +931,10 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"password\":\"1234\"\n" +
                 "}";
         String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
-        cont =  "{\n" +
+        cont = "{\n" +
                 "    \"otherUsername\":\"rod98\"\n" +
                 "}";
-        startChat(cont,token).andExpect(status().is4xxClientError());
+        startChat(cont, token).andExpect(status().is4xxClientError());
     }
 
     @Test
@@ -963,12 +966,12 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"password\":\"1234\"\n" +
                 "}";
         String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
-        cont =  "{\n" +
+        cont = "{\n" +
                 "\t\"otherUsername\":\"stt1\"\n" +
                 "}";
 
-        startChat(cont,token).andExpect(status().isOk());
-        startChat(cont,token).andExpect(status().is4xxClientError());
+        startChat(cont, token).andExpect(status().isOk());
+        startChat(cont, token).andExpect(status().is4xxClientError());
     }
 
     @Test
@@ -1001,10 +1004,10 @@ public class PetSittersControllerIntegrationTest {
                 "}";
         String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
 
-        cont =  "{\n" +
+        cont = "{\n" +
                 "    \"otherUsername\":\"stt1\"\n" +
                 "}";
-        startChat(cont,token).andExpect(status().isOk());
+        startChat(cont, token).andExpect(status().isOk());
 
         cont = "{\n" +
                 "\t\"username\":\"stt1\",\n" +
@@ -1012,10 +1015,10 @@ public class PetSittersControllerIntegrationTest {
                 "}";
         token = ActivateUserAndLoginOkAndGetToken(cont, "stt1");
 
-        cont =  "{\n" +
+        cont = "{\n" +
                 "    \"otherUsername\":\"rod98\"\n" +
                 "}";
-        startChat(cont,token).andExpect(status().is4xxClientError());
+        startChat(cont, token).andExpect(status().is4xxClientError());
     }
 
     @Test
@@ -1037,10 +1040,10 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"password\":\"1234\"\n" +
                 "}";
         String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
-        cont =  "{\n" +
+        cont = "{\n" +
                 "\t\"otherUsername\":\"qqwe\"\n" +
                 "}";
-        startChat(cont,token).andExpect(status().is4xxClientError());
+        startChat(cont, token).andExpect(status().is4xxClientError());
     }
 
     @Test
@@ -1055,7 +1058,7 @@ public class PetSittersControllerIntegrationTest {
                 "}";
         register(cont).andExpect(status().isOk());
         assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
-        UserPetSitters user1=UserRep.findByUsername("rod98");
+        UserPetSitters user1 = UserRep.findByUsername("rod98");
         user1.setCity("Barcelona");
         UserRep.save(user1);
         cont = "{\n" +
@@ -1068,13 +1071,72 @@ public class PetSittersControllerIntegrationTest {
                 "}";
         register(cont).andExpect(status().isOk());
         assertTrue("The user 'stt1' should exist", UserRep.existsByUsername("stt1"));
-        UserPetSitters user2=UserRep.findByUsername("stt1");
+        UserPetSitters user2 = UserRep.findByUsername("stt1");
         user2.setCity("Sant Boi de Llobregat");
         UserRep.save(user2);
         String token = validToken();
-        mvc.perform(get("/petsitters/user/filterDistance?rad=100").content("").contentType("application/json").header(HttpHeaders.AUTHORIZATION,"Bearer: "+ token)).andExpect(status().is2xxSuccessful());
+        mvc.perform(get("/petsitters/user/filterDistance?rad=100").content("").contentType("application/json").header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)).andExpect(status().is2xxSuccessful());
 
 
+    }
+
+    @Test
+    public void getFavorites() throws Exception {
+        String cont = "{\n" +
+                "\t\"firstName\":\"rodrigo\",\n" +
+                "\t\"lastName\":\"gomez\",\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"c@desco.es\",\n" +
+                "\t\"birthdate\":\"2-11-1842\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
+        UserPetSitters user1 = UserRep.findByUsername("rod98");
+        user1.addFavorites("stt1");
+        UserRep.save(user1);
+        cont = "{\n" +
+                "\t\"firstName\":\"amie\",\n" +
+                "\t\"lastName\":\"gomez\",\n" +
+                "\t\"username\":\"stt1\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"c@desca.es\",\n" +
+                "\t\"birthdate\":\"2-11-1442\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        assertTrue("The user 'stt1' should exist", UserRep.existsByUsername("stt1"));
+        String token = validToken();
+        mvc.perform(get("/petsitters/getFavorites").content("").contentType("application/json").header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)).andExpect(status().is2xxSuccessful());
+    }
+
+    @Test
+    public void addFavorites() throws Exception {
+        String cont = "{\n" +
+                "\t\"firstName\":\"rodrigo\",\n" +
+                "\t\"lastName\":\"gomez\",\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"c@desco.es\",\n" +
+                "\t\"birthdate\":\"2-11-1842\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
+        UserPetSitters user1 = UserRep.findByUsername("rod98");
+        UserRep.save(user1);
+        cont = "{\n" +
+                "\t\"firstName\":\"amie\",\n" +
+                "\t\"lastName\":\"gomez\",\n" +
+                "\t\"username\":\"stt1\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"c@desca.es\",\n" +
+                "\t\"birthdate\":\"2-11-1442\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        assertTrue("The user 'stt1' should exist", UserRep.existsByUsername("stt1"));
+        String token = validToken();
+        mvc.perform(post("/petsitters/addFavorites?userList=stt1").content("").contentType("application/json").header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)).andExpect(status().is2xxSuccessful());
+        UserPetSitters end=UserRep.findByUsername("guy");
+        assertTrue("Favorite is not set",end.getFavorites().get(0).equals("stt1"));
     }
 
 }

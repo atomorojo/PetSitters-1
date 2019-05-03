@@ -326,6 +326,26 @@ public class PetSittersService {
         ChatRep.save(chat);
     }
 
+    public void addFavorites(String userList, String usernameFromToken) {
+        String[] users=userList.split(",");
+        UserPetSitters us=UserRep.findByUsername(usernameFromToken);
+        for (String s:users) {
+            us.addFavorites(s);
+        }
+        UserRep.save(us);
+    }
+
+    public List<LightUserSchema> getFavorites(String usernameFromToken) {
+        UserPetSitters us=UserRep.findByUsername(usernameFromToken);
+        List<LightUserSchema> toret=new ArrayList<LightUserSchema>();
+        for (String fav:us.getFavorites()) {
+            UserPetSitters favorited=UserRep.findByUsername(fav);
+            assignLightUserSchema(toret, favorited);
+        }
+        return toret;
+    }
+
+
     private double distance(double lat1, double lon1, double lat2, double lon2) {
         double theta = Math.abs(lon1 - lon2);
         double dist = Math.sin(deg2rad(lat1)) * Math.sin(deg2rad(lat2)) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.cos(deg2rad(theta));
@@ -342,5 +362,6 @@ public class PetSittersService {
     private double rad2deg(double rad) {
         return (rad * 180.0 / Math.PI);
     }
+
 
 }

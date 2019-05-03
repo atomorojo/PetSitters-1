@@ -562,5 +562,18 @@ public class PetSittersServiceIntegrationTest {
         List<LightUserSchema> people=PSS.getUsersDistance(100,"rod98");
         assertTrue("They are not within 100km",people.size()==0);
     }
+    @Test
+    public void addFavorites() throws IOException, JSONException, ExceptionServiceError, ParseException {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        UserPetSitters myUser=UserRep.findByUsername("rod98");
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+        myUser.addFavorites("casjua92");
+        UserRep.save(myUser);
+        List<LightUserSchema> people=PSS.getFavorites("rod98");
+        assertTrue("There are no favorites",people.size()==1);
+    }
+
 
 }

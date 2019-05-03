@@ -15,6 +15,7 @@ import javax.persistence.GenerationType;
 import javax.validation.constraints.NotBlank;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -66,7 +67,10 @@ public class UserPetSitters {
     private String description;
 
     @ApiModelProperty(value = "The user's list of animals that he can care")
-    private List<String> expert;
+    private List<String> expert=new ArrayList<String>();
+    @ApiModelProperty(value = "The user's list of favorite users")
+    private List<String> favorites=new ArrayList<String>();
+
 
 
     @ApiModelProperty(value = "The user's availabilityy")
@@ -203,6 +207,18 @@ public class UserPetSitters {
     public void setAvailability(Availability availability) {
         this.availability = availability;
     }
+
+    public List<String> getFavorites() {
+        return favorites;
+    }
+
+    public void setFavorites(List<String> favorites) {
+        this.favorites = favorites;
+    }
+    public void addFavorites(String favorites) {
+        this.favorites.add(favorites);
+    }
+
 
     @Override
     public String toString() {
