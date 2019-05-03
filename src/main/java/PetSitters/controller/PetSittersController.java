@@ -32,6 +32,7 @@ import java.util.List;
 
 @SuppressWarnings("ALL")
 @RestController
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequestMapping("/petsitters")
 @Api(value = "PetSittersApi", produces = MediaType.APPLICATION_JSON_VALUE )
 public class PetSittersController {
@@ -74,14 +75,21 @@ public class PetSittersController {
 
     @GetMapping(value = "user/filterExpert")
     @ApiOperation(value = "Retrieve all users that are expert in that animal.")
-    public ResponseEntity getUsersExpert(@RequestBody String animal,@RequestHeader("Authorization") String token) throws ParseException, IOException {
+    public ResponseEntity getUsersExpert(@RequestParam String animal,@RequestHeader("Authorization") String token) throws ParseException, IOException {
         List<LightUserSchema> users= petSittersService.getUsersExpert(animal,jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(users,HttpStatus.OK);
+    }
+
+    @GetMapping(value = "user/filterDistance")
+    @ApiOperation(value = "Retrieve all users that are in a radius equal to the paramater's value in km.")
+    public ResponseEntity getUsersExpert(@RequestHeader("Authorization") String token,@RequestParam Integer rad) throws ParseException, IOException, JSONException, ExceptionServiceError {
+        List<LightUserSchema> users= petSittersService.getUsersDistance(rad,jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(users,HttpStatus.OK);
     }
 
     @GetMapping(value = "user/filterName")
     @ApiOperation(value = "Retrieve all users that have that string as a subset of their name.")
-    public ResponseEntity getUsersName(@RequestBody String name,@RequestHeader("Authorization") String token) throws ParseException, IOException {
+    public ResponseEntity getUsersName(@RequestParam String name,@RequestHeader("Authorization") String token) throws ParseException, IOException {
         List<LightUserSchema> users= petSittersService.getUsersName(name,jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(users,HttpStatus.OK);
     }
