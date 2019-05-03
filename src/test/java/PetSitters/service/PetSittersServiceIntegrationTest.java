@@ -339,6 +339,15 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test(expected = ExceptionInvalidAccount.class)
+    public void reportTheReporterUser() throws Exception {
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+        assertTrue("The user 'casjua92' should exist", UserRep.existsByUsername("casjua92"));
+        ReportSchema report = getFilledReportSchema();
+        PSS.report(report, "rod98");
+    }
+
+    @Test(expected = ExceptionInvalidAccount.class)
     public void reportAUserWithNonExistingReported() throws ParseException, ExceptionInvalidAccount {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
