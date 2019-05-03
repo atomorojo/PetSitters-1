@@ -66,6 +66,21 @@ public class PetSittersController {
         return new ResponseEntity(name,HttpStatus.OK);
     }
 
+    @PostMapping(value = "addFavorites")
+    @ApiOperation(value = "Add the users specified in the param, separated by a \",\" to the list of favorites of that user.")
+    public ResponseEntity addFavorites(@RequestParam String userList,@RequestHeader("Authorization") String token) throws ParseException, IOException {
+        petSittersService.addFavorites(userList, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @GetMapping(value = "getFavorites")
+    @ApiOperation(value = "Retrieve all the favorite users of this user.")
+    public ResponseEntity getFavorites(@RequestHeader("Authorization") String token) throws ParseException, IOException {
+        List<LightUserSchema> favs=petSittersService.getFavorites(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(favs,HttpStatus.OK);
+    }
+
+
     @GetMapping(value = "users")
     @ApiOperation(value = "Retrieve all users.")
     public ResponseEntity getUsers(@RequestHeader("Authorization") String token) throws ParseException, IOException {
