@@ -218,7 +218,9 @@ public class UserPetSitters {
     public void addFavorites(String favorites) {
         this.favorites.add(favorites);
     }
-
+    public void removeFavorites(String s) {
+        this.favorites.remove(s);
+    }
 
     @Override
     public String toString() {
@@ -230,5 +232,7 @@ public class UserPetSitters {
     public boolean isTheSamePassword(String password) {
         return new BCryptPasswordEncoder().matches(password,getPassword());
     }
+
+
 }
 

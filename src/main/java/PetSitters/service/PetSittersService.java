@@ -345,6 +345,16 @@ public class PetSittersService {
         return toret;
     }
 
+    public void unsetFavorites(String userList, String usernameFromToken) {
+        String[] users=userList.split(",");
+        UserPetSitters us=UserRep.findByUsername(usernameFromToken);
+        for (String s:users) {
+            us.removeFavorites(s);
+        }
+        UserRep.save(us);
+
+    }
+
 
     private double distance(double lat1, double lon1, double lat2, double lon2) {
         double theta = Math.abs(lon1 - lon2);
@@ -362,6 +372,7 @@ public class PetSittersService {
     private double rad2deg(double rad) {
         return (rad * 180.0 / Math.PI);
     }
+
 
 
 }

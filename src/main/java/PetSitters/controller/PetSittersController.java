@@ -77,6 +77,13 @@ public class PetSittersController {
         petSittersService.addFavorites(userList, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(HttpStatus.OK);
     }
+    @PostMapping(value = "unsetFavorites")
+    @ApiOperation(value = "Add the users specified in the param, separated by a \",\" to the list of favorites of that user.")
+    public ResponseEntity unsetFavorites(@RequestParam String userList,@RequestHeader("Authorization") String token) throws ParseException, IOException {
+        petSittersService.unsetFavorites(userList, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
 
     @GetMapping(value = "getFavorites")
     @ApiOperation(value = "Retrieve all the favorite users of this user.")

@@ -1139,4 +1139,25 @@ public class PetSittersControllerIntegrationTest {
         assertTrue("Favorite is not set",end.getFavorites().get(0).equals("stt1"));
     }
 
+    @Test
+    public void unsetFavorites() throws Exception {
+        String cont = "{\n" +
+                "\t\"firstName\":\"amie\",\n" +
+                "\t\"lastName\":\"gomez\",\n" +
+                "\t\"username\":\"stt1\",\n" +
+                "\t\"password\":\"1234\",\n" +
+                "\t\"email\":\"c@desca.es\",\n" +
+                "\t\"birthdate\":\"2-11-1442\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        assertTrue("The user 'stt1' should exist", UserRep.existsByUsername("stt1"));
+        String token = validToken();
+        UserPetSitters guy=UserRep.findByUsername("guy");
+        guy.addFavorites("stt1");
+        UserRep.save(guy);
+        mvc.perform(post("/petsitters/unsetFavorites?userList=stt1").content("").contentType("application/json").header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)).andExpect(status().is2xxSuccessful());
+        UserPetSitters end=UserRep.findByUsername("guy");
+        assertTrue("Favorite is not set",end.getFavorites().size()==0);
+    }
+
 }
