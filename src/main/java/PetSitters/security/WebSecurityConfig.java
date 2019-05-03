@@ -65,9 +65,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .cors().and()
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.GET,SWAGGER_URL,EMAIL_URL,EMAIL_URL_VERIFY)
+                .antMatchers(HttpMethod.GET,SWAGGER_URL,EMAIL_URL,EMAIL_URL_VERIFY,EMAIL_URL_RESEND)
                 .permitAll()
-                .antMatchers(HttpMethod.POST,REGISTER_URL,EMAIL_URL)
+                .antMatchers(HttpMethod.POST,REGISTER_URL,EMAIL_URL,EMAIL_URL_RESEND)
                 .permitAll()
                 //.antMatchers(HttpMethod.POST,REGISTER_NO_MAIL_URL)//
                 //.permitAll()//

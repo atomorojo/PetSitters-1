@@ -4,6 +4,7 @@ import PetSitters.domain.Coordinates;
 import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.exception.ExceptionServiceError;
+import PetSitters.repository.UserRepository;
 import PetSitters.schemas.*;
 import PetSitters.security.*;
 import PetSitters.service.GridFS;
@@ -53,6 +54,10 @@ public class PetSittersController {
 
     @Autowired
     PasswordResetTokenService passwordResetTokenRepository;
+    @Autowired
+    UserRepository userRep;
+
+
 
     @Autowired
     GridFS gridFS;
@@ -182,6 +187,15 @@ public class PetSittersController {
         verificationTokenService.createVerification(register.getEmail());
         return new ResponseEntity(HttpStatus.OK);
     }
+
+    @PostMapping(value = "sendEmail",headers="Accept=application/json")
+    @ApiOperation(value = "Send again an account confirmation email.")
+    public ResponseEntity resendEmail(@RequestParam String username) throws ParseException {
+        verificationTokenService.createVerification(userRep.findByUsername(username).getEmail());
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+
 
     @PostMapping(value = "registerNoMail",headers="Accept=application/json")
     @ApiOperation(value = "Register process.")
