@@ -388,4 +388,33 @@ public class PetSittersServiceTest {
         assertEquals("UsernameA should be 'rod98'", c.getUsernameB(), "rod98");
     }
 
+    @Test
+    public void addFavorites() throws Exception {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        UserPetSitters myUser=UserRep.findByUsername("rod98");
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+        PSS.addFavorites("casjua92","rod98");
+        UserRep.save(myUser);
+        UserPetSitters us=UserRep.findByUsername("rod98");
+        assertEquals("Same favorites",us.getFavorites(),myUser.getFavorites());
+    }
+    @Test
+    public void unsetFavorites() throws Exception {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        UserPetSitters myUser=UserRep.findByUsername("rod98");
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+        myUser.addFavorites("casjua92");
+        UserRep.save(myUser);
+        PSS.unsetFavorites("casjua92","rod98");
+        UserPetSitters us=UserRep.findByUsername("rod98");
+        assertEquals("No favorites",us.getFavorites().size(),0);
+    }
+
+
+
+
 }

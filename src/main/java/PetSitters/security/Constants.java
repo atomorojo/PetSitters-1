@@ -16,6 +16,6 @@ public class Constants {
         public static final String LOGIN_URL =  "/petsitters/login";
         public static final String EMAIL_URL= "/petsitters/email-verification";
         public static final String EMAIL_URL_VERIFY="/petsitters/verify-email";
-
+        public static final String EMAIL_URL_RESEND="/petsitters/sendEmail";
         public static final String CHANGE_PASSWORD_WEB_PAGE_PATH="/src/main/resources/webPages/change-password.html";
 }

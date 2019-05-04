@@ -4,6 +4,7 @@ import PetSitters.domain.Coordinates;
 import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.exception.ExceptionServiceError;
+import PetSitters.repository.UserRepository;
 import PetSitters.schemas.*;
 import PetSitters.security.*;
 import PetSitters.service.GridFS;
@@ -53,6 +54,10 @@ public class PetSittersController {
 
     @Autowired
     PasswordResetTokenService passwordResetTokenRepository;
+    @Autowired
+    UserRepository userRep;
+
+
 
     @Autowired
     GridFS gridFS;
@@ -65,6 +70,28 @@ public class PetSittersController {
         petSittersService.modify(name, toModify, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(name,HttpStatus.OK);
     }
+
+    @PostMapping(value = "addFavorites")
+    @ApiOperation(value = "Add the users specified in the param, separated by a \",\" to the list of favorites of that user.")
+    public ResponseEntity addFavorites(@RequestParam String userList,@RequestHeader("Authorization") String token) throws ParseException, IOException {
+        petSittersService.addFavorites(userList, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(HttpStatus.OK);
+    }
+    @PostMapping(value = "unsetFavorites")
+    @ApiOperation(value = "Add the users specified in the param, separated by a \",\" to the list of favorites of that user.")
+    public ResponseEntity unsetFavorites(@RequestParam String userList,@RequestHeader("Authorization") String token) throws ParseException, IOException {
+        petSittersService.unsetFavorites(userList, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+
+    @GetMapping(value = "getFavorites")
+    @ApiOperation(value = "Retrieve all the favorite users of this user.")
+    public ResponseEntity getFavorites(@RequestHeader("Authorization") String token) throws ParseException, IOException {
+        List<LightUserSchema> favs=petSittersService.getFavorites(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(favs,HttpStatus.OK);
+    }
+
 
     @GetMapping(value = "users")
     @ApiOperation(value = "Retrieve all users.")
@@ -182,6 +209,15 @@ public class PetSittersController {
         verificationTokenService.createVerification(register.getEmail());
         return new ResponseEntity(HttpStatus.OK);
     }
+
+    @PostMapping(value = "sendEmail",headers="Accept=application/json")
+    @ApiOperation(value = "Send again an account confirmation email.")
+    public ResponseEntity resendEmail(@RequestParam String username) throws ParseException {
+        verificationTokenService.createVerification(userRep.findByUsername(username).getEmail());
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+
 
     @PostMapping(value = "registerNoMail",headers="Accept=application/json")
     @ApiOperation(value = "Register process.")
