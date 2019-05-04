@@ -17,22 +17,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class CORSFilter implements Filter {
 
-    public CORSFilter() {
-        System.out.println("CORSFilter initialized");
-    }
-
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
-        response.setHeader("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,PATCH,OPTIONS"); // POST, PUT, GET, OPTIONS, DELETE
-        //response.setHeader("Access-Control-Max-Age", "3600");
+        response.setHeader("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,PATCH,OPTIONS");
         response.setHeader("Access-Control-Allow-Headers", "access-control-allow-origin, Origin, X-Requested-With, Content-Type, Accept, Authorization");
         response.setHeader("Access-Control-Expose-Headers", "Location");
         response.setHeader("Access-Control-Allow-Credentials", "true");
         filterChain.doFilter(servletRequest, response);
-        System.out.println("CORSFilter chain");
     }
 
     @Override
