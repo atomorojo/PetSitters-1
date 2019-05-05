@@ -31,10 +31,6 @@ import static PetSitters.security.Constants.*;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    public WebSecurityConfig() {
-        System.out.println("WebSecurityConfig initialized");
-    }
-
     @Resource(name = "userService")
     private UserDetailsService userDetailsService;
 
@@ -115,7 +111,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         configuration.setExposedHeaders(Collections.singletonList(HttpHeaders.LOCATION));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
-        System.out.println("Cors Configuration Source executing...");
         return source;
     }
 }
