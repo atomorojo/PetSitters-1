@@ -4,6 +4,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.IndexDirection;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -30,9 +32,12 @@ public class Chat {
     @NotBlank
     private String usernameB;
 
-    public Chat(@NotBlank String usernameA, @NotBlank String usernameB) {
+    private Integer lastUse;
+
+    public Chat(@NotBlank String usernameA, @NotBlank String usernameB, Integer lastUse) {
         this.usernameA = usernameA;
         this.usernameB = usernameB;
+        this.lastUse = lastUse;
     }
 
     public String getUsernameA() {
@@ -49,5 +54,17 @@ public class Chat {
 
     public void setUsernameB(String usernameB) {
         this.usernameB = usernameB;
+    }
+
+    public Integer getLastUse() {
+        return lastUse;
+    }
+
+    public void setLastUse(Integer lastUse) {
+        this.lastUse = lastUse;
+    }
+
+    public boolean isLastUsed(Chat cB) {
+        return lastUse > cB.lastUse;
     }
 }

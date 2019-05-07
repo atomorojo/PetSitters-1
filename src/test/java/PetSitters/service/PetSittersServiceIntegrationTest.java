@@ -12,6 +12,7 @@ import PetSitters.repository.VerificationTokenRepository;
 import PetSitters.schemas.*;
 import PetSitters.repository.UserRepository;
 import PetSitters.security.*;
+import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.junit.After;
 import org.junit.Test;
@@ -88,6 +89,21 @@ public class PetSittersServiceIntegrationTest {
         return registerSchema;
     }
 
+    RegisterSchema getFilledSchemaRegistrationPersona3() {
+        RegisterSchema registerSchema = new RegisterSchema("Pedro", "Suarez", "pes44", "1542", "a@bo.com", "20-12-1998");
+        return registerSchema;
+    }
+
+    RegisterSchema getFilledSchemaRegistrationPersona4() {
+        RegisterSchema registerSchema = new RegisterSchema("Mario", "Gonzalo", "marGonz", "789", "a@gre.com", "20-12-1998");
+        return registerSchema;
+    }
+
+    RegisterSchema getFilledSchemaRegistrationPersona5() {
+        RegisterSchema registerSchema = new RegisterSchema("Gregorio", "Lopez", "gre647", "abc123", "a@sop.com", "20-12-1998");
+        return registerSchema;
+    }
+
     DeleteAccountSchema getFilledSchemaDeletion() {
         DeleteAccountSchema deleteAccount = new DeleteAccountSchema("123");
         return deleteAccount;
@@ -113,6 +129,11 @@ public class PetSittersServiceIntegrationTest {
 
     StartChatSchema getFilledStartChatSchema() {
         StartChatSchema startChatSchema = new StartChatSchema("rod98");
+        return startChatSchema;
+    }
+
+    StartChatSchema getFilledStartChatSchema(String name) {
+        StartChatSchema startChatSchema = new StartChatSchema(name);
         return startChatSchema;
     }
 
@@ -575,6 +596,43 @@ public class PetSittersServiceIntegrationTest {
         assertTrue("There are no favorites",people.size()==1);
     }
 
+    @Test
+    public void getOpenedChats() throws ParseException, ExceptionInvalidAccount, JSONException {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+        RegisterSchema registerSchema3 = getFilledSchemaRegistrationPersona3();
+        PSS.register(registerSchema3);
+        RegisterSchema registerSchema4 = getFilledSchemaRegistrationPersona4();
+        PSS.register(registerSchema4);
+        RegisterSchema registerSchema5 = getFilledSchemaRegistrationPersona5();
+        PSS.register(registerSchema5);
 
+        StartChatSchema startChatSchema1 = getFilledStartChatSchema("marGonz");
+        StartChatSchema startChatSchema2 = getFilledStartChatSchema("casjua92");
+        StartChatSchema startChatSchema3 = getFilledStartChatSchema("rod98");
+        StartChatSchema startChatSchema4 = getFilledStartChatSchema("pes44");
+
+        PSS.startChat(startChatSchema1, "gre647");
+        PSS.startChat(startChatSchema2, "gre647");
+        PSS.startChat(startChatSchema3, "gre647");
+        PSS.startChat(startChatSchema4, "gre647");
+
+        JSONArray array = PSS.getOpenedChats("gre647");
+        assertEquals("Output should be 'pes44'", array.get(0), "pes44");
+        assertEquals("Output should be 'rod98'", array.get(1), "rod98");
+        assertEquals("Output should be 'casjua92'", array.get(2), "casjua92");
+        assertEquals("Output should be 'marGonz'", array.get(3), "marGonz");
+    }
+
+    @Test
+    public void getOpenedChatsEmpty() throws ParseException, ExceptionInvalidAccount, JSONException {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+
+        JSONArray array = PSS.getOpenedChats("rod98");
+        assertEquals("Output should be empty", array.length(), 0);
+    }
 
 }

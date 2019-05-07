@@ -12,7 +12,9 @@ import PetSitters.service.PetSittersService;
 import freemarker.template.TemplateException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.gridfs.GridFsResource;
@@ -29,7 +31,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 @SuppressWarnings("ALL")
 @RestController
@@ -263,6 +267,13 @@ public class PetSittersController {
             throw new DuplicateKeyException("Chat already exists");
         }
         return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @PostMapping(value="/getOpenedChats", headers="Accept=application/json")
+    @ApiOperation(value = "Returns all the opened chats of a user. Specifically, it returns usernames who have started previously a chat with this person. The returned array starts with the oldest chat.")
+    public ResponseEntity getOpenedChats(@RequestHeader("Authorization") String token) throws ExceptionInvalidAccount, JSONException {
+        JSONArray response = petSittersService.getOpenedChats(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(response.toString(), HttpStatus.OK);
     }
 }
 

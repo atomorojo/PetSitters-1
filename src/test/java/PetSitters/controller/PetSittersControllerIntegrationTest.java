@@ -130,6 +130,13 @@ public class PetSittersControllerIntegrationTest {
                 .content(cont));
     }
 
+    ResultActions getOpenedChats(String token) throws Exception {
+        return mvc.perform(post("/petsitters/getOpenedChats")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{}"));
+    }
+
     String ActivateUserAndLoginOkAndGetToken(String cont, String username) throws Exception {
         UserPetSitters user = UserRep.findByUsername(username);
         user.setActive(true);
@@ -1160,4 +1167,111 @@ public class PetSittersControllerIntegrationTest {
         assertTrue("Favorite is not set",end.getFavorites().size()==0);
     }
 
+    @Test
+    public void getOpenedChats() throws Exception {
+        String cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@b.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "  \"username\": \"rod98\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@bo.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "  \"username\": \"casjua92\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@boo.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "  \"username\": \"pes44\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@booo.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "  \"username\": \"marGonz\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@bo1oo.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "  \"username\": \"gre647\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "\t\"username\":\"gre647\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+
+        System.out.println("Before autenthication");
+
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "gre647");
+
+        System.out.println("After autenthication");
+
+        cont = "{\n" +
+                "\t\"otherUsername\":\"marGonz\"\n" +
+                "}";
+        startChat(cont, token).andExpect(status().isOk());
+        cont = "{\n" +
+                "\t\"otherUsername\":\"casjua92\"\n" +
+                "}";
+        startChat(cont, token).andExpect(status().isOk());
+        cont = "{\n" +
+                "\t\"otherUsername\":\"rod98\"\n" +
+                "}";
+        startChat(cont, token).andExpect(status().isOk());
+        cont = "{\n" +
+                "\t\"otherUsername\":\"pes44\"\n" +
+                "}";
+        startChat(cont, token).andExpect(status().isOk());
+
+        System.out.println("Here...");
+
+        getOpenedChats(token).andExpect(status().isOk());
+
+        System.out.println("There...");
+    }
+
+    @Test
+    public void getOpenedChatsEmpty() throws Exception {
+        String cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@b.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "  \"username\": \"rod98\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+
+        getOpenedChats(token).andExpect(status().isOk());
+    }
 }

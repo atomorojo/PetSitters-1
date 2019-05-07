@@ -1,5 +1,6 @@
 package PetSitters.service;
 
+import PetSitters.auxiliary.PushbackIterator;
 import PetSitters.domain.City;
 import PetSitters.domain.Coordinates;
 import PetSitters.domain.Availability;
@@ -12,6 +13,7 @@ import PetSitters.repository.ChatRepository;
 import PetSitters.repository.ReportRepository;
 import PetSitters.repository.UserRepository;
 import PetSitters.schemas.*;
+import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -19,12 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import static java.lang.Math.min;
+import java.util.*;
 
 @Service
 @EnableAutoConfiguration
@@ -133,6 +130,12 @@ public class PetSittersService {
         UserRep.save(person);
 
     }
+
+    private int getTimestamp() {
+        Date date = new Date();
+        return (int) (long) date.getTime();
+    }
+
     public void report(ReportSchema reportSchema, String reporterUsername) throws ExceptionInvalidAccount {
         reportSchema.validate();
         String reportedUsername = reportSchema.getReported();
@@ -322,7 +325,7 @@ public class PetSittersService {
             usernameB = userWhoStarts;
         }
 
-        Chat chat = new Chat(usernameA, usernameB);
+        Chat chat = new Chat(usernameA, usernameB, getTimestamp());
         ChatRep.save(chat);
     }
 
@@ -355,7 +358,6 @@ public class PetSittersService {
 
     }
 
-
     private double distance(double lat1, double lon1, double lat2, double lon2) {
         double theta = Math.abs(lon1 - lon2);
         double dist = Math.sin(deg2rad(lat1)) * Math.sin(deg2rad(lat2)) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.cos(deg2rad(theta));
@@ -373,6 +375,34 @@ public class PetSittersService {
         return (rad * 180.0 / Math.PI);
     }
 
+    public JSONArray getOpenedChats(String username) {
+        List<Chat> chatsA = ChatRep.findByUsernameAOrderByLastUseDesc(username);
+        List<Chat> chatsB = ChatRep.findByUsernameBOrderByLastUseDesc(username);
+        JSONArray array = new JSONArray();
+        // Merge two sorted lists
+        PushbackIterator<Chat> IA = new PushbackIterator<>(chatsA.iterator());
+        PushbackIterator<Chat> IB = new PushbackIterator<>(chatsB.iterator());
 
+        while (IA.hasNext() && IB.hasNext()) {
+            Chat cA = IA.next();
+            Chat cB = IB.next();
 
+            if (cA.isLastUsed(cB)) {
+                array.put(cA.getUsernameB());
+                IB.pushback(cB);
+            } else {
+                array.put(cB.getUsernameA());
+                IA.pushback(cA);
+            }
+        }
+        while (IA.hasNext()) {
+            Chat cA = IA.next();
+            array.put(cA.getUsernameB());
+        }
+        while (IB.hasNext()) {
+            Chat cB = IB.next();
+            array.put(cB.getUsernameA());
+        }
+        return array;
+    }
 }
