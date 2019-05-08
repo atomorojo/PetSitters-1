@@ -255,6 +255,10 @@ public class PetSittersService {
         return toret;
     }
 
+    public void getUsersName(ContractSchema cont) {
+
+    }
+
     private boolean notReported(String email1, String email2) {
         Boolean found=true;
         for (Report rep:ReportRep.findByReporter(email1)) {
