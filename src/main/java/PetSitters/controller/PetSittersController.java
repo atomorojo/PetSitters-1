@@ -275,5 +275,31 @@ public class PetSittersController {
         JSONArray response = petSittersService.getOpenedChats(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(response.toString(), HttpStatus.OK);
     }
+
+    //-------------- DEBUG -------------------------------------
+    @GetMapping(value = "DEBUGloadDefault")
+    @ApiOperation(value = "Loads 4 users in the database")
+    public ResponseEntity loadDefault() throws ParseException {
+        petSittersService.DEBUGload();
+        return new ResponseEntity("The context has been successfully loaded!", HttpStatus.OK);
+    }
+
+    @GetMapping(value = "DEBUGloadWithChats")
+    @ApiOperation(value = "Loads 4 users in the database and starts some chats without messages")
+    public ResponseEntity loadWithChats() throws ParseException, ExceptionInvalidAccount {
+        petSittersService.DEBUGloadWithChats();
+        return new ResponseEntity("The context has been successfully loaded!", HttpStatus.OK);
+    }
+
+    @GetMapping(value = "DEBUGgetAllUsers")
+    @ApiOperation(value = "Gets all the usernames in the System")
+    public ResponseEntity getAllUsernames() throws ParseException, ExceptionInvalidAccount {
+        List<UserPetSitters> users = petSittersService.DEBUGfindAll();
+        JSONArray array = new JSONArray();
+        for (UserPetSitters user: users) {
+            array.put(user.getUsername());
+        }
+        return new ResponseEntity(array.toString(), HttpStatus.OK);
+    }
 }
 
