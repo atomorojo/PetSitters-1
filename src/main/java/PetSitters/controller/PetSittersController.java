@@ -276,4 +276,3 @@ public class PetSittersController {
         return new ResponseEntity(response.toString(), HttpStatus.OK);
     }
 }
-
