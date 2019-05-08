@@ -5,11 +5,13 @@ import PetSitters.domain.City;
 import PetSitters.domain.Coordinates;
 import PetSitters.domain.Availability;
 import PetSitters.entity.Chat;
+import PetSitters.entity.Contract;
 import PetSitters.entity.Report;
 import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.exception.ExceptionServiceError;
 import PetSitters.repository.ChatRepository;
+import PetSitters.repository.ContractRepository;
 import PetSitters.repository.ReportRepository;
 import PetSitters.repository.UserRepository;
 import PetSitters.schemas.*;
@@ -35,6 +37,10 @@ public class PetSittersService {
 
     @Autowired
     ChatRepository ChatRep;
+
+    @Autowired
+    ContractRepository ContRep;
+
 
     private void checkExistence(UserPetSitters u, String username) throws ExceptionInvalidAccount {
         if (u == null) {
@@ -333,7 +339,7 @@ public class PetSittersService {
         String[] users=userList.split(",");
         UserPetSitters us=UserRep.findByUsername(usernameFromToken);
         for (String s:users) {
-            us.addFavorites(s);
+            if (notReported(us.getEmail(), UserRep.findByUsername(s).getEmail())) us.addFavorites(s);
         }
         UserRep.save(us);
     }
@@ -405,4 +411,21 @@ public class PetSittersService {
         }
         return array;
     }
+
+    public void proposeContract(ContractSchema contract, String usernameFromToken) {
+        Contract cont= new Contract();
+        cont.setAnimal(contract.getAnimal());
+        cont.setEnd(contract.getEnd());
+        cont.setUsernameB(contract.getUsername());
+        cont.setUsernameA(usernameFromToken);
+        cont.setFeedback(contract.getFeedback());
+        cont.setAccepted(false);
+        ContRep.save(cont);
+    }
+    public void acceptContract(String usernameB, String usernameFromToken) {
+        Contract cont=ContRep.findByUsernameBAndUsernameA(usernameB,usernameFromToken);
+        cont.setAccepted(true);
+        ContRep.save(cont);
+    }
+
 }

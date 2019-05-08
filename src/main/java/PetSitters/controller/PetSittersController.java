@@ -275,4 +275,22 @@ public class PetSittersController {
         JSONArray response = petSittersService.getOpenedChats(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(response.toString(), HttpStatus.OK);
     }
+
+    @PostMapping(value="/proposeContract", headers="Accept=application/json")
+    @ApiOperation(value = "Given the username of another user, and the contract information, begins a contract but doen't accept it.")
+    public ResponseEntity proposeContract(@RequestBody ContractSchema contract, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
+        try {
+            petSittersService.proposeContract(contract, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        } catch (DuplicateKeyException e) {
+            throw new DuplicateKeyException("Contract already exists");
+        }
+        return new ResponseEntity(HttpStatus.OK);
+    }
+    @PostMapping(value="/acceptContract", headers="Accept=application/json")
+    @ApiOperation(value = "Given the username of another user, accepts the contract proposed.")
+    public ResponseEntity acceptContract(@RequestParam String contract, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
+            petSittersService.acceptContract(contract, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
 }
