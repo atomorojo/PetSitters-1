@@ -1,6 +1,7 @@
 package PetSitters.controller;
 
 import PetSitters.domain.Coordinates;
+import PetSitters.entity.Contract;
 import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.exception.ExceptionServiceError;
@@ -291,6 +292,30 @@ public class PetSittersController {
     public ResponseEntity acceptContract(@RequestParam String contract, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
             petSittersService.acceptContract(contract, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(HttpStatus.OK);
+    }
+    @DeleteMapping(value="/rejectContract", headers="Accept=application/json")
+    @ApiOperation(value = "Given the username of another user, rejects the proposed contract.")
+    public ResponseEntity rejectContract(@RequestParam String contract, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
+        petSittersService.rejectContract(contract, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(HttpStatus.OK);
+    }
+    @GetMapping(value="/getProposedContracts", headers="Accept=application/json")
+    @ApiOperation(value = "Gets all the contracts that this user proposed.")
+    public ResponseEntity contractListProposed(@RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
+        List<Contract> res=petSittersService.contractListProposed(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(res,HttpStatus.OK);
+    }
+    @GetMapping(value="/getReceivedContracts", headers="Accept=application/json")
+    @ApiOperation(value = "Gets all the contracts that this user received.")
+    public ResponseEntity contractListReceived(@RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
+        List<Contract> res=petSittersService.contractListReceived(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(res,HttpStatus.OK);
+    }
+    @GetMapping(value="/isContracted", headers="Accept=application/json")
+    @ApiOperation(value = "Returns the contract that has been set between the 2 users, if it exists.")
+    public ResponseEntity isContracted(@RequestParam String contract,@RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
+        Contract res=petSittersService.isContracted(contract,jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(res,HttpStatus.OK);
     }
 
 }

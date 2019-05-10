@@ -7,8 +7,8 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.List;
 
 public interface ContractRepository extends MongoRepository<Contract, String> {
-    List<Contract> findByUsernameA(String usernameA);
-    List<Contract> findByUsernameB(String usernameB);
-    Contract findByUsernameBAndUsernameA(String usernameB,String usernameA);
+    List<Contract> findByUsernameFrom(String usernameA);
+    List<Contract> findByUsernameTo(String usernameB);
+    Contract findByUsernameToAndUsernameFrom(String usernameTo,String usernameFrom);
 
 }

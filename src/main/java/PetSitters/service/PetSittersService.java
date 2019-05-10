@@ -413,19 +413,49 @@ public class PetSittersService {
     }
 
     public void proposeContract(ContractSchema contract, String usernameFromToken) {
+        Contract c=ContRep.findByUsernameToAndUsernameFrom(contract.getUsername(),usernameFromToken);
+        if (c!=null) {
+            ContRep.delete(c);
+        }
         Contract cont= new Contract();
         cont.setAnimal(contract.getAnimal());
         cont.setEnd(contract.getEnd());
-        cont.setUsernameB(contract.getUsername());
-        cont.setUsernameA(usernameFromToken);
+        cont.setUsernameTo(contract.getUsername());
+        cont.setUsernameFrom(usernameFromToken);
         cont.setFeedback(contract.getFeedback());
         cont.setAccepted(false);
         ContRep.save(cont);
     }
     public void acceptContract(String usernameB, String usernameFromToken) {
-        Contract cont=ContRep.findByUsernameBAndUsernameA(usernameB,usernameFromToken);
-        cont.setAccepted(true);
-        ContRep.save(cont);
+        Contract cont=ContRep.findByUsernameToAndUsernameFrom(usernameB,usernameFromToken);
+        if (cont!=null) {
+            cont.setAccepted(true);
+            ContRep.save(cont);
+        }
+    }
+
+    public void rejectContract(String usernameB, String usernameFromToken) {
+        Contract cont=ContRep.findByUsernameToAndUsernameFrom(usernameB,usernameFromToken);
+        if (cont!=null) {
+            ContRep.delete(cont);
+        }
+        cont=ContRep.findByUsernameToAndUsernameFrom(usernameFromToken,usernameB);
+        if (cont!=null) {
+            ContRep.delete(cont);
+        }
+
+    }
+    public List<Contract> contractListProposed(String usernameFromToken) {
+        List<Contract> cont=ContRep.findByUsernameFrom(usernameFromToken);
+        return cont;
+    }
+    public List<Contract> contractListReceived(String usernameFromToken) {
+        List<Contract> cont=ContRep.findByUsernameTo(usernameFromToken);
+        return cont;
+    }
+    public Contract isContracted(String usernameB, String usernameFromToken) {
+        Contract cont=ContRep.findByUsernameToAndUsernameFrom(usernameB,usernameFromToken);
+        return cont;
     }
 
 }

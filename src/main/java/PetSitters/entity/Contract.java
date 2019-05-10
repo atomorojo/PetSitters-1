@@ -1,8 +1,11 @@
 package PetSitters.entity;
 
 import PetSitters.domain.Animal;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import javax.persistence.GeneratedValue;
@@ -10,19 +13,23 @@ import javax.persistence.GenerationType;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
 
+
+@ApiModel("Chat")
+@CompoundIndex(name = "usernameTo_usernameFrom_idx", unique = true, def = "{'usernameFrom' : 1, 'usernameTo' : 1}")
+@Document
 public class Contract {
     @Id
     @ApiModelProperty(value = "Contract's id", required = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     String id;
-    @ApiModelProperty(value = "Username of User A", required = true)
-    @Field("usernameA")
+    @ApiModelProperty(value = "Username of UserFrom", required = true)
+    @Field("usernameFrom")
     @NotBlank
-    String usernameA;
-    @ApiModelProperty(value = "Username of User A", required = true)
-    @Field("usernameB")
+    String usernameFrom;
+    @ApiModelProperty(value = "Username of UserTo", required = true)
+    @Field("usernameTo")
     @NotBlank
-    String usernameB;
+    String usernameTo;
     @ApiModelProperty(value = "Animals cared for", required = true)
     @Field("animal")
     @NotBlank
@@ -44,20 +51,20 @@ public class Contract {
     @NotBlank
     Boolean accepted;
 
-    public String getUsernameA() {
-        return usernameA;
+    public String getUsernameFrom() {
+        return usernameFrom;
     }
 
-    public void setUsernameA(String usernameA) {
-        this.usernameA = usernameA;
+    public void setUsernameFrom(String usernameFrom) {
+        this.usernameFrom = usernameFrom;
     }
 
-    public String getUsernameB() {
-        return usernameB;
+    public String getUsernameTo() {
+        return usernameTo;
     }
 
-    public void setUsernameB(String usernameB) {
-        this.usernameB = usernameB;
+    public void setUsernameTo(String usernameTo) {
+        this.usernameTo = usernameTo;
     }
 
     public List<Animal> getAnimal() {
