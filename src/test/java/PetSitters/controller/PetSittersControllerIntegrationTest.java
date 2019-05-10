@@ -131,10 +131,9 @@ public class PetSittersControllerIntegrationTest {
     }
 
     ResultActions getOpenedChats(String token) throws Exception {
-        return mvc.perform(post("/petsitters/getOpenedChats")
+        return mvc.perform(get("/petsitters/getOpenedChats")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{}"));
+                .contentType(MediaType.APPLICATION_JSON));
     }
 
     String ActivateUserAndLoginOkAndGetToken(String cont, String username) throws Exception {

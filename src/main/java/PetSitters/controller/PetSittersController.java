@@ -269,7 +269,7 @@ public class PetSittersController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @PostMapping(value="/getOpenedChats", headers="Accept=application/json")
+    @GetMapping(value="/getOpenedChats")
     @ApiOperation(value = "Returns all the opened chats of a user. Specifically, it returns usernames who have started previously a chat with this person. The returned array starts with the oldest chat.")
     public ResponseEntity getOpenedChats(@RequestHeader("Authorization") String token) throws ExceptionInvalidAccount, JSONException {
         JSONArray response = petSittersService.getOpenedChats(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
