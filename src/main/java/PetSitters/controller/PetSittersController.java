@@ -68,6 +68,16 @@ public class PetSittersController {
     GridFS gridFS;
 
 
+    @PostMapping(value = "setProfileImage")
+    @ApiOperation(value = "Sets the profile image.")
+    public ResponseEntity setProfileImage(@RequestParam("file") MultipartFile file, @RequestHeader("Authorization") String token) throws ParseException, IOException {
+        String username=jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length()));
+        String name=gridFS.saveFile(file,username);
+        petSittersService.setProfileImage(username,name);
+        return new ResponseEntity(name,HttpStatus.OK);
+    }
+
+
     @PostMapping(value = "modify/{name}")
     @ApiOperation(value = "Modify the camp specified.")
     public ResponseEntity modify(@PathVariable String name,@RequestBody String toModify,@RequestHeader("Authorization") String token) throws ParseException, IOException {

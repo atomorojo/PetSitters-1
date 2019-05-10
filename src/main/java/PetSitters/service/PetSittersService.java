@@ -525,4 +525,9 @@ public class PetSittersService {
         return cont;
     }
 
+    public void setProfileImage(String username, String name) {
+        UserPetSitters user=UserRep.findByUsername(username);
+        user.setImage(name);
+        UserRep.save(user);
+    }
 }
