@@ -213,7 +213,7 @@ public class PetSittersServiceIntegrationTest {
         final String token = jwtTokenUtil.generateToken(user);
     }
     @Test
-    public void testValidEmailVerify() throws ParseException {
+    public void testValidEmailVerify() throws ParseException, IOException {
         UserPetSitters user=createUser();
         VerificationToken aux=new VerificationToken();
         aux.setUsername(user.getUsername());
@@ -224,7 +224,7 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test
-    public void testInvalidEmailVerify() {
+    public void testInvalidEmailVerify() throws IOException {
         String token="random string";
         Boolean good=false;
         if (ResponseEntity.status(HttpStatus.OK).equals(verificationTokenService.verifyEmail(token).getStatusCode())){

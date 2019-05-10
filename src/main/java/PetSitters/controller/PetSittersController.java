@@ -65,7 +65,6 @@ public class PetSittersController {
         return new ResponseEntity(name, HttpStatus.OK);
     }
 
-
     @PostMapping(value = "modify/{name}")
     @ApiOperation(value = "Modify the camp specified.")
     public ResponseEntity modify(@PathVariable String name, @RequestBody String toModify, @RequestHeader("Authorization") String token) throws ParseException, IOException {
@@ -163,7 +162,7 @@ public class PetSittersController {
 
     @GetMapping("/verify-email")
     @ResponseBody
-    public String verifyEmail(@RequestParam String code) {
+    public String verifyEmail(@RequestParam String code) throws IOException {
         return verificationTokenService.verifyEmail(code).getBody();
     }
 

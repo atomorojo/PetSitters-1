@@ -1,14 +1,25 @@
 package PetSitters.security;
 
+import PetSitters.auxiliary.ReadWebPage;
 import PetSitters.entity.UserPetSitters;
 import PetSitters.repository.UserRepository;
 import PetSitters.repository.VerificationTokenRepository;
+import org.apache.commons.lang3.text.StrSubstitutor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static PetSitters.security.Constants.*;
 
 @Service
 public class VerificationTokenService {
@@ -35,15 +46,23 @@ public class VerificationTokenService {
         sendingMailService.sendVerificationMail(email, verificationToken.getToken());
     }
 
-    public ResponseEntity<String> verifyEmail(String token) {
+    public ResponseEntity<String> verifyEmail(String token) throws IOException {
         List<VerificationToken> verificationTokens = verificationTokenRepository.findByToken(token);
         if (verificationTokens.isEmpty()) {
-            return ResponseEntity.badRequest().body("Invalid token.");
+            ReadWebPage read = new ReadWebPage();
+            Map<String, String> data = new HashMap<>();
+            data.put("error", "Invalid token.");
+            String formattedString = read.getProcessedText(ERROR_EMAIL_CONFIRMATION_WEB_PAGE_PATH, data);
+            return ResponseEntity.badRequest().body(formattedString);
         }
 
         VerificationToken verificationToken = verificationTokens.get(0);
         if (verificationToken.getExpiredDateTime().isBefore(LocalDateTime.now())) {
-            return ResponseEntity.unprocessableEntity().body("Expired token.");
+            ReadWebPage read = new ReadWebPage();
+            Map<String, String> data = new HashMap<>();
+            data.put("error", "Expired token.");
+            String formattedString = read.getProcessedText(ERROR_EMAIL_CONFIRMATION_WEB_PAGE_PATH, data);
+            return ResponseEntity.badRequest().body(formattedString);
         }
 
         verificationToken.setConfirmedDateTime(LocalDateTime.now());
@@ -53,6 +72,8 @@ public class VerificationTokenService {
         userRepository.save(user);
         verificationTokenRepository.delete(verificationToken);
 
-        return ResponseEntity.ok("You have successfully verified your email address.");
+        ReadWebPage read = new ReadWebPage();
+        String htmlPage = read.getText(OK_EMAIL_CONFIRMATION_WEB_PAGE_PATH);
+        return ResponseEntity.ok(htmlPage);
     }
 }

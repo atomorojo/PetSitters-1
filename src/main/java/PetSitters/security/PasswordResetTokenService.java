@@ -1,6 +1,7 @@
 package PetSitters.security;
 
 import PetSitters.auxiliary.Pair;
+import PetSitters.auxiliary.ReadWebPage;
 import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.repository.ResetPasswordTokenRepository;
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static PetSitters.security.Constants.CHANGE_PASSWORD_WEB_PAGE_PATH;
+import static PetSitters.security.Constants.OK_EMAIL_CONFIRMATION_WEB_PAGE_PATH;
 
 @Service
 public class PasswordResetTokenService {
@@ -82,8 +84,8 @@ public class PasswordResetTokenService {
         Pair<ResponseEntity<String>, ChangePasswordToken> p = checkTokenIntegrity(token);
         ResponseEntity re = p.getFirst();
         if (re.getStatusCode().is2xxSuccessful()) {
-            String path = new File(".").getCanonicalPath();
-            String htmlPage = new String(Files.readAllBytes(Paths.get(path + CHANGE_PASSWORD_WEB_PAGE_PATH)));
+            ReadWebPage read = new ReadWebPage();
+            String htmlPage = read.getText(CHANGE_PASSWORD_WEB_PAGE_PATH);
             return ResponseEntity.ok(htmlPage);
         }
         return re;
