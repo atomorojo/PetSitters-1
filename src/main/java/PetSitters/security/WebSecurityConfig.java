@@ -21,7 +21,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import javax.annotation.Resource;
-import java.util.Arrays;
 import java.util.Collections;
 
 import static PetSitters.security.Constants.*;
@@ -63,19 +62,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET, DEBUG_PATH)
                 .permitAll()
-                .antMatchers(HttpMethod.GET,SWAGGER_URL,EMAIL_URL,EMAIL_URL_VERIFY,EMAIL_URL_RESEND)
+                .antMatchers(HttpMethod.GET, SWAGGER_URL, EMAIL_URL, EMAIL_URL_VERIFY, EMAIL_URL_RESEND)
                 .permitAll()
-                .antMatchers(HttpMethod.POST,REGISTER_URL,EMAIL_URL,EMAIL_URL_RESEND)
+                .antMatchers(HttpMethod.POST, REGISTER_URL, EMAIL_URL, EMAIL_URL_RESEND)
                 .permitAll()
                 //.antMatchers(HttpMethod.POST,REGISTER_NO_MAIL_URL)//
                 //.permitAll()//
-                .antMatchers(HttpMethod.POST,REQUEST_RESET_PASSWORD_URL)
+                .antMatchers(HttpMethod.POST, REQUEST_RESET_PASSWORD_URL)
                 .permitAll()
-                .antMatchers(HttpMethod.GET,RESET_PASSWORD_URL)
+                .antMatchers(HttpMethod.GET, RESET_PASSWORD_URL)
                 .permitAll()
-                .antMatchers(HttpMethod.POST,RESET_PASSWORD_URL)
+                .antMatchers(HttpMethod.POST, RESET_PASSWORD_URL)
                 .permitAll()
-                .antMatchers(HttpMethod.POST,LOGIN_URL)
+                .antMatchers(HttpMethod.POST, LOGIN_URL)
                 .permitAll()
                 .antMatchers(HttpMethod.GET,
                         "/v2/api-docs",
@@ -101,9 +100,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public BCryptPasswordEncoder encoder(){
+    public BCryptPasswordEncoder encoder() {
         return new BCryptPasswordEncoder();
     }
+
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

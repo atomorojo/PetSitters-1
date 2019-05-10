@@ -24,7 +24,8 @@ public class RegisterSchema implements Serializable {
     @NotBlank
     String birthdate;
 
-    public RegisterSchema() { }
+    public RegisterSchema() {
+    }
 
     public RegisterSchema(@NotBlank String firstName, @NotBlank String lastName, @NotBlank String username, @NotBlank String password, @NotBlank String email, @NotBlank String birthdate) {
         this.firstName = firstName;

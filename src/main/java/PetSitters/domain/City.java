@@ -28,7 +28,7 @@ public class City {
         ServiceLocator serviceLocator = ServiceLocator.getInstance();
         Service service = serviceLocator.find("GetCoordinates");
         DTOCity dtoCity = new DTOCity(name);
-        DTOCoordinates result = (DTOCoordinates)service.execute(dtoCity);
+        DTOCoordinates result = (DTOCoordinates) service.execute(dtoCity);
         return new Coordinates(result);
     }
 }

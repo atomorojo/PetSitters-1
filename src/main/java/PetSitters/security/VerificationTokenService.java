@@ -17,16 +17,16 @@ public class VerificationTokenService {
     private SendingMailService sendingMailService;
 
     @Autowired
-    public VerificationTokenService(UserRepository userRepository, VerificationTokenRepository verificationTokenRepository, SendingMailService sendingMailService){
+    public VerificationTokenService(UserRepository userRepository, VerificationTokenRepository verificationTokenRepository, SendingMailService sendingMailService) {
         this.userRepository = userRepository;
         this.verificationTokenRepository = verificationTokenRepository;
         this.sendingMailService = sendingMailService;
     }
 
-    public void createVerification(String email){
+    public void createVerification(String email) {
         UserPetSitters user = userRepository.findByEmail(email);
         VerificationToken verificationToken = verificationTokenRepository.findByEmail(email);
-        if (verificationToken==null) {
+        if (verificationToken == null) {
             verificationToken = new VerificationToken();
             verificationToken.setUsername(user.getUsername());
             verificationToken.setEmail(email);
@@ -35,7 +35,7 @@ public class VerificationTokenService {
         sendingMailService.sendVerificationMail(email, verificationToken.getToken());
     }
 
-    public ResponseEntity<String> verifyEmail(String token){
+    public ResponseEntity<String> verifyEmail(String token) {
         List<VerificationToken> verificationTokens = verificationTokenRepository.findByToken(token);
         if (verificationTokens.isEmpty()) {
             return ResponseEntity.badRequest().body("Invalid token.");
@@ -48,7 +48,7 @@ public class VerificationTokenService {
 
         verificationToken.setConfirmedDateTime(LocalDateTime.now());
         verificationToken.setStatus(VerificationToken.STATUS_VERIFIED);
-        UserPetSitters user=userRepository.findByUsername(verificationToken.getUsername());
+        UserPetSitters user = userRepository.findByUsername(verificationToken.getUsername());
         user.setActive(true);
         userRepository.save(user);
         verificationTokenRepository.delete(verificationToken);

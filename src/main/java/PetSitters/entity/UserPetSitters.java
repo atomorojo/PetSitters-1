@@ -67,10 +67,9 @@ public class UserPetSitters {
     private String description;
 
     @ApiModelProperty(value = "The user's list of animals that he can care")
-    private List<String> expert=new ArrayList<String>();
+    private List<String> expert = new ArrayList<String>();
     @ApiModelProperty(value = "The user's list of favorite users")
-    private List<String> favorites=new ArrayList<String>();
-
+    private List<String> favorites = new ArrayList<String>();
 
 
     @ApiModelProperty(value = "The user's availabilityy")
@@ -78,11 +77,7 @@ public class UserPetSitters {
 
     private boolean active;
 
-    public UserPetSitters() {}
-
-    private String encrypt(String password) {
-        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-        return bCryptPasswordEncoder.encode(password);
+    public UserPetSitters() {
     }
 
     public UserPetSitters(RegisterSchema R) throws ParseException {
@@ -93,7 +88,12 @@ public class UserPetSitters {
         this.email = R.getEmail();
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
         this.birthdate = format.parse(R.getBirthdate());
-        this.active=false;
+        this.active = false;
+    }
+
+    private String encrypt(String password) {
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+        return bCryptPasswordEncoder.encode(password);
     }
 
     public String getId() {
@@ -215,9 +215,11 @@ public class UserPetSitters {
     public void setFavorites(List<String> favorites) {
         this.favorites = favorites;
     }
+
     public void addFavorites(String favorites) {
         this.favorites.add(favorites);
     }
+
     public void removeFavorites(String s) {
         this.favorites.remove(s);
     }
@@ -230,7 +232,7 @@ public class UserPetSitters {
     }
 
     public boolean isTheSamePassword(String password) {
-        return new BCryptPasswordEncoder().matches(password,getPassword());
+        return new BCryptPasswordEncoder().matches(password, getPassword());
     }
 
 

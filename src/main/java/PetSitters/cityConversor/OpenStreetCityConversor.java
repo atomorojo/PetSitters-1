@@ -20,7 +20,7 @@ public class OpenStreetCityConversor implements ICityConversor {
 
     @Override
     public DTO execute(DTO parameter) throws IOException, JSONException, ExceptionServiceError {
-        DTOCity dtoCity = (DTOCity)parameter;
+        DTOCity dtoCity = (DTOCity) parameter;
         String parameterCity = dtoCity.getCity();
         parameterCity = parameterCity.replaceAll(" ", "%20");
         String GETParameters = "search?city=" + parameterCity + "&limit=1&format=json";

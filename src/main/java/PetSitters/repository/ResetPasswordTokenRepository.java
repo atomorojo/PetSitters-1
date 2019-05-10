@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface ResetPasswordTokenRepository extends MongoRepository<ChangePasswordToken, String> {
     ChangePasswordToken findByEmail(String email);
+
     List<ChangePasswordToken> findByToken(String token);
 }

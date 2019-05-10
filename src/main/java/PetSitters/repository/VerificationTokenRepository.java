@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface VerificationTokenRepository extends MongoRepository<VerificationToken, String> {
     VerificationToken findByEmail(String email);
+
     List<VerificationToken> findByToken(String token);
 }
