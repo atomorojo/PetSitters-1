@@ -294,11 +294,7 @@ public class PetSittersController {
     @GetMapping(value = "DEBUGgetAllUsers")
     @ApiOperation(value = "Gets all the usernames in the System")
     public ResponseEntity getAllUsernames() throws ParseException, ExceptionInvalidAccount {
-        List<UserPetSitters> users = petSittersService.DEBUGfindAll();
-        JSONArray array = new JSONArray();
-        for (UserPetSitters user: users) {
-            array.put(user.getUsername());
-        }
+        JSONArray array = petSittersService.DEBUGfindAll();
         return new ResponseEntity(array.toString(), HttpStatus.OK);
     }
 }
