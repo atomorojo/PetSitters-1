@@ -1,16 +1,15 @@
 package PetSitters.service;
 
+import PetSitters.domain.Animal;
 import PetSitters.domain.Coordinates;
 import PetSitters.entity.Chat;
+import PetSitters.entity.Contract;
 import PetSitters.entity.Report;
 import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.exception.ExceptionServiceError;
-import PetSitters.repository.ChatRepository;
-import PetSitters.repository.ReportRepository;
-import PetSitters.repository.VerificationTokenRepository;
+import PetSitters.repository.*;
 import PetSitters.schemas.*;
-import PetSitters.repository.UserRepository;
 import PetSitters.security.*;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
@@ -70,6 +69,9 @@ public class PetSittersServiceIntegrationTest {
 
     @Autowired
     ChatRepository ChatRep;
+    @Autowired
+    ContractRepository ContractRepository;
+
 
     @After
     public void tearDown() {  // Add here all the repositories
@@ -634,5 +636,72 @@ public class PetSittersServiceIntegrationTest {
         JSONArray array = PSS.getOpenedChats("rod98");
         assertEquals("Output should be empty", array.length(), 0);
     }
+
+    @Test
+    public void proposeContract() throws IOException, JSONException, ExceptionServiceError, ParseException {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        UserPetSitters myUser=UserRep.findByUsername("rod98");
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+        ContractSchema contract=new ContractSchema();
+        Animal dog=new Animal();
+        dog.setName("Doggy");
+        dog.setTipus("Dog");
+        List<Animal> an=new ArrayList<Animal>();
+        an.add(dog);
+        contract.setAnimal(an);
+        contract.setEnd("2019-01-01");
+        contract.setStart("2018-01-01");
+        contract.setFeedback(false);
+        contract.setUsername(registerSchema2.getUsername());
+        PSS.proposeContract(contract, myUser.getUsername());
+        Contract c=ContractRepository.findByUsernameToAndUsernameFrom(registerSchema2.getUsername(),myUser.getUsername());
+        assertTrue("Is not null",c!=null);
+    }
+    @Test
+    public void acceptContract() throws IOException, JSONException, ExceptionServiceError, ParseException {
+        proposeContract();
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.acceptContract(registerSchema2.getUsername(),registerSchema1.getUsername());
+        Contract c=ContractRepository.findByUsernameToAndUsernameFrom(registerSchema2.getUsername(),registerSchema1.getUsername());
+        assertTrue("Is true",c.getAccepted());
+    }
+    @Test
+    public void rejectContract() throws IOException, JSONException, ExceptionServiceError, ParseException {
+        proposeContract();
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.rejectContract(registerSchema2.getUsername(),registerSchema1.getUsername());
+        Contract c=ContractRepository.findByUsernameToAndUsernameFrom(registerSchema2.getUsername(),registerSchema1.getUsername());
+        assertTrue("Is null",c==null);
+    }
+
+    @Test
+    public void getContractsTo() throws IOException, JSONException, ExceptionServiceError, ParseException {
+        proposeContract();
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        List<Contract> c=PSS.contractListReceived(registerSchema2.getUsername());
+        assertTrue("Is null",c.size()==1);
+    }
+
+    @Test
+    public void getContractsFrom() throws IOException, JSONException, ExceptionServiceError, ParseException {
+        proposeContract();
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        List<Contract> c=PSS.contractListProposed(registerSchema1.getUsername());
+        assertTrue("Is null",c.size()==1);
+    }
+
+    @Test
+    public void isContracted() throws IOException, JSONException, ExceptionServiceError, ParseException {
+        proposeContract();
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        Contract c=PSS.isContracted(registerSchema2.getUsername(),registerSchema1.getUsername());
+        assertTrue("Is null",c!=null);
+    }
+
 
 }
