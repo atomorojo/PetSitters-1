@@ -405,4 +405,72 @@ public class PetSittersService {
         }
         return array;
     }
+
+    private void DEBUGclearAll() {
+        UserRep.deleteAll();
+        ChatRep.deleteAll();
+    }
+
+    public void DEBUGload() throws ParseException {
+        DEBUGclearAll();
+        register(new RegisterSchema("Alexandra", "Volkova", "alexandra", "ff788efa931cc5b6018695fbb6999911", "juan1@juan.com", "20-10-1998"));
+        register(new RegisterSchema("Daniel", "Esquina", "daniel", "ff788efa931cc5b6018695fbb6999911", "juan2@juan.com", "20-10-1998"));
+        register(new RegisterSchema("Hector", "Baiges", "hector", "ff788efa931cc5b6018695fbb6999911", "juan3@juan.com", "20-10-1998"));
+        register(new RegisterSchema("Ruben", "Gonzalex", "ruben", "ff788efa931cc5b6018695fbb6999911", "juan4@juan.com", "20-10-1998"));
+        register(new RegisterSchema("David", "Garcia", "david", "ff788efa931cc5b6018695fbb6999911", "juan5@juan.com", "20-10-1998"));
+        register(new RegisterSchema("Pere", "Bruy", "pere", "ff788efa931cc5b6018695fbb6999911", "juan6@juan.com", "20-10-1998"));
+        register(new RegisterSchema("George", "Bochileanu", "george", "ff788efa931cc5b6018695fbb6999911", "juan7@juan.com", "20-10-1998"));
+        register(new RegisterSchema("Antoni", "Casas", "antoni", "ff788efa931cc5b6018695fbb6999911", "juan8@juan.com", "20-10-1998"));
+
+        UserPetSitters user = UserRep.findByUsername("alexandra");
+        user.setActive(true);
+        UserRep.save(user);
+
+        user = UserRep.findByUsername("daniel");
+        user.setActive(true);
+        UserRep.save(user);
+
+        user = UserRep.findByUsername("hector");
+        user.setActive(true);
+        UserRep.save(user);
+
+        user = UserRep.findByUsername("ruben");
+        user.setActive(true);
+        UserRep.save(user);
+
+        user = UserRep.findByUsername("david");
+        user.setActive(true);
+        UserRep.save(user);
+
+        user = UserRep.findByUsername("pere");
+        user.setActive(true);
+        UserRep.save(user);
+
+        user = UserRep.findByUsername("george");
+        user.setActive(true);
+        UserRep.save(user);
+
+        user = UserRep.findByUsername("antoni");
+        user.setActive(true);
+        UserRep.save(user);
+    }
+
+    public void DEBUGloadWithChats() throws ParseException, ExceptionInvalidAccount {
+        DEBUGclearAll();
+        DEBUGload();
+        startChat(new StartChatSchema("daniel"), "alexandra");
+        startChat(new StartChatSchema("hector"), "daniel");
+        startChat(new StartChatSchema("daniel"), "ruben");
+
+        startChat(new StartChatSchema("daniel"), "pere");
+    }
+
+    public JSONArray DEBUGfindAll() {
+        List<UserPetSitters> users = UserRep.findAll();
+        JSONArray array = new JSONArray();
+        for (UserPetSitters user: users) {
+            array.put(user.getUsername());
+        }
+        return array;
+    }
 }

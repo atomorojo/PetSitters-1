@@ -269,10 +269,32 @@ public class PetSittersController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @PostMapping(value="/getOpenedChats", headers="Accept=application/json")
+    @GetMapping(value="/getOpenedChats")
     @ApiOperation(value = "Returns all the opened chats of a user. Specifically, it returns usernames who have started previously a chat with this person. The returned array starts with the oldest chat.")
     public ResponseEntity getOpenedChats(@RequestHeader("Authorization") String token) throws ExceptionInvalidAccount, JSONException {
         JSONArray response = petSittersService.getOpenedChats(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(response.toString(), HttpStatus.OK);
+    }
+
+    //-------------- DEBUG -------------------------------------
+    @GetMapping(value = "DEBUGloadDefault")
+    @ApiOperation(value = "Loads 4 users in the database")
+    public ResponseEntity loadDefault() throws ParseException {
+        petSittersService.DEBUGload();
+        return new ResponseEntity("The context has been successfully loaded!", HttpStatus.OK);
+    }
+
+    @GetMapping(value = "DEBUGloadWithChats")
+    @ApiOperation(value = "Loads 4 users in the database and starts some chats without messages")
+    public ResponseEntity loadWithChats() throws ParseException, ExceptionInvalidAccount {
+        petSittersService.DEBUGloadWithChats();
+        return new ResponseEntity("The context has been successfully loaded!", HttpStatus.OK);
+    }
+
+    @GetMapping(value = "DEBUGgetAllUsers")
+    @ApiOperation(value = "Gets all the usernames in the System")
+    public ResponseEntity getAllUsernames() throws ParseException, ExceptionInvalidAccount {
+        JSONArray array = petSittersService.DEBUGfindAll();
+        return new ResponseEntity(array.toString(), HttpStatus.OK);
     }
 }
