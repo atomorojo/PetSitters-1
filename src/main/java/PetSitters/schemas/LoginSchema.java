@@ -1,6 +1,7 @@
 package PetSitters.schemas;
 
 import org.springframework.batch.item.validator.ValidationException;
+
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -16,8 +17,8 @@ public class LoginSchema implements Serializable {
 
 
     public LoginSchema(String username, String password) {
-        this.username=username;
-        this.password=password;
+        this.username = username;
+        this.password = password;
     }
 
     public String getUsername() {

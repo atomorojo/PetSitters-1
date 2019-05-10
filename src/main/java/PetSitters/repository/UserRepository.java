@@ -9,13 +9,17 @@ import java.util.List;
 @Document(collection = "users")
 public interface UserRepository extends MongoRepository<UserPetSitters, String> {
 
-        List<UserPetSitters> findByFirstName(String firstName);
-        UserPetSitters findByUsername(String username);
-        boolean existsByUsername(String username);
-        void deleteByUsername(String username);
-        UserPetSitters findByEmail(String email);
+    List<UserPetSitters> findByFirstName(String firstName);
 
-        List<UserPetSitters> findAll();
+    UserPetSitters findByUsername(String username);
+
+    boolean existsByUsername(String username);
+
+    void deleteByUsername(String username);
+
+    UserPetSitters findByEmail(String email);
+
+    List<UserPetSitters> findAll();
 }
 
 

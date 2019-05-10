@@ -11,19 +11,19 @@ public class DTOCity implements DTO {
         this.city = city;
     }
 
-    public void setCity(String city) {
-        this.city = city;
-    }
-
     public String getCity() {
         return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
     }
 
     @Override
     public int hashCode() {
         int result = 0;
-        for (char c: city.toCharArray()) {
-            result = result*256 + c;
+        for (char c : city.toCharArray()) {
+            result = result * 256 + c;
         }
         return result;
     }

@@ -19,12 +19,6 @@ public class GenericToken {
     private String username;
     private String email;
 
-    private void initialize() {
-        this.token = UUID.randomUUID().toString();
-        this.issuedDateTime = LocalDateTime.now();
-        this.expiredDateTime = this.issuedDateTime.plusDays(1);
-    }
-
     public GenericToken() {
         initialize();
     }
@@ -32,6 +26,12 @@ public class GenericToken {
     public GenericToken(String status) {
         initialize();
         this.status = status;
+    }
+
+    private void initialize() {
+        this.token = UUID.randomUUID().toString();
+        this.issuedDateTime = LocalDateTime.now();
+        this.expiredDateTime = this.issuedDateTime.plusDays(1);
     }
 
     public String getEmail() {

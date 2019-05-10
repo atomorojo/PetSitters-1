@@ -1,7 +1,5 @@
 package PetSitters.schemas;
 
-import PetSitters.domain.Availability;
-
 import java.io.Serializable;
 import java.util.List;
 

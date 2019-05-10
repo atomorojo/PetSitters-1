@@ -1,7 +1,5 @@
 package PetSitters.serviceDTO;
 
-import javax.swing.text.Document;
-
 public class DTOCoordinates implements DTO {
     String longitude;
     String latitude;

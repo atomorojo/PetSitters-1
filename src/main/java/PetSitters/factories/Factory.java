@@ -5,26 +5,25 @@ import PetSitters.cityConversor.ICityConversor;
 
 public class Factory {
     private static Factory instance;
+    ICityConversor cityConversor;
 
     private Factory() {
         //private constructor
-    }
-
-    private static class BillPughSingleton {
-        private static final Factory instance = new Factory();
     }
 
     public static Factory getInstance() {
         return BillPughSingleton.instance;
     }
 
-    ICityConversor cityConversor;
-
     public ICityConversor getCityConversor() {
         if (cityConversor == null) {
             cityConversor = new CityConversorProxy();
         }
         return cityConversor;
+    }
+
+    private static class BillPughSingleton {
+        private static final Factory instance = new Factory();
     }
 
 }

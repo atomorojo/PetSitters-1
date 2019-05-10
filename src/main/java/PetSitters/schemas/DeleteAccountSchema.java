@@ -14,7 +14,8 @@ public class DeleteAccountSchema implements Serializable {
     @NotBlank
     String password;
 
-    public DeleteAccountSchema() { }
+    public DeleteAccountSchema() {
+    }
 
     public DeleteAccountSchema(@NotBlank String password) {
         this.password = password;

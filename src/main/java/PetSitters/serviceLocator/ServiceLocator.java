@@ -10,10 +10,6 @@ public class ServiceLocator {
         //private constructor
     }
 
-    private static class BillPughSingleton {
-        private static final ServiceLocator instance = new ServiceLocator();
-    }
-
     public static ServiceLocator getInstance() {
         return BillPughSingleton.instance;
     }
@@ -24,5 +20,9 @@ public class ServiceLocator {
             return f.getCityConversor();
         }
         throw new ExceptionServiceError("The service does not exist");
+    }
+
+    private static class BillPughSingleton {
+        private static final ServiceLocator instance = new ServiceLocator();
     }
 }

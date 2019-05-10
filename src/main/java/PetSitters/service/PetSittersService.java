@@ -1,9 +1,9 @@
 package PetSitters.service;
 
 import PetSitters.auxiliary.PushbackIterator;
+import PetSitters.domain.Availability;
 import PetSitters.domain.City;
 import PetSitters.domain.Coordinates;
-import PetSitters.domain.Availability;
 import PetSitters.entity.Chat;
 import PetSitters.entity.Report;
 import PetSitters.entity.UserPetSitters;
@@ -21,7 +21,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Service
 @EnableAutoConfiguration
@@ -70,55 +72,56 @@ public class PetSittersService {
         u.setPassword(changePassword.getNewPassword());
         UserRep.save(u);
     }
+
     public void modify(String name, String value, String user) {
-        switch(name) {
+        switch (name) {
             case "availability":
-                modifyAvailability(value,user);
+                modifyAvailability(value, user);
                 break;
             case "description":
-                modifyDescription(value,user);
+                modifyDescription(value, user);
                 break;
             case "city":
-                modifyCity(value,user);
+                modifyCity(value, user);
                 break;
 
             case "expert":
-                modifyExpert(value,user);
+                modifyExpert(value, user);
                 break;
 
             case "image":
-                modifyImage(value,user);
+                modifyImage(value, user);
                 break;
         }
     }
 
-    private void modifyDescription(String value,String user) {
-        UserPetSitters person=UserRep.findByUsername(user);
+    private void modifyDescription(String value, String user) {
+        UserPetSitters person = UserRep.findByUsername(user);
         person.setDescription(value);
         UserRep.save(person);
     }
 
-    private void modifyCity(String value,String user) {
-        UserPetSitters person=UserRep.findByUsername(user);
+    private void modifyCity(String value, String user) {
+        UserPetSitters person = UserRep.findByUsername(user);
         person.setCity(value);
         UserRep.save(person);
     }
 
-    private void modifyExpert(String value,String user) {
-        UserPetSitters person=UserRep.findByUsername(user);
+    private void modifyExpert(String value, String user) {
+        UserPetSitters person = UserRep.findByUsername(user);
         person.setExpert(experts(value));
         UserRep.save(person);
     }
 
     private List<String> experts(String toModify) {
-        String[] aux=toModify.split("''");
-        ArrayList<String> toret=new ArrayList<String>();
-        for (String s:aux) toret.add(s);
+        String[] aux = toModify.split("''");
+        ArrayList<String> toret = new ArrayList<String>();
+        for (String s : aux) toret.add(s);
         return new ArrayList<String>(toret);
     }
 
-    private void modifyImage(String value,String user) {
-        UserPetSitters person=UserRep.findByUsername(user);
+    private void modifyImage(String value, String user) {
+        UserPetSitters person = UserRep.findByUsername(user);
         person.setImage(value);
         UserRep.save(person);
     }
@@ -163,58 +166,53 @@ public class PetSittersService {
     }
 
     public List<LightUserSchema> getUsersLight(String username) {
-       List<UserPetSitters> users=UserRep.findAll();
-        UserPetSitters trueUser=UserRep.findByUsername(username);
-        List<LightUserSchema> ret=new ArrayList<LightUserSchema>();
-       for (UserPetSitters user:users) {
-           if (notReported(trueUser.getEmail(),user.getEmail())) assignLightUserSchema(ret, user);
-       }
-       return ret;
+        List<UserPetSitters> users = UserRep.findAll();
+        UserPetSitters trueUser = UserRep.findByUsername(username);
+        List<LightUserSchema> ret = new ArrayList<LightUserSchema>();
+        for (UserPetSitters user : users) {
+            if (notReported(trueUser.getEmail(), user.getEmail())) assignLightUserSchema(ret, user);
+        }
+        return ret;
     }
 
     public FullUserSchema getUserFull(String name) {
-        UserPetSitters user=UserRep.findByUsername(name);
-        FullUserSchema ret=new FullUserSchema();
+        UserPetSitters user = UserRep.findByUsername(name);
+        FullUserSchema ret = new FullUserSchema();
         ret.setCommentaries(null);
         ret.setDescription(user.getDescription());
-        ret.setName(user.getFirstName()+ " " + user.getLastName());
-        if (user.getStars()==null) {
+        ret.setName(user.getFirstName() + " " + user.getLastName());
+        if (user.getStars() == null) {
             ret.setStars(0);
-        }
-        else ret.setStars(user.getStars().intValue());
-        if (user.getCity()==null) {
+        } else ret.setStars(user.getStars().intValue());
+        if (user.getCity() == null) {
             ret.setLocalization("");
-        }
-        else ret.setLocalization(user.getCity());
-        if (user.getImage()==null) {
+        } else ret.setLocalization(user.getCity());
+        if (user.getImage() == null) {
             ret.setProfile_image("");
-        }
-        else ret.setProfile_image(user.getImage());
+        } else ret.setProfile_image(user.getImage());
         ret.setUsername(user.getUsername());
-        if (user.getExpert()==null) {
+        if (user.getExpert() == null) {
             ret.setExpert(null);
-        }
-        else ret.setExpert(user.getExpert());
-        if (user.getAvailability()==null) {
+        } else ret.setExpert(user.getExpert());
+        if (user.getAvailability() == null) {
             ret.setAvailability("None");
-        }
-        else ret.setAvailability(user.getAvailability().toString());
+        } else ret.setAvailability(user.getAvailability().toString());
         return ret;
     }
 
     public List<LightUserSchema> getUsersExpert(String animal, String username) {
-        List<UserPetSitters> users=UserRep.findAll();
-        UserPetSitters trueUser=UserRep.findByUsername(username);
-        List<LightUserSchema> toret= new ArrayList<LightUserSchema>();
-        for (UserPetSitters user:users) {
-            if (user.getExpert()!=null) {
+        List<UserPetSitters> users = UserRep.findAll();
+        UserPetSitters trueUser = UserRep.findByUsername(username);
+        List<LightUserSchema> toret = new ArrayList<LightUserSchema>();
+        for (UserPetSitters user : users) {
+            if (user.getExpert() != null) {
                 if (!trueUser.getUsername().equals(user.getUsername()))
                     for (String expert : user.getExpert()) {
-                    if (distance(animal, expert) <= 0.2 && notReported(trueUser.getEmail(), user.getEmail())) {
-                        assignLightUserSchema(toret, user);
-                        break;
+                        if (distance(animal, expert) <= 0.2 && notReported(trueUser.getEmail(), user.getEmail())) {
+                            assignLightUserSchema(toret, user);
+                            break;
+                        }
                     }
-                }
             }
         }
         return toret;
@@ -228,16 +226,16 @@ public class PetSittersService {
             for (UserPetSitters user : users) {
                 if (!trueUser.getUsername().equals(user.getUsername()))
                     if (user.getCity() != null) {
-                    City city1 = new City(user.getCity());
-                    City city2 = new City(trueUser.getCity());
-                    Coordinates coord2 = city1.getCoordinates();
-                    Coordinates coord1 = city2.getCoordinates();
-                    Double distanceKm = distance(coord1.getLatitude(), coord1.getLongitude(), coord2.getLatitude(), coord2.getLongitude());
-                    System.out.println(distanceKm);
-                    if (distanceKm <= rad) {
-                        assignLightUserSchema(toret, user);
+                        City city1 = new City(user.getCity());
+                        City city2 = new City(trueUser.getCity());
+                        Coordinates coord2 = city1.getCoordinates();
+                        Coordinates coord1 = city2.getCoordinates();
+                        Double distanceKm = distance(coord1.getLatitude(), coord1.getLongitude(), coord2.getLatitude(), coord2.getLongitude());
+                        System.out.println(distanceKm);
+                        if (distanceKm <= rad) {
+                            assignLightUserSchema(toret, user);
+                        }
                     }
-                }
             }
         }
         return toret;
@@ -245,24 +243,24 @@ public class PetSittersService {
 
 
     public List<LightUserSchema> getUsersName(String name, String username) {
-        List<UserPetSitters> users=UserRep.findAll();
-        UserPetSitters trueUser=UserRep.findByUsername(username);
-        List<LightUserSchema> toret= new ArrayList<LightUserSchema>();
-        for (UserPetSitters user:users) {
-            String trueName=user.getFirstName()+" "+user.getLastName();
+        List<UserPetSitters> users = UserRep.findAll();
+        UserPetSitters trueUser = UserRep.findByUsername(username);
+        List<LightUserSchema> toret = new ArrayList<LightUserSchema>();
+        for (UserPetSitters user : users) {
+            String trueName = user.getFirstName() + " " + user.getLastName();
             if (!trueUser.getUsername().equals(user.getUsername()))
-                if (trueName.toLowerCase().contains(name.toLowerCase()) && notReported(trueUser.getEmail(),user.getEmail())) {
-                 assignLightUserSchema(toret, user);
-             }
+                if (trueName.toLowerCase().contains(name.toLowerCase()) && notReported(trueUser.getEmail(), user.getEmail())) {
+                    assignLightUserSchema(toret, user);
+                }
         }
         return toret;
     }
 
     private boolean notReported(String email1, String email2) {
-        Boolean found=true;
-        for (Report rep:ReportRep.findByReporter(email1)) {
+        Boolean found = true;
+        for (Report rep : ReportRep.findByReporter(email1)) {
             if (rep.getReported().equals(email2)) {
-                found=false;
+                found = false;
                 break;
             }
         }
@@ -281,27 +279,26 @@ public class PetSittersService {
     }
 
     private double distance(String a, String b) {
-        char[] arrayA=a.toCharArray();
-        char[] arrayB=b.toCharArray();
-        Integer union=0;
-        Integer intersection=0;
-        Integer i=0;
-        while (i<arrayA.length && i<arrayB.length) {
-            if (arrayA[i]==arrayB[i]) {
+        char[] arrayA = a.toCharArray();
+        char[] arrayB = b.toCharArray();
+        Integer union = 0;
+        Integer intersection = 0;
+        Integer i = 0;
+        while (i < arrayA.length && i < arrayB.length) {
+            if (arrayA[i] == arrayB[i]) {
                 intersection++;
             }
             ++union;
             ++i;
         }
-        if (i<arrayA.length) {
-            union=union+(arrayA.length-i);
+        if (i < arrayA.length) {
+            union = union + (arrayA.length - i);
+        } else if (i < arrayB.length) {
+            union = union + (arrayB.length - i);
         }
-        else if (i<arrayB.length) {
-            union=union+(arrayB.length-i);
-        }
-        System.out.println(1-((double) intersection / union));
-        return 1-((double) intersection / union);
-	}
+        System.out.println(1 - ((double) intersection / union));
+        return 1 - ((double) intersection / union);
+    }
 
     public void startChat(StartChatSchema startChatSchema, String userWhoStarts) throws ExceptionInvalidAccount {
         startChatSchema.validate();
@@ -330,28 +327,28 @@ public class PetSittersService {
     }
 
     public void addFavorites(String userList, String usernameFromToken) {
-        String[] users=userList.split(",");
-        UserPetSitters us=UserRep.findByUsername(usernameFromToken);
-        for (String s:users) {
+        String[] users = userList.split(",");
+        UserPetSitters us = UserRep.findByUsername(usernameFromToken);
+        for (String s : users) {
             us.addFavorites(s);
         }
         UserRep.save(us);
     }
 
     public List<LightUserSchema> getFavorites(String usernameFromToken) {
-        UserPetSitters us=UserRep.findByUsername(usernameFromToken);
-        List<LightUserSchema> toret=new ArrayList<LightUserSchema>();
-        for (String fav:us.getFavorites()) {
-            UserPetSitters favorited=UserRep.findByUsername(fav);
+        UserPetSitters us = UserRep.findByUsername(usernameFromToken);
+        List<LightUserSchema> toret = new ArrayList<LightUserSchema>();
+        for (String fav : us.getFavorites()) {
+            UserPetSitters favorited = UserRep.findByUsername(fav);
             assignLightUserSchema(toret, favorited);
         }
         return toret;
     }
 
     public void unsetFavorites(String userList, String usernameFromToken) {
-        String[] users=userList.split(",");
-        UserPetSitters us=UserRep.findByUsername(usernameFromToken);
-        for (String s:users) {
+        String[] users = userList.split(",");
+        UserPetSitters us = UserRep.findByUsername(usernameFromToken);
+        for (String s : users) {
             us.removeFavorites(s);
         }
         UserRep.save(us);
@@ -371,6 +368,7 @@ public class PetSittersService {
     private double deg2rad(double deg) {
         return (deg * Math.PI / 180.0);
     }
+
     private double rad2deg(double rad) {
         return (rad * 180.0 / Math.PI);
     }
@@ -468,7 +466,7 @@ public class PetSittersService {
     public JSONArray DEBUGfindAll() {
         List<UserPetSitters> users = UserRep.findAll();
         JSONArray array = new JSONArray();
-        for (UserPetSitters user: users) {
+        for (UserPetSitters user : users) {
             array.put(user.getUsername());
         }
         return array;
