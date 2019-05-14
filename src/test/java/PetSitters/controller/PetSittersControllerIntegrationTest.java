@@ -23,7 +23,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -127,17 +126,29 @@ public class PetSittersControllerIntegrationTest {
                 .content(cont));
     }
 
-    ResultActions startChat(String cont, String token) throws Exception {
-        return mvc.perform(post("/petsitters/startChat")
+    ResultActions getOpenedChats(String token) throws Exception {
+        return mvc.perform(get("/petsitters/getOpenedChats")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token));
+    }
+
+    ResultActions sendMessage(String token, String cont) throws Exception {
+        return mvc.perform(post("/petsitters/sendMessage")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(cont));
     }
 
-    ResultActions getOpenedChats(String token) throws Exception {
-        return mvc.perform(get("/petsitters/getOpenedChats")
+    ResultActions getAllMessagesFromChatLimit(String token, String limit, String userWhoReceives) throws Exception {
+        return mvc.perform(get("/petsitters/getMessagesFromChat")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)
-                .contentType(MediaType.APPLICATION_JSON));
+                .param("limit", limit)
+                .param("userWhoReceives", userWhoReceives));
+    }
+
+    ResultActions getAllMessagesFromChat(String token, String userWhoReceives) throws Exception {
+        return mvc.perform(get("/petsitters/getMessagesFromChat")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)
+                .param("userWhoReceives", userWhoReceives));
     }
 
     String ActivateUserAndLoginOkAndGetToken(String cont, String username) throws Exception {
@@ -889,174 +900,6 @@ public class PetSittersControllerIntegrationTest {
     }
 
     @Test
-    public void startNewChatWithAnotherUser() throws Exception {
-        String cont = "{\n" +
-                "\t\"firstName\":\"rodrigo\",\n" +
-                "\t\"lastName\":\"gomez\",\n" +
-                "\t\"username\":\"rod98\",\n" +
-                "\t\"password\":\"1234\",\n" +
-                "\t\"email\":\"c@desco.es\",\n" +
-                "\t\"birthdate\":\"2-11-1842\"\n" +
-                "}";
-        register(cont).andExpect(status().isOk());
-        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
-
-        cont = "{\n" +
-                "\t\"firstName\":\"amie\",\n" +
-                "\t\"lastName\":\"gomez\",\n" +
-                "\t\"username\":\"stt1\",\n" +
-                "\t\"password\":\"1234\",\n" +
-                "\t\"email\":\"c@desca.es\",\n" +
-                "\t\"birthdate\":\"2-11-1442\"\n" +
-                "}";
-        register(cont).andExpect(status().isOk());
-        assertTrue("The user 'stt1' should exist", UserRep.existsByUsername("stt1"));
-
-        cont = "{\n" +
-                "\t\"username\":\"rod98\",\n" +
-                "\t\"password\":\"1234\"\n" +
-                "}";
-        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
-        cont = "{\n" +
-                "\t\"otherUsername\":\"stt1\"\n" +
-                "}";
-        startChat(cont, token).andExpect(status().isOk());
-    }
-
-    @Test
-    public void startNewChatWithHimself() throws Exception {
-        String cont = "{\n" +
-                "\t\"firstName\":\"rodrigo\",\n" +
-                "\t\"lastName\":\"gomez\",\n" +
-                "\t\"username\":\"rod98\",\n" +
-                "\t\"password\":\"1234\",\n" +
-                "\t\"email\":\"c@desco.es\",\n" +
-                "\t\"birthdate\":\"2-11-1842\"\n" +
-                "}";
-        register(cont).andExpect(status().isOk());
-        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
-
-        cont = "{\n" +
-                "\t\"username\":\"rod98\",\n" +
-                "\t\"password\":\"1234\"\n" +
-                "}";
-        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
-        cont = "{\n" +
-                "    \"otherUsername\":\"rod98\"\n" +
-                "}";
-        startChat(cont, token).andExpect(status().is4xxClientError());
-    }
-
-    @Test
-    public void startNewChatWithAnotherUserDuplicated() throws Exception {
-        String cont = "{\n" +
-                "\t\"firstName\":\"rodrigo\",\n" +
-                "\t\"lastName\":\"gomez\",\n" +
-                "\t\"username\":\"rod98\",\n" +
-                "\t\"password\":\"1234\",\n" +
-                "\t\"email\":\"c@desco.es\",\n" +
-                "\t\"birthdate\":\"2-11-1842\"\n" +
-                "}";
-        register(cont).andExpect(status().isOk());
-        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
-
-        cont = "{\n" +
-                "\t\"firstName\":\"amie\",\n" +
-                "\t\"lastName\":\"gomez\",\n" +
-                "\t\"username\":\"stt1\",\n" +
-                "\t\"password\":\"1234\",\n" +
-                "\t\"email\":\"c@desca.es\",\n" +
-                "\t\"birthdate\":\"2-11-1442\"\n" +
-                "}";
-        register(cont).andExpect(status().isOk());
-        assertTrue("The user 'stt1' should exist", UserRep.existsByUsername("stt1"));
-
-        cont = "{\n" +
-                "\t\"username\":\"rod98\",\n" +
-                "\t\"password\":\"1234\"\n" +
-                "}";
-        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
-        cont = "{\n" +
-                "\t\"otherUsername\":\"stt1\"\n" +
-                "}";
-
-        startChat(cont, token).andExpect(status().isOk());
-        startChat(cont, token).andExpect(status().is4xxClientError());
-    }
-
-    @Test
-    public void startNewChatWithDuplicateReversed() throws Exception {
-        String cont = "{\n" +
-                "\t\"firstName\":\"rodrigo\",\n" +
-                "\t\"lastName\":\"gomez\",\n" +
-                "\t\"username\":\"rod98\",\n" +
-                "\t\"password\":\"1234\",\n" +
-                "\t\"email\":\"c@desco.es\",\n" +
-                "\t\"birthdate\":\"2-11-1842\"\n" +
-                "}";
-        register(cont).andExpect(status().isOk());
-        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
-
-        cont = "{\n" +
-                "\t\"firstName\":\"amie\",\n" +
-                "\t\"lastName\":\"gomez\",\n" +
-                "\t\"username\":\"stt1\",\n" +
-                "\t\"password\":\"1234\",\n" +
-                "\t\"email\":\"c@desca.es\",\n" +
-                "\t\"birthdate\":\"2-11-1442\"\n" +
-                "}";
-        register(cont).andExpect(status().isOk());
-        assertTrue("The user 'stt1' should exist", UserRep.existsByUsername("stt1"));
-
-        cont = "{\n" +
-                "\t\"username\":\"rod98\",\n" +
-                "\t\"password\":\"1234\"\n" +
-                "}";
-        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
-
-        cont = "{\n" +
-                "    \"otherUsername\":\"stt1\"\n" +
-                "}";
-        startChat(cont, token).andExpect(status().isOk());
-
-        cont = "{\n" +
-                "\t\"username\":\"stt1\",\n" +
-                "\t\"password\":\"1234\"\n" +
-                "}";
-        token = ActivateUserAndLoginOkAndGetToken(cont, "stt1");
-
-        cont = "{\n" +
-                "    \"otherUsername\":\"rod98\"\n" +
-                "}";
-        startChat(cont, token).andExpect(status().is4xxClientError());
-    }
-
-    @Test
-    public void startNewChatWithNonExistingUser() throws Exception {
-        String cont = "{\n" +
-                "\t\"firstName\":\"rodrigo\",\n" +
-                "\t\"lastName\":\"gomez\",\n" +
-                "\t\"username\":\"rod98\",\n" +
-                "\t\"password\":\"1234\",\n" +
-                "\t\"email\":\"c@desco.es\",\n" +
-                "\t\"birthdate\":\"2-11-1842\"\n" +
-                "}";
-        register(cont).andExpect(status().isOk());
-        assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
-        assertFalse("The user 'qqwe' should not exist", UserRep.existsByUsername("qqwe"));
-
-        cont = "{\n" +
-                "\t\"username\":\"rod98\",\n" +
-                "\t\"password\":\"1234\"\n" +
-                "}";
-        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
-        cont = "{\n" +
-                "\t\"otherUsername\":\"qqwe\"\n" +
-                "}";
-        startChat(cont, token).andExpect(status().is4xxClientError());
-    }
-
-    @Test
     public void getUsersDistance() throws Exception {
         String cont = "{\n" +
                 "\t\"firstName\":\"rodrigo\",\n" +
@@ -1170,6 +1013,29 @@ public class PetSittersControllerIntegrationTest {
         assertTrue("Favorite is not set",end.getFavorites().size()==0);
     }
 
+
+
+    @Test
+    public void getOpenedChatsEmpty() throws Exception {
+        String cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@b.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "  \"username\": \"rod98\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+
+        getOpenedChats(token).andExpect(status().isOk());
+    }
+
     @Test
     public void getOpenedChats() throws Exception {
         String cont = "{\n" +
@@ -1194,78 +1060,11 @@ public class PetSittersControllerIntegrationTest {
 
         cont = "{\n" +
                 "  \"birthdate\": \"20-11-1987\",\n" +
-                "  \"email\": \"a@boo.com\",\n" +
+                "  \"email\": \"a@boq.com\",\n" +
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
                 "  \"password\": \"123\",\n" +
-                "  \"username\": \"pes44\"\n" +
-                "}";
-        register(cont).andExpect(status().isOk());
-
-        cont = "{\n" +
-                "  \"birthdate\": \"20-11-1987\",\n" +
-                "  \"email\": \"a@booo.com\",\n" +
-                "  \"firstName\": \"stri1ng\",\n" +
-                "  \"lastName\": \"string\",\n" +
-                "  \"password\": \"123\",\n" +
-                "  \"username\": \"marGonz\"\n" +
-                "}";
-        register(cont).andExpect(status().isOk());
-
-        cont = "{\n" +
-                "  \"birthdate\": \"20-11-1987\",\n" +
-                "  \"email\": \"a@bo1oo.com\",\n" +
-                "  \"firstName\": \"stri1ng\",\n" +
-                "  \"lastName\": \"string\",\n" +
-                "  \"password\": \"123\",\n" +
-                "  \"username\": \"gre647\"\n" +
-                "}";
-        register(cont).andExpect(status().isOk());
-
-        cont = "{\n" +
-                "\t\"username\":\"gre647\",\n" +
-                "\t\"password\":\"123\"\n" +
-                "}";
-
-        System.out.println("Before autenthication");
-
-        String token = ActivateUserAndLoginOkAndGetToken(cont, "gre647");
-
-        System.out.println("After autenthication");
-
-        cont = "{\n" +
-                "\t\"otherUsername\":\"marGonz\"\n" +
-                "}";
-        startChat(cont, token).andExpect(status().isOk());
-        cont = "{\n" +
-                "\t\"otherUsername\":\"casjua92\"\n" +
-                "}";
-        startChat(cont, token).andExpect(status().isOk());
-        cont = "{\n" +
-                "\t\"otherUsername\":\"rod98\"\n" +
-                "}";
-        startChat(cont, token).andExpect(status().isOk());
-        cont = "{\n" +
-                "\t\"otherUsername\":\"pes44\"\n" +
-                "}";
-        startChat(cont, token).andExpect(status().isOk());
-
-        System.out.println("Here...");
-
-        getOpenedChats(token).andExpect(status().isOk());
-
-        System.out.println("There...");
-    }
-
-    @Test
-    public void getOpenedChatsEmpty() throws Exception {
-        String cont = "{\n" +
-                "  \"birthdate\": \"20-11-1987\",\n" +
-                "  \"email\": \"a@b.com\",\n" +
-                "  \"firstName\": \"stri1ng\",\n" +
-                "  \"lastName\": \"string\",\n" +
-                "  \"password\": \"123\",\n" +
-                "  \"username\": \"rod98\"\n" +
+                "  \"username\": \"aare\"\n" +
                 "}";
         register(cont).andExpect(status().isOk());
 
@@ -1274,6 +1073,22 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"password\":\"123\"\n" +
                 "}";
         String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+
+        cont = "{\n" +
+                "  \"userWhoReceives\": \"casjua92\",\n" +
+                "  \"content\":\"Hello\",\n" +
+                "  \"isMultimedia\":\"false\"\n" +
+                "}";
+
+        sendMessage(token, cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "  \"userWhoReceives\": \"aare\",\n" +
+                "  \"content\":\"Hello\",\n" +
+                "  \"isMultimedia\":\"false\"\n" +
+                "}";
+
+        sendMessage(token, cont).andExpect(status().isOk());
 
         getOpenedChats(token).andExpect(status().isOk());
     }
@@ -1443,4 +1258,334 @@ public class PetSittersControllerIntegrationTest {
         String token = validToken();
         ResultActions res=mvc.perform(get("/petsitters/isContracted?contract=rod98").content("{}").contentType("application/json").header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)).andExpect(status().is2xxSuccessful());
     }
+
+    @Test
+    public void sendMessage() throws Exception {
+        String cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@b.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "  \"username\": \"rod98\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@bo.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "  \"username\": \"casjua92\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+
+        cont = "{\n" +
+                "  \"userWhoReceives\": \"casjua92\",\n" +
+                "  \"content\":\"Hello\",\n" +
+                "  \"isMultimedia\":\"false\"\n" +
+                "}";
+
+        sendMessage(token, cont).andExpect(status().isOk());
+    }
+
+    @Test
+    public void sendMessageWithReportedUsers() throws Exception {
+        String cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@b.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "  \"username\": \"rod98\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@bo.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "  \"username\": \"casjua92\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+
+        cont = "{\n" +
+                "\t\"reported\":\"casjua92\",\n" +
+                "\t\"description\":\"No description\"\n" +
+                "}";
+        reportUser(cont, token).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "  \"userWhoReceives\": \"casjua92\",\n" +
+                "  \"content\":\"Hello\",\n" +
+                "  \"isMultimedia\":\"false\"\n" +
+                "}";
+
+        sendMessage(token, cont).andExpect(status().isOk());
+    }
+
+    @Test
+    public void sendMessageToMyself() throws Exception {
+        String cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@b.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "  \"username\": \"rod98\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+
+        cont = "{\n" +
+                "  \"userWhoReceives\": \"casjua92\",\n" +
+                "  \"content\":\"Hello\",\n" +
+                "  \"isMultimedia\":\"false\"\n" +
+                "}";
+
+        sendMessage(token, cont).andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    public void sendMessageReceiverDoesNotExist() throws Exception {
+        String cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@b.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "  \"username\": \"rod98\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+
+        cont = "{\n" +
+                "  \"userWhoReceives\": \"asdsad\",\n" +
+                "  \"content\":\"Hello\",\n" +
+                "  \"isMultimedia\":\"false\"\n" +
+                "}";
+
+        sendMessage(token, cont).andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    public void getAllMessagesFromChatNoLimit() throws Exception {
+        String cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@b.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "  \"username\": \"rod98\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@bo.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "  \"username\": \"casjua92\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+
+        cont = "{\n" +
+                "  \"userWhoReceives\": \"casjua92\",\n" +
+                "  \"content\":\"Hello\",\n" +
+                "  \"isMultimedia\":\"false\"\n" +
+                "}";
+
+        sendMessage(token, cont).andExpect(status().isOk());
+
+        getAllMessagesFromChat(token, "casjua92").andExpect(status().isOk());
+    }
+
+    @Test
+    public void getAllMessagesFromChatLimit1() throws Exception {
+        String cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@b.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "  \"username\": \"rod98\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@bo.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "  \"username\": \"casjua92\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+
+        cont = "{\n" +
+                "  \"userWhoReceives\": \"casjua92\",\n" +
+                "  \"content\":\"Hello\",\n" +
+                "  \"isMultimedia\":\"false\"\n" +
+                "}";
+
+        sendMessage(token, cont).andExpect(status().isOk());
+
+        getAllMessagesFromChatLimit(token, "1", "casjua92").andExpect(status().isOk());
+    }
+
+    @Test
+    public void getAllMessagesFromChatNonExistingReceiver() throws Exception {
+        String cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@b.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "  \"username\": \"rod98\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+
+        getAllMessagesFromChat(token, "efssdfds").andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    public void getAllMessagesFromChatBlockedCommunication() throws Exception {
+        String cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@b.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "  \"username\": \"rod98\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@bo.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "  \"username\": \"casjua92\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+
+        cont = "{\n" +
+                "\t\"reported\":\"casjua92\",\n" +
+                "\t\"description\":\"No description\"\n" +
+                "}";
+        reportUser(cont, token).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "  \"userWhoReceives\": \"casjua92\",\n" +
+                "  \"content\":\"Hello\",\n" +
+                "  \"isMultimedia\":\"false\"\n" +
+                "}";
+
+        sendMessage(token, cont).andExpect(status().isOk());
+
+        getAllMessagesFromChat(token, "casjua92").andExpect(status().isOk());
+    }
+
+    @Test
+    public void getAllMessagesFromChatBlockedCommunicationReversed() throws Exception {
+        String cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@b.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "  \"username\": \"rod98\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@bo.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "  \"username\": \"casjua92\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+
+        cont = "{\n" +
+                "\t\"username\":\"casjua92\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+        String token2 = ActivateUserAndLoginOkAndGetToken(cont, "casjua92");
+
+        cont = "{\n" +
+                "\t\"reported\":\"rod98\",\n" +
+                "\t\"description\":\"No description\"\n" +
+                "}";
+        reportUser(cont, token2).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "  \"userWhoReceives\": \"casjua92\",\n" +
+                "  \"content\":\"Hello\",\n" +
+                "  \"isMultimedia\":\"false\"\n" +
+                "}";
+
+        sendMessage(token, cont).andExpect(status().isOk());
+
+        getAllMessagesFromChat(token, "casjua92").andExpect(status().isOk());
+    }
+
 }

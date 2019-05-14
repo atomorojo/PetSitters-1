@@ -1,19 +1,14 @@
 package PetSitters.service;
 
+import PetSitters.auxiliary.Pair;
 import PetSitters.auxiliary.PushbackIterator;
 import PetSitters.domain.Availability;
 import PetSitters.domain.City;
 import PetSitters.domain.Coordinates;
-import PetSitters.entity.Chat;
-import PetSitters.entity.Contract;
-import PetSitters.entity.Report;
-import PetSitters.entity.UserPetSitters;
+import PetSitters.entity.*;
 import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.exception.ExceptionServiceError;
-import PetSitters.repository.ChatRepository;
-import PetSitters.repository.ContractRepository;
-import PetSitters.repository.ReportRepository;
-import PetSitters.repository.UserRepository;
+import PetSitters.repository.*;
 import PetSitters.schemas.*;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
@@ -23,9 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 @EnableAutoConfiguration
@@ -42,6 +35,9 @@ public class PetSittersService {
 
     @Autowired
     ContractRepository ContRep;
+
+    @Autowired
+    MessageRepository MessageRep;
 
 
     private void checkExistence(UserPetSitters u, String username) throws ExceptionInvalidAccount {
@@ -140,9 +136,9 @@ public class PetSittersService {
 
     }
 
-    private int getTimestamp() {
+    private Date getTimestamp() {
         Date date = new Date();
-        return (int) (long) date.getTime();
+        return date;
     }
 
     public void report(ReportSchema reportSchema, String reporterUsername) throws ExceptionInvalidAccount {
@@ -306,32 +302,6 @@ public class PetSittersService {
         return 1 - ((double) intersection / union);
     }
 
-    public void startChat(StartChatSchema startChatSchema, String userWhoStarts) throws ExceptionInvalidAccount {
-        startChatSchema.validate();
-        String otherUser = startChatSchema.getOtherUsername();
-        if (!UserRep.existsByUsername(otherUser)) {
-            throw new ExceptionInvalidAccount("The specified username '" + otherUser + "' does not belong to any user in the system");
-        }
-        if (!UserRep.existsByUsername(userWhoStarts)) {
-            throw new ExceptionInvalidAccount("The specified username '" + userWhoStarts + "' does not belong to any user in the system");
-        }
-        if (userWhoStarts.equals(otherUser)) {
-            throw new ExceptionInvalidAccount("A user cannot start a chat with himself");
-        }
-        // We sort the usernames lexicographically so as to know which one comes first
-        String usernameA, usernameB;
-        if (userWhoStarts.compareTo(otherUser) < 0) {
-            usernameA = userWhoStarts;
-            usernameB = otherUser;
-        } else {
-            usernameA = otherUser;
-            usernameB = userWhoStarts;
-        }
-
-        Chat chat = new Chat(usernameA, usernameB, getTimestamp());
-        ChatRep.save(chat);
-    }
-
     public void addFavorites(String userList, String usernameFromToken) {
         String[] users = userList.split(",");
         UserPetSitters us = UserRep.findByUsername(usernameFromToken);
@@ -379,7 +349,7 @@ public class PetSittersService {
         return (rad * 180.0 / Math.PI);
     }
 
-    public JSONArray getOpenedChats(String username) {
+    public String getOpenedChats(String username) {
         List<Chat> chatsA = ChatRep.findByUsernameAOrderByLastUseDesc(username);
         List<Chat> chatsB = ChatRep.findByUsernameBOrderByLastUseDesc(username);
         JSONArray array = new JSONArray();
@@ -407,9 +377,11 @@ public class PetSittersService {
             Chat cB = IB.next();
             array.put(cB.getUsernameA());
         }
-        return array;
+        return array.toString();
     }
 
+
+    // ------------------------------------ DEBUG ---------------------------------------
     private void DEBUGclearAll() {
         UserRep.deleteAll();
         ChatRep.deleteAll();
@@ -462,11 +434,11 @@ public class PetSittersService {
     public void DEBUGloadWithChats() throws ParseException, ExceptionInvalidAccount {
         DEBUGclearAll();
         DEBUGload();
-        startChat(new StartChatSchema("daniel"), "alexandra");
-        startChat(new StartChatSchema("hector"), "daniel");
-        startChat(new StartChatSchema("daniel"), "ruben");
-
-        startChat(new StartChatSchema("daniel"), "pere");
+        sendMessage(new MessageSchema("daniel", "false", "Hola, qué tal?"), "alexandra");
+        sendMessage(new MessageSchema("hector", "false", "Hola, 123"), "daniel");
+        sendMessage(new MessageSchema("daniel", "false", "Hola, 123"), "ruben");
+        sendMessage(new MessageSchema("daniel", "false", "Hola, 123"), "pere");
+        sendMessage(new MessageSchema("pere", "false", "Hola, 4321"), "daniel");
     }
 
     public JSONArray DEBUGfindAll() {
@@ -477,6 +449,8 @@ public class PetSittersService {
         }
         return array;
     }
+
+    // -----------------------------------------------------------------------------------
 
     public void proposeContract(ContractSchema contract, String usernameFromToken) {
         Contract c = ContRep.findByUsernameToAndUsernameFrom(contract.getUsername(), usernameFromToken);
@@ -532,5 +506,95 @@ public class PetSittersService {
         UserPetSitters user = UserRep.findByUsername(username);
         user.setImage(name);
         UserRep.save(user);
+    }
+
+    public void sendMessage(MessageSchema messageSchema, String usernameWhoSends) throws ExceptionInvalidAccount {
+        messageSchema.validate();
+        String usernameWhoReceives = messageSchema.getUserWhoReceives();
+        if (!UserRep.existsByUsername(usernameWhoReceives)) {
+            throw new ExceptionInvalidAccount("The specified username '" + usernameWhoReceives + "' does not belong to any user in the system");
+        }
+        if (!UserRep.existsByUsername(usernameWhoSends)) {
+            throw new ExceptionInvalidAccount("The specified username '" + usernameWhoSends + "' does not belong to any user in the system");
+        }
+        if (usernameWhoSends.equals(usernameWhoReceives)) {
+            throw new ExceptionInvalidAccount("A user cannot start a chat with himself");
+        }
+        UserPetSitters userWhoSends = UserRep.findByUsername(usernameWhoSends);
+        UserPetSitters userWhoReceives = UserRep.findByUsername(usernameWhoReceives);
+
+        boolean blocked = ReportRep.existsByReportedAndReporter(userWhoSends.getEmail(), userWhoReceives.getEmail());
+        blocked = blocked || ReportRep.existsByReportedAndReporter(userWhoReceives.getEmail(), userWhoSends.getEmail());
+
+        Date timestamp = getTimestamp();
+
+        String lastMessage = messageSchema.getContent();
+        if (messageSchema.getIsMultimedia()) {
+            lastMessage = "Multimedia file";
+        }
+        updateChat(usernameWhoReceives, usernameWhoSends, timestamp, lastMessage);
+
+        Message message = new Message(messageSchema, usernameWhoSends, timestamp, !blocked);
+
+        MessageRep.save(message);
+    }
+
+   public LinkedList<Message> getAllMessagesFromChat(Integer threshold, String usernameWhoReceives, String usernameWhoSends) throws ExceptionInvalidAccount {
+        if (!UserRep.existsByUsername(usernameWhoSends)) {
+           throw new ExceptionInvalidAccount("The specified username '" + usernameWhoSends + "' does not belong to any user in the system");
+        }
+        if (!UserRep.existsByUsername(usernameWhoReceives)) {
+            throw new ExceptionInvalidAccount("The specified username '" + usernameWhoReceives + "' does not belong to any user in the system");
+        }
+
+        List<Message> messageListSender = MessageRep.findByUserWhoSendsAndUserWhoReceivesOrderByWhenSentDesc(usernameWhoSends, usernameWhoReceives);
+        List<Message> messageListReceiver = MessageRep.findByIsVisibleAndUserWhoSendsAndUserWhoReceivesOrderByWhenSentDesc(true, usernameWhoReceives, usernameWhoSends);
+
+        LinkedList<Message> array = new LinkedList<>();
+        // Merge two sorted lists
+        PushbackIterator<Message> ISender = new PushbackIterator<>(messageListSender.iterator());
+        PushbackIterator<Message> IReceiver = new PushbackIterator<>(messageListReceiver.iterator());
+
+        int i = 0;
+
+        while (ISender.hasNext() && IReceiver.hasNext() && (threshold == null || i < threshold)) {
+            Message mSender = ISender.next();
+            Message mReceiver = IReceiver.next();
+
+            if (mSender.isLastSent(mReceiver)) {
+                array.addFirst(mSender);
+                IReceiver.pushback(mReceiver);
+            } else {
+                array.addFirst(mReceiver);
+                ISender.pushback(mSender);
+            }
+            ++i;
+        }
+        while (ISender.hasNext() && (threshold == null || i < threshold)) {
+            Message mSender = ISender.next();
+            array.addFirst(mSender);
+            ++i;
+        }
+        while (IReceiver.hasNext() && (threshold == null || i < threshold)) {
+            Message mReceiver = IReceiver.next();
+            array.addFirst(mReceiver);
+            ++i;
+        }
+        return array;
+    }
+
+    private void updateChat(String otherUser, String userWhoStarts, Date timestamp, String lastMessage) throws ExceptionInvalidAccount {
+        // We sort the usernames lexicographically so as to know which one comes first
+        String usernameA, usernameB;
+        if (userWhoStarts.compareTo(otherUser) < 0) {
+            usernameA = userWhoStarts;
+            usernameB = otherUser;
+        } else {
+            usernameA = otherUser;
+            usernameB = userWhoStarts;
+        }
+        Chat chat = new Chat(usernameA, usernameB, timestamp, lastMessage);
+        ChatRep.deleteByUsernameAAndUsernameB(usernameA, usernameB);
+        ChatRep.save(chat);
     }
 }

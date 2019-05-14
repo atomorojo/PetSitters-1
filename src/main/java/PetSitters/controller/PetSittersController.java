@@ -2,6 +2,7 @@ package PetSitters.controller;
 
 import PetSitters.domain.Coordinates;
 import PetSitters.entity.Contract;
+import PetSitters.entity.Message;
 import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.exception.ExceptionServiceError;
@@ -31,7 +32,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Vector;
 
 @SuppressWarnings("ALL")
 @RestController
@@ -254,7 +257,7 @@ public class PetSittersController {
         return new ResponseEntity(coordinates, HttpStatus.OK);
     }
 
-    @PostMapping(value = "/startChat", headers = "Accept=application/json")
+    /*@PostMapping(value = "/startChat", headers = "Accept=application/json")
     @ApiOperation(value = "Given the username of another user, starts a chat between both users.")
     public ResponseEntity startChat(@RequestBody StartChatSchema startChatSchema, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
         try {
@@ -263,13 +266,13 @@ public class PetSittersController {
             throw new DuplicateKeyException("Chat already exists");
         }
         return new ResponseEntity(HttpStatus.OK);
-    }
+    }*/
 
     @GetMapping(value = "/getOpenedChats")
     @ApiOperation(value = "Returns all the opened chats of a user. Specifically, it returns usernames who have started previously a chat with this person. The returned array starts with the oldest chat.")
     public ResponseEntity getOpenedChats(@RequestHeader("Authorization") String token) throws ExceptionInvalidAccount, JSONException {
-        JSONArray response = petSittersService.getOpenedChats(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
-        return new ResponseEntity(response.toString(), HttpStatus.OK);
+        String response = petSittersService.getOpenedChats(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(response, HttpStatus.OK);
     }
 
     @GetMapping(value = "DEBUGloadDefault")
@@ -339,4 +342,17 @@ public class PetSittersController {
         return new ResponseEntity(res, HttpStatus.OK);
     }
 
+    @PostMapping(value = "/sendMessage", headers = "Accept=application/json")
+    @ApiOperation(value = "Sends a message to a user.")
+    public ResponseEntity sendMessage(@RequestBody MessageSchema messageSchema, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
+        petSittersService.sendMessage(messageSchema, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/getMessagesFromChat")
+    @ApiOperation(value = "Gets all messages from a chat. Limit indicates the quantity of messages to return, if it is not declared, it returns all the messages.")
+    public ResponseEntity getMessagesFromChat(@RequestParam String userWhoReceives, @RequestParam(value = "limit", required = false) Integer limit, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
+        LinkedList<Message> result = petSittersService.getAllMessagesFromChat(limit, userWhoReceives, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(result, HttpStatus.OK);
+    }
 }

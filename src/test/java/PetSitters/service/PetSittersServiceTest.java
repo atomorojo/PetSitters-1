@@ -2,11 +2,13 @@ package PetSitters.service;
 
 import PetSitters.domain.Coordinates;
 import PetSitters.entity.Chat;
+import PetSitters.entity.Message;
 import PetSitters.entity.Report;
 import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.exception.ExceptionServiceError;
 import PetSitters.repository.ChatRepository;
+import PetSitters.repository.MessageRepository;
 import PetSitters.repository.ReportRepository;
 import PetSitters.repository.UserRepository;
 import PetSitters.schemas.*;
@@ -34,6 +36,7 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -59,6 +62,8 @@ public class PetSittersServiceTest {
     @Autowired
     ChatRepository ChatRep;
 
+    @Autowired
+    MessageRepository MessageRep;
 
     @After
     public void tearDown() {  // Add here all the repositories
@@ -66,6 +71,7 @@ public class PetSittersServiceTest {
         UserRep.deleteAll();
         ReportRep.deleteAll();
         ChatRep.deleteAll();
+        MessageRep.deleteAll();
     }
 
     RegisterSchema getFilledSchemaRegistrationPersona1() {
@@ -143,22 +149,25 @@ public class PetSittersServiceTest {
         return reportSchema;
     }
 
+    ReportSchema getFilledReportSchema2() {
+        ReportSchema reportSchema = Mockito.mock(ReportSchema.class);
+        Mockito.when(reportSchema.getReported()).thenReturn("rod98");
+        Mockito.when(reportSchema.getDescription()).thenReturn("No description");
+        return reportSchema;
+    }
+
     GetCoordinatesSchema getFilledGetCoordinatesSchema() {
         GetCoordinatesSchema getCoordinatesSchema = Mockito.mock(GetCoordinatesSchema.class);
         Mockito.when(getCoordinatesSchema.getCity()).thenReturn("Los Angeles");
         return getCoordinatesSchema;
     }
 
-    StartChatSchema getFilledStartChatSchema() {
-        StartChatSchema startChatSchema = Mockito.mock(StartChatSchema.class);
-        Mockito.when(startChatSchema.getOtherUsername()).thenReturn("rod98");
-        return startChatSchema;
-    }
-
-    StartChatSchema getFilledStartChatSchema(String name) {
-        StartChatSchema startChatSchema = Mockito.mock(StartChatSchema.class);
-        Mockito.when(startChatSchema.getOtherUsername()).thenReturn(name);
-        return startChatSchema;
+    MessageSchema getMessageSchema(String content, String userWhoReceives, Boolean isMultimedia) {
+        MessageSchema messageSchema = Mockito.mock(MessageSchema.class);
+        Mockito.when(messageSchema.getContent()).thenReturn(content);
+        Mockito.when(messageSchema.getUserWhoReceives()).thenReturn(userWhoReceives);
+        Mockito.when(messageSchema.getIsMultimedia()).thenReturn(isMultimedia);
+        return messageSchema;
     }
 
     @Test
@@ -358,77 +367,6 @@ public class PetSittersServiceTest {
     }
 
     @Test
-    public void startNewChatWithAnotherUser() throws ExceptionInvalidAccount, ParseException {
-        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
-        PSS.register(registerSchema1);
-        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
-        PSS.register(registerSchema2);
-
-        StartChatSchema startChatSchema = getFilledStartChatSchema();
-        PSS.startChat(startChatSchema, "casjua92");
-        Chat c = ChatRep.findByUsernameAAndUsernameB("casjua92","rod98");
-        assertEquals("UsernameA should be 'casjua92'", c.getUsernameA(), "casjua92");
-        assertEquals("UsernameA should be 'rod98'", c.getUsernameB(), "rod98");
-    }
-
-    @Test(expected = ExceptionInvalidAccount.class)
-    public void startNewChatWithHimself() throws Exception {
-        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
-        PSS.register(registerSchema1);
-
-        StartChatSchema startChatSchema = getFilledStartChatSchema();
-        PSS.startChat(startChatSchema, "rod98");
-        ChatRep.findByUsernameAAndUsernameB("rod98","casjua92");
-    }
-
-    @Test(expected = DuplicateKeyException.class)
-    public void startNewChatWithAnotherUserDuplicated() throws Exception {
-        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
-        PSS.register(registerSchema1);
-        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
-        PSS.register(registerSchema2);
-
-        StartChatSchema startChatSchema = getFilledStartChatSchema();
-        PSS.startChat(startChatSchema, "casjua92");
-        Chat c = ChatRep.findByUsernameAAndUsernameB("casjua92","rod98");
-        assertEquals("UsernameA should be 'casjua92'", c.getUsernameA(), "casjua92");
-        assertEquals("UsernameA should be 'rod98'", c.getUsernameB(), "rod98");
-        PSS.startChat(startChatSchema, "casjua92");
-    }
-
-    @Test(expected = DuplicateKeyException.class)
-    public void startNewChatWithDuplicateReversed() throws Exception {
-        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
-        PSS.register(registerSchema1);
-        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
-        PSS.register(registerSchema2);
-
-        StartChatSchema startChatSchema = getFilledStartChatSchema();
-
-        Mockito.when(startChatSchema.getOtherUsername()).thenReturn("casjua92");
-
-        PSS.startChat(startChatSchema, "rod98");
-        Chat c = ChatRep.findByUsernameAAndUsernameB("casjua92","rod98");
-        assertEquals("UsernameA should be 'casjua92'", c.getUsernameA(), "casjua92");
-        assertEquals("UsernameA should be 'rod98'", c.getUsernameB(), "rod98");
-
-        startChatSchema = getFilledStartChatSchema();
-        PSS.startChat(startChatSchema, "casjua92");
-    }
-
-    @Test(expected = ExceptionInvalidAccount.class)
-    public void startNewChatWithNonExistingUser() throws Exception {
-        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
-        PSS.register(registerSchema1);
-
-        StartChatSchema startChatSchema = getFilledStartChatSchema();
-        PSS.startChat(startChatSchema, "casjua92");
-        Chat c = ChatRep.findByUsernameAAndUsernameB("casjua92","rod98");
-        assertEquals("UsernameA should be 'casjua92'", c.getUsernameA(), "casjua92");
-        assertEquals("UsernameA should be 'rod98'", c.getUsernameB(), "rod98");
-    }
-
-    @Test
     public void addFavorites() throws Exception {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
@@ -455,41 +393,204 @@ public class PetSittersServiceTest {
     }
 
     @Test
-    public void getOpenedChats() throws ParseException, ExceptionInvalidAccount, JSONException {
-        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
-        PSS.register(registerSchema1);
-        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
-        PSS.register(registerSchema2);
-        RegisterSchema registerSchema3 = getFilledSchemaRegistrationPersona3();
-        PSS.register(registerSchema3);
-        RegisterSchema registerSchema4 = getFilledSchemaRegistrationPersona4();
-        PSS.register(registerSchema4);
-        RegisterSchema registerSchema5 = getFilledSchemaRegistrationPersona5();
-        PSS.register(registerSchema5);
-
-        StartChatSchema startChatSchema1 = getFilledStartChatSchema("marGonz");
-        StartChatSchema startChatSchema2 = getFilledStartChatSchema("casjua92");
-        StartChatSchema startChatSchema3 = getFilledStartChatSchema("rod98");
-        StartChatSchema startChatSchema4 = getFilledStartChatSchema("pes44");
-
-        PSS.startChat(startChatSchema1, "gre647");
-        PSS.startChat(startChatSchema2, "gre647");
-        PSS.startChat(startChatSchema3, "gre647");
-        PSS.startChat(startChatSchema4, "gre647");
-
-        JSONArray array = PSS.getOpenedChats("gre647");
-        assertEquals("Output should be 'pes44'", array.get(0), "pes44");
-        assertEquals("Output should be 'rod98'", array.get(1), "rod98");
-        assertEquals("Output should be 'casjua92'", array.get(2), "casjua92");
-        assertEquals("Output should be 'marGonz'", array.get(3), "marGonz");
-    }
-
-    @Test
     public void getOpenedChatsEmpty() throws ParseException, ExceptionInvalidAccount, JSONException {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
 
-        JSONArray array = PSS.getOpenedChats("rod98");
-        assertEquals("Output should be empty", array.length(), 0);
+        String array = PSS.getOpenedChats("rod98");
+        assertEquals("Output should be empty", array, "[]");
+    }
+
+    @Test
+    public void sendMessage() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+        MessageSchema messageSchema = getMessageSchema("Hello", registerSchema2.getUsername(), false);
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+
+        List<Message> listMessages = MessageRep.findAll();
+        assertNotEquals("The size of the messages repository should be greater than 0", listMessages.size(), 0);
+        Message m = listMessages.get(0);
+        assertEquals("The content should be 'Hello'", m.getContent(), "Hello");
+        String sender = registerSchema1.getUsername();
+        String receptor = registerSchema2.getUsername();
+        assertEquals("The userWhoReceives should be '" + receptor + "'", m.getUserWhoReceives(), receptor);
+        assertEquals("The userWhoSends should be '" + sender + "'", m.getUserWhoSends(), sender);
+        assertTrue("The message should be sent before now", m.getWhenSent().before(new Date()));
+        assertTrue("The message should be visible", m.getVisible());
+        assertFalse("The message should not be a multimedia file", m.getMultimedia());
+
+        List<Chat> listChats = ChatRep.findAll();
+        assertNotEquals("The size of the chats repository should be greater than 0", listChats.size(), 0);
+        Chat c = listChats.get(0);
+        assertEquals("The smallest lexicographically username should be 'casjua92'", c.getUsernameA(), "casjua92");
+        assertEquals("The greatest lexicographically username should be 'rod98'", c.getUsernameB(), "rod98");
+        assertEquals("The preview of the last message of the chat should be the content of the last chat sent", c.getLastMessage(), m.getContent());
+        assertEquals("The last chat should be user when the last message was sent", c.getLastUse(), m.getWhenSent());
+    }
+
+    @Test
+    public void sendMessageWithMultimedia() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+        MessageSchema messageSchema = getMessageSchema("Hello", registerSchema2.getUsername(), true);
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+
+        List<Message> listMessages = MessageRep.findAll();
+        Message m = listMessages.get(0);
+        assertTrue("The message should be a multimedia file", m.getMultimedia());
+
+        List<Chat> listChats = ChatRep.findAll();
+        Chat c = listChats.get(0);
+        assertEquals("The preview of the last message of the chat should be the content of the last chat sent", c.getLastMessage(), "Multimedia file");
+    }
+
+    @Test
+    public void sendMessageWithReportedUsers() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+
+        ReportSchema reportSchema = getFilledReportSchema();
+        PSS.report(reportSchema, "rod98");
+
+        MessageSchema messageSchema = getMessageSchema("Hello", registerSchema2.getUsername(), false);
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+
+        List<Message> listMessages = MessageRep.findAll();
+        Message m = listMessages.get(0);
+        assertFalse("The message should not be visible", m.getVisible());
+
+        List<Chat> listChats = ChatRep.findAll();
+        assertNotEquals("The size of the chats repository should be greater than 0", listChats.size(), 0);
+        Chat c = listChats.get(0);
+        assertEquals("The smallest lexicographically username should be 'casjua92'", c.getUsernameA(), "casjua92");
+        assertEquals("The greatest lexicographically username should be 'rod98'", c.getUsernameB(), "rod98");
+        assertEquals("The preview of the last message of the chat should be the content of the last chat sent", c.getLastMessage(), m.getContent());
+        assertEquals("The last chat should be user when the last message was sent", c.getLastUse(), m.getWhenSent());
+    }
+
+    @Test(expected = ExceptionInvalidAccount.class)
+    public void sendMessageToMyself() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        MessageSchema messageSchema = getMessageSchema("Hello", registerSchema1.getUsername(), false);
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+    }
+
+    @Test(expected = ExceptionInvalidAccount.class)
+    public void sendMessageSenderDoesNotExist() throws ExceptionInvalidAccount {
+        MessageSchema messageSchema = getMessageSchema("Hello", "ukud", false);
+        PSS.sendMessage(messageSchema,"uruko");
+    }
+
+    @Test
+    public void getAllMessagesFromChatNoLimit() throws ExceptionInvalidAccount, ParseException {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+
+        MessageSchema messageSchema = getMessageSchema("Hello", registerSchema2.getUsername(), false);
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+
+        LinkedList<Message> listMessages = PSS.getAllMessagesFromChat(null, registerSchema2.getUsername(), registerSchema1.getUsername());
+        assertNotEquals("The size of the messages repository should be greater than 0", listMessages.size(), 0);
+        Message m = listMessages.get(0);
+        assertEquals("The content should be 'Hello'", m.getContent(), "Hello");
+        String sender = registerSchema1.getUsername();
+        String receptor = registerSchema2.getUsername();
+        assertEquals("The userWhoReceives should be '" + receptor + "'", m.getUserWhoReceives(), receptor);
+        assertEquals("The userWhoSends should be '" + sender + "'", m.getUserWhoSends(), sender);
+        assertTrue("The message should be sent before now", m.getWhenSent().before(new Date()));
+        assertTrue("The message should be visible", m.getVisible());
+        assertFalse("The message should not be a multimedia file", m.getMultimedia());
+    }
+
+    @Test
+    public void getAllMessagesFromChatLimitOf1() throws ExceptionInvalidAccount, ParseException {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+
+        MessageSchema messageSchema = getMessageSchema("Hello", registerSchema2.getUsername(), false);
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+
+        LinkedList<Message> listMessages = PSS.getAllMessagesFromChat(1, registerSchema2.getUsername(), registerSchema1.getUsername());
+        assertEquals("The size of the messages repository should be 1", listMessages.size(), 1);
+    }
+
+    @Test(expected = ExceptionInvalidAccount.class)
+    public void getAllMessagesFromChatNonExistingSender() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+        PSS.getAllMessagesFromChat(null, registerSchema2.getUsername(), "esr");
+    }
+
+    @Test(expected = ExceptionInvalidAccount.class)
+    public void getAllMessagesFromChatNonExistingReceiver() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        PSS.getAllMessagesFromChat(null, "esr", registerSchema1.getUsername());
+    }
+
+    @Test
+    public void getAllMessagesFromChatEmptyChat() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+
+        LinkedList<Message> listMessages = PSS.getAllMessagesFromChat(null, registerSchema2.getUsername(), registerSchema1.getUsername());
+        assertEquals("The size of the messages repository should be 0", listMessages.size(), 0);
+    }
+
+    @Test
+    public void getAllMessagesFromChatBlockedCommunication() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+
+        ReportSchema reportSchema = getFilledReportSchema();
+        PSS.report(reportSchema, "rod98");
+
+        MessageSchema messageSchema = getMessageSchema("Hello", registerSchema2.getUsername(), false);
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+
+        LinkedList<Message> listMessages = PSS.getAllMessagesFromChat(null, registerSchema2.getUsername(), registerSchema1.getUsername());
+        assertEquals("The size of the messages repository should be 2", listMessages.size(), 2);
+
+        listMessages = PSS.getAllMessagesFromChat(null, registerSchema1.getUsername(), registerSchema2.getUsername());
+        assertEquals("The size of the messages repository should be 0", listMessages.size(), 0);
+    }
+
+    @Test
+    public void getAllMessagesFromChatBlockedCommunicationReversed() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+
+        ReportSchema reportSchema = getFilledReportSchema2();
+        PSS.report(reportSchema, "casjua92");
+
+        MessageSchema messageSchema = getMessageSchema("Hello", registerSchema2.getUsername(), false);
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+
+        LinkedList<Message> listMessages = PSS.getAllMessagesFromChat(null, registerSchema2.getUsername(), registerSchema1.getUsername());
+        assertEquals("The size of the messages repository should be 2", listMessages.size(), 2);
+
+        listMessages = PSS.getAllMessagesFromChat(null, registerSchema1.getUsername(), registerSchema2.getUsername());
+        assertEquals("The size of the messages repository should be 0", listMessages.size(), 0);
     }
 }
