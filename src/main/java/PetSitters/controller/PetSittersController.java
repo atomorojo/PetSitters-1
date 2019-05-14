@@ -2,6 +2,7 @@ package PetSitters.controller;
 
 import PetSitters.domain.Coordinates;
 import PetSitters.entity.Contract;
+import PetSitters.entity.Report;
 import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.exception.ExceptionServiceError;
@@ -338,5 +339,25 @@ public class PetSittersController {
         Contract res = petSittersService.isContracted(contract, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(res, HttpStatus.OK);
     }
+    @PostMapping(value = "/deleteUserAccount", headers = "Accept=application/json")
+    @ApiOperation(value = "Deletes the account, only admins can execute this action.")
+    public ResponseEntity deleteAccountAdmin(@RequestParam String adminToken, @RequestParam String toDelete) throws ExceptionInvalidAccount {
+        if (adminToken.equals("111122223333444455556666")) {
+            petSittersService.deleteAccountAdmin(toDelete);
+            return new ResponseEntity(HttpStatus.OK);
+        }
+        return new ResponseEntity(HttpStatus.FORBIDDEN);
+    }
+
+    @GetMapping(value = "/getUserReports", headers = "Accept=application/json")
+    @ApiOperation(value = "Deletes the account, only admins can execute this action.")
+    public ResponseEntity getUserReports(@RequestParam String adminToken, @RequestParam String reported) throws ExceptionInvalidAccount {
+        if (adminToken.equals("111122223333444455556666")) {
+            List<Report> reportList=petSittersService.getReports(reported);
+            return new ResponseEntity(reportList,HttpStatus.OK);
+        }
+        return new ResponseEntity(HttpStatus.FORBIDDEN);
+    }
+
 
 }

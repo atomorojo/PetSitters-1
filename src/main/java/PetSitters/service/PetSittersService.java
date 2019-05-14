@@ -66,6 +66,11 @@ public class PetSittersService {
         }
         UserRep.deleteByUsername(username);
     }
+    public void deleteAccountAdmin(String username) throws ExceptionInvalidAccount {
+        if (UserRep.existsByUsername(username))
+        UserRep.deleteByUsername(username);
+    }
+
 
     public void changePassword(ChangePasswordSchema changePassword, String username) throws ExceptionInvalidAccount {
         changePassword.validate();
@@ -532,5 +537,10 @@ public class PetSittersService {
         UserPetSitters user = UserRep.findByUsername(username);
         user.setImage(name);
         UserRep.save(user);
+    }
+
+    public List<Report> getReports(String reported) {
+        List<Report> res =ReportRep.findByReported(reported);
+        return res;
     }
 }

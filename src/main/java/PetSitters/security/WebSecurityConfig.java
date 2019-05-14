@@ -62,9 +62,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET, DEBUG_PATH)
                 .permitAll()
-                .antMatchers(HttpMethod.GET, SWAGGER_URL, EMAIL_URL, EMAIL_URL_VERIFY, EMAIL_URL_RESEND)
+                .antMatchers(HttpMethod.GET, SWAGGER_URL, EMAIL_URL, EMAIL_URL_VERIFY, EMAIL_URL_RESEND,ADMIN_REPORTS)
                 .permitAll()
-                .antMatchers(HttpMethod.POST, REGISTER_URL, EMAIL_URL, EMAIL_URL_RESEND)
+                .antMatchers(HttpMethod.POST, REGISTER_URL, EMAIL_URL, EMAIL_URL_RESEND,ADMIN_DELETE)
                 .permitAll()
                 //.antMatchers(HttpMethod.POST,REGISTER_NO_MAIL_URL)//
                 //.permitAll()//
