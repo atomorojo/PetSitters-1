@@ -1358,7 +1358,6 @@ public class PetSittersControllerIntegrationTest {
         String token = validToken();
         ResultActions res=mvc.perform(get("/petsitters/isContracted?contract=rod98").content("{}").contentType("application/json").header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)).andExpect(status().is2xxSuccessful());
     }
-
     @Test
     public void sendMessage() throws Exception {
         String cont = "{\n" +
@@ -1702,5 +1701,27 @@ public class PetSittersControllerIntegrationTest {
 
         getAllMessagesFromChat(token, "casjua92").andExpect(status().isOk());
     }
+    @Test
+    public void deleteUserAdmin() throws Exception {
 
+        String cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@b.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
+                "  \"username\": \"rod98\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        ResultActions res=mvc.perform(post("/petsitters/deleteUserAccount?adminToken=111122223333444455556666&toDelete=rod98").content("{}").contentType("application/json")).andExpect(status().is2xxSuccessful());
+        assertTrue("Account not deleted",UserRep.findByUsername("rod98")==null);
+    }
+
+    @Test
+    public void getReports() throws Exception {
+        reportAUserNormal();
+        ResultActions res=mvc.perform(get("/petsitters/getUserReports?adminToken=111122223333444455556666&reported=casjua92").content("{}").contentType("application/json")).andExpect(status().is2xxSuccessful());
+        assertTrue("Account not deleted",res.andReturn().getResponse().getContentAsString()!=null);
+    }
 }
