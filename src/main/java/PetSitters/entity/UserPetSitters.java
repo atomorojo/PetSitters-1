@@ -89,6 +89,7 @@ public class UserPetSitters {
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
         this.birthdate = format.parse(R.getBirthdate());
         this.active = false;
+        this.city = R.getCity();
     }
 
     private String encrypt(String password) {

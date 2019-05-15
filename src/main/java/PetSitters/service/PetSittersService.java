@@ -397,14 +397,14 @@ public class PetSittersService {
 
     public void DEBUGload() throws ParseException {
         DEBUGclearAll();
-        register(new RegisterSchema("Alexandra", "Volkova", "alexandra", "ff788efa931cc5b6018695fbb6999911", "juan1@juan.com", "20-10-1998"));
-        register(new RegisterSchema("Daniel", "Esquina", "daniel", "ff788efa931cc5b6018695fbb6999911", "juan2@juan.com", "20-10-1998"));
-        register(new RegisterSchema("Hector", "Baiges", "hector", "ff788efa931cc5b6018695fbb6999911", "juan3@juan.com", "20-10-1998"));
-        register(new RegisterSchema("Ruben", "Gonzalex", "ruben", "ff788efa931cc5b6018695fbb6999911", "juan4@juan.com", "20-10-1998"));
-        register(new RegisterSchema("David", "Garcia", "david", "ff788efa931cc5b6018695fbb6999911", "juan5@juan.com", "20-10-1998"));
-        register(new RegisterSchema("Pere", "Bruy", "pere", "ff788efa931cc5b6018695fbb6999911", "juan6@juan.com", "20-10-1998"));
-        register(new RegisterSchema("George", "Bochileanu", "george", "ff788efa931cc5b6018695fbb6999911", "juan7@juan.com", "20-10-1998"));
-        register(new RegisterSchema("Antoni", "Casas", "antoni", "ff788efa931cc5b6018695fbb6999911", "juan8@juan.com", "20-10-1998"));
+        register(new RegisterSchema("Alexandra", "Volkova", "alexandra", "ff788efa931cc5b6018695fbb6999911", "Barcelona","juan1@juan.com", "20-10-1998"));
+        register(new RegisterSchema("Daniel", "Esquina", "daniel", "ff788efa931cc5b6018695fbb6999911", "Lleida", "juan2@juan.com", "20-10-1998"));
+        register(new RegisterSchema("Hector", "Baiges", "hector", "ff788efa931cc5b6018695fbb6999911", "Mataro", "juan3@juan.com", "20-10-1998"));
+        register(new RegisterSchema("Ruben", "Gonzalex", "ruben", "ff788efa931cc5b6018695fbb6999911", "Valencia", "juan4@juan.com", "20-10-1998"));
+        register(new RegisterSchema("David", "Garcia", "david", "ff788efa931cc5b6018695fbb6999911", "Igualada", "juan5@juan.com", "20-10-1998"));
+        register(new RegisterSchema("Pere", "Bruy", "pere", "ff788efa931cc5b6018695fbb6999911", "Palencia", "juan6@juan.com", "20-10-1998"));
+        register(new RegisterSchema("George", "Bochileanu", "george", "ff788efa931cc5b6018695fbb6999911", "Madrid", "juan7@juan.com", "20-10-1998"));
+        register(new RegisterSchema("Antoni", "Casas", "antoni", "ff788efa931cc5b6018695fbb6999911", "Toledo", "juan8@juan.com", "20-10-1998"));
 
         UserPetSitters user = UserRep.findByUsername("alexandra");
         user.setActive(true);

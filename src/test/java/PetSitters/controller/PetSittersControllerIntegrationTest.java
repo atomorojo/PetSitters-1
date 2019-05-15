@@ -169,6 +169,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
                 "}";
@@ -178,6 +179,7 @@ public class PetSittersControllerIntegrationTest {
         assertEquals("Expected the firstName 'andy'", u.getFirstName(), "andy");
         assertEquals("Expected the lastName 'lucas'", u.getLastName(), "lucas");
         assertEquals("Expected the username 'andy.luc24'", u.getUsername(), "andy.luc24");
+        assertEquals("Expected the city 'Barcelona'", u.getCity(), "Barcelona");
         assertTrue("Expected the password '1234'", new BCryptPasswordEncoder().matches("1234", u.getPassword()));
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
         Date birthDate = format.parse("22-9-1982");
@@ -191,6 +193,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
                 "}";
@@ -200,6 +203,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"lastName\":\"gomez\",\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"876\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"email\":\"c@d.es\",\n" +
                 "\t\"birthdate\":\"2-11-1842\"\n" +
                 "}";
@@ -213,6 +217,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
                 "}";
@@ -222,6 +227,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"lastName\":\"gomez\",\n" +
                 "\t\"username\":\"rodgo\",\n" +
                 "\t\"password\":\"876\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"2-11-1842\"\n" +
                 "}";
@@ -235,6 +241,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22/9/1982\"\n" +
                 "}";
@@ -247,6 +254,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
                 "}";
@@ -260,6 +268,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
                 "}";
@@ -273,6 +282,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
                 "}";
@@ -292,6 +302,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
                 "}";
@@ -310,6 +321,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
                 "}";
@@ -336,6 +348,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"birthdate\":\"22-9-1982\",\n" +
                 "\t\"email\":\"dummyemail\"\n" +
                 "}";
@@ -354,6 +367,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"birthdate\":\"22-9-1982\",\n" +
                 "\t\"email\":\"dummyemail\"\n" +
                 "}";
@@ -371,6 +385,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"birthdate\":\"22-9-1982\",\n" +
                 "\t\"email\":\"dummyemail\"\n" +
                 "}";
@@ -391,6 +406,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"birthdate\":\"22-9-1982\",\n" +
                 "\t\"email\":\"dummyemail\"\n" +
                 "}";
@@ -413,6 +429,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
                 "\t\"password\":\"1234\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
                 "}";
@@ -435,6 +452,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"firstName\":\"andy\",\n" +
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"password\":\"1234\",\n" +
                 "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
@@ -485,7 +503,7 @@ public class PetSittersControllerIntegrationTest {
     private String validToken() throws ParseException {
         UserPetSitters guy;
         if (UserRep.findByUsername("guy") == null) {
-            guy = new UserPetSitters(new RegisterSchema("Guy", "Guy2", "guy", "pass", "NotARealOne", "1-1-1111"));
+            guy = new UserPetSitters(new RegisterSchema("Guy", "Guy2", "guy", "pass", "Barcelona", "NotARealOne", "1-1-1111"));
             guy.setActive(true);
             UserRep.save(guy);
         } else guy = UserRep.findByUsername("guy");
@@ -500,6 +518,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"firstName\":\"andy\",\n" +
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"password\":\"1234\",\n" +
                 "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
@@ -528,6 +547,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"firstName\":\"andy\",\n" +
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"password\":\"1234\",\n" +
                 "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
@@ -553,6 +573,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"firstName\":\"andy\",\n" +
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"password\":\"1234\",\n" +
                 "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
@@ -578,6 +599,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"firstName\":\"andy\",\n" +
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"andy.luc24\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"password\":\"1234\",\n" +
                 "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
@@ -602,6 +624,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"firstName\":\"andy\",\n" +
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"casjua92\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"password\":\"1234\",\n" +
                 "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
@@ -611,6 +634,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"firstName\":\"rodrigo\",\n" +
                 "\t\"lastName\":\"gomez\",\n" +
                 "\t\"username\":\"rod98\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"password\":\"1234\",\n" +
                 "\t\"email\":\"c@desco.es\",\n" +
                 "\t\"birthdate\":\"2-11-1842\"\n" +
@@ -642,6 +666,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"firstName\":\"andy\",\n" +
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"casjua92\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"password\":\"1234\",\n" +
                 "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
@@ -662,6 +687,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"firstName\":\"andy\",\n" +
                 "\t\"lastName\":\"lucas\",\n" +
                 "\t\"username\":\"casjua92\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"password\":\"1234\",\n" +
                 "\t\"email\":\"a@b.com\",\n" +
                 "\t\"birthdate\":\"22-9-1982\"\n" +
@@ -686,6 +712,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"firstName\":\"rodrigo\",\n" +
                 "\t\"lastName\":\"gomez\",\n" +
                 "\t\"username\":\"rod98\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"password\":\"1234\",\n" +
                 "\t\"email\":\"c@desco.es\",\n" +
                 "\t\"birthdate\":\"2-11-1842\"\n" +
@@ -722,6 +749,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"firstName\":\"rodrigo\",\n" +
                 "\t\"lastName\":\"gomez\",\n" +
                 "\t\"username\":\"rod98\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"password\":\"1234\",\n" +
                 "\t\"email\":\"c@desco.es\",\n" +
                 "\t\"birthdate\":\"2-11-1842\"\n" +
@@ -745,6 +773,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"firstName\":\"rodrigo\",\n" +
                 "\t\"lastName\":\"gomez\",\n" +
                 "\t\"username\":\"rod98\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"password\":\"1234\",\n" +
                 "\t\"email\":\"c@desco.es\",\n" +
                 "\t\"birthdate\":\"2-11-1842\"\n" +
@@ -769,6 +798,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"firstName\":\"rodrigo\",\n" +
                 "\t\"lastName\":\"gomez\",\n" +
                 "\t\"username\":\"rod98\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"password\":\"1234\",\n" +
                 "\t\"email\":\"c@desco.es\",\n" +
                 "\t\"birthdate\":\"2-11-1842\"\n" +
@@ -792,6 +822,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"firstName\":\"rodrigo\",\n" +
                 "\t\"lastName\":\"gomez\",\n" +
                 "\t\"username\":\"rod98\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"password\":\"1234\",\n" +
                 "\t\"email\":\"c@desco.es\",\n" +
                 "\t\"birthdate\":\"2-11-1842\"\n" +
@@ -815,6 +846,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"firstName\":\"rodrigo\",\n" +
                 "\t\"lastName\":\"gomez\",\n" +
                 "\t\"username\":\"rod98\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"password\":\"1234\",\n" +
                 "\t\"email\":\"c@desco.es\",\n" +
                 "\t\"birthdate\":\"2-11-1842\"\n" +
@@ -891,6 +923,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"firstName\":\"rodrigo\",\n" +
                 "\t\"lastName\":\"gomez\",\n" +
                 "\t\"username\":\"rod98\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"password\":\"1234\",\n" +
                 "\t\"email\":\"c@desco.es\",\n" +
                 "\t\"birthdate\":\"2-11-1842\"\n" +
@@ -905,6 +938,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"firstName\":\"rodrigo\",\n" +
                 "\t\"lastName\":\"gomez\",\n" +
                 "\t\"username\":\"rod98\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"password\":\"1234\",\n" +
                 "\t\"email\":\"c@desco.es\",\n" +
                 "\t\"birthdate\":\"2-11-1842\"\n" +
@@ -918,6 +952,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"firstName\":\"amie\",\n" +
                 "\t\"lastName\":\"gomez\",\n" +
                 "\t\"username\":\"stt1\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"password\":\"1234\",\n" +
                 "\t\"email\":\"c@desca.es\",\n" +
                 "\t\"birthdate\":\"2-11-1442\"\n" +
@@ -939,6 +974,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"firstName\":\"rodrigo\",\n" +
                 "\t\"lastName\":\"gomez\",\n" +
                 "\t\"username\":\"rod98\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"password\":\"1234\",\n" +
                 "\t\"email\":\"c@desco.es\",\n" +
                 "\t\"birthdate\":\"2-11-1842\"\n" +
@@ -952,6 +988,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"firstName\":\"amie\",\n" +
                 "\t\"lastName\":\"gomez\",\n" +
                 "\t\"username\":\"stt1\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"password\":\"1234\",\n" +
                 "\t\"email\":\"c@desca.es\",\n" +
                 "\t\"birthdate\":\"2-11-1442\"\n" +
@@ -968,6 +1005,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"firstName\":\"rodrigo\",\n" +
                 "\t\"lastName\":\"gomez\",\n" +
                 "\t\"username\":\"rod98\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"password\":\"1234\",\n" +
                 "\t\"email\":\"c@desco.es\",\n" +
                 "\t\"birthdate\":\"2-11-1842\"\n" +
@@ -980,6 +1018,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"firstName\":\"amie\",\n" +
                 "\t\"lastName\":\"gomez\",\n" +
                 "\t\"username\":\"stt1\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"password\":\"1234\",\n" +
                 "\t\"email\":\"c@desca.es\",\n" +
                 "\t\"birthdate\":\"2-11-1442\"\n" +
@@ -998,6 +1037,7 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"firstName\":\"amie\",\n" +
                 "\t\"lastName\":\"gomez\",\n" +
                 "\t\"username\":\"stt1\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "\t\"password\":\"1234\",\n" +
                 "\t\"email\":\"c@desca.es\",\n" +
                 "\t\"birthdate\":\"2-11-1442\"\n" +
@@ -1021,6 +1061,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"birthdate\": \"20-11-1987\",\n" +
                 "  \"email\": \"a@b.com\",\n" +
                 "  \"firstName\": \"stri1ng\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"lastName\": \"string\",\n" +
                 "  \"password\": \"123\",\n" +
                 "  \"username\": \"rod98\"\n" +
@@ -1043,6 +1084,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"email\": \"a@b.com\",\n" +
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"password\": \"123\",\n" +
                 "  \"username\": \"rod98\"\n" +
                 "}";
@@ -1053,6 +1095,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"email\": \"a@bo.com\",\n" +
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"password\": \"123\",\n" +
                 "  \"username\": \"casjua92\"\n" +
                 "}";
@@ -1063,6 +1106,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"email\": \"a@boq.com\",\n" +
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"password\": \"123\",\n" +
                 "  \"username\": \"aare\"\n" +
                 "}";
@@ -1100,6 +1144,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"email\": \"a@b.com\",\n" +
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"password\": \"123\",\n" +
                 "  \"username\": \"rod98\"\n" +
                 "}";
@@ -1110,6 +1155,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"email\": \"a@bo.com\",\n" +
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"password\": \"123\",\n" +
                 "  \"username\": \"casjua92\"\n" +
                 "}";
@@ -1120,6 +1166,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"email\": \"a@boq.com\",\n" +
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"password\": \"123\",\n" +
                 "  \"username\": \"aare\"\n" +
                 "}";
@@ -1141,6 +1188,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"email\": \"a@b.com\",\n" +
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"password\": \"123\",\n" +
                 "  \"username\": \"rod98\"\n" +
                 "}";
@@ -1150,6 +1198,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"birthdate\": \"20-11-1987\",\n" +
                 "  \"email\": \"a@bo.com\",\n" +
                 "  \"firstName\": \"stri1ng\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"lastName\": \"string\",\n" +
                 "  \"password\": \"123\",\n" +
                 "  \"username\": \"casjua92\"\n" +
@@ -1179,6 +1228,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"email\": \"a@b.com\",\n" +
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"password\": \"123\",\n" +
                 "  \"username\": \"rod98\"\n" +
                 "}";
@@ -1189,6 +1239,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"email\": \"a@bo.com\",\n" +
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"password\": \"123\",\n" +
                 "  \"username\": \"casjua92\"\n" +
                 "}";
@@ -1206,6 +1257,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
                 "  \"password\": \"123\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"username\": \"rod98\"\n" +
                 "}";
         register(cont).andExpect(status().isOk());
@@ -1215,6 +1267,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"email\": \"a@bo.com\",\n" +
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"password\": \"123\",\n" +
                 "  \"username\": \"casjua92\"\n" +
                 "}";
@@ -1232,6 +1285,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"email\": \"a@b.com\",\n" +
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"password\": \"123\",\n" +
                 "  \"username\": \"rod98\"\n" +
                 "}";
@@ -1242,6 +1296,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"email\": \"a@bo.com\",\n" +
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"password\": \"123\",\n" +
                 "  \"username\": \"casjua92\"\n" +
                 "}";
@@ -1257,6 +1312,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"email\": \"a@b.com\",\n" +
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"password\": \"123\",\n" +
                 "  \"username\": \"rod98\"\n" +
                 "}";
@@ -1266,6 +1322,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"birthdate\": \"20-11-1987\",\n" +
                 "  \"email\": \"a@bo.com\",\n" +
                 "  \"firstName\": \"stri1ng\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"lastName\": \"string\",\n" +
                 "  \"password\": \"123\",\n" +
                 "  \"username\": \"casjua92\"\n" +
@@ -1282,6 +1339,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"email\": \"a@b.com\",\n" +
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"password\": \"123\",\n" +
                 "  \"username\": \"rod98\"\n" +
                 "}";
@@ -1292,6 +1350,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"email\": \"a@bo.com\",\n" +
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"password\": \"123\",\n" +
                 "  \"username\": \"casjua92\"\n" +
                 "}";
@@ -1308,6 +1367,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
                 "  \"password\": \"123\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"username\": \"rod98\"\n" +
                 "}";
         register(cont).andExpect(status().isOk());
@@ -1318,6 +1378,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
                 "  \"password\": \"123\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"username\": \"casjua92\"\n" +
                 "}";
         register(cont).andExpect(status().isOk());
@@ -1345,6 +1406,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
                 "  \"password\": \"123\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"username\": \"rod98\"\n" +
                 "}";
         register(cont).andExpect(status().isOk());
@@ -1355,6 +1417,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
                 "  \"password\": \"123\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"username\": \"casjua92\"\n" +
                 "}";
         register(cont).andExpect(status().isOk());
@@ -1388,6 +1451,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
                 "  \"password\": \"123\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"username\": \"rod98\"\n" +
                 "}";
         register(cont).andExpect(status().isOk());
@@ -1415,6 +1479,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
                 "  \"password\": \"123\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"username\": \"rod98\"\n" +
                 "}";
         register(cont).andExpect(status().isOk());
@@ -1442,6 +1507,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
                 "  \"password\": \"123\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"username\": \"rod98\"\n" +
                 "}";
         register(cont).andExpect(status().isOk());
@@ -1452,6 +1518,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
                 "  \"password\": \"123\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"username\": \"casjua92\"\n" +
                 "}";
         register(cont).andExpect(status().isOk());
@@ -1481,6 +1548,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
                 "  \"password\": \"123\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"username\": \"rod98\"\n" +
                 "}";
         register(cont).andExpect(status().isOk());
@@ -1491,6 +1559,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
                 "  \"password\": \"123\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"username\": \"casjua92\"\n" +
                 "}";
         register(cont).andExpect(status().isOk());
@@ -1520,6 +1589,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
                 "  \"password\": \"123\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"username\": \"rod98\"\n" +
                 "}";
         register(cont).andExpect(status().isOk());
@@ -1541,6 +1611,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
                 "  \"password\": \"123\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"username\": \"rod98\"\n" +
                 "}";
         register(cont).andExpect(status().isOk());
@@ -1551,6 +1622,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
                 "  \"password\": \"123\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"username\": \"casjua92\"\n" +
                 "}";
         register(cont).andExpect(status().isOk());
@@ -1586,6 +1658,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
                 "  \"password\": \"123\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"username\": \"rod98\"\n" +
                 "}";
         register(cont).andExpect(status().isOk());
@@ -1596,6 +1669,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"firstName\": \"stri1ng\",\n" +
                 "  \"lastName\": \"string\",\n" +
                 "  \"password\": \"123\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
                 "  \"username\": \"casjua92\"\n" +
                 "}";
         register(cont).andExpect(status().isOk());

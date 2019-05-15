@@ -84,27 +84,27 @@ public class PetSittersServiceIntegrationTest {
     }
 
     RegisterSchema getFilledSchemaRegistrationPersona1() {
-        RegisterSchema registerSchema = new RegisterSchema("Rodrigo", "Gomez", "rod98", "123", "a@b.com", "20-12-1998");
+        RegisterSchema registerSchema = new RegisterSchema("Rodrigo", "Gomez", "rod98", "123", "Barcelona", "a@b.com", "20-12-1998");
         return registerSchema;
     }
 
     RegisterSchema getFilledSchemaRegistrationPersona2() {
-        RegisterSchema registerSchema = new RegisterSchema("Juan", "del Castillo", "casjua92", "789", "a@example.com", "20-7-1992");
+        RegisterSchema registerSchema = new RegisterSchema("Juan", "del Castillo", "casjua92", "789", "Barcelona", "a@example.com", "20-7-1992");
         return registerSchema;
     }
 
     RegisterSchema getFilledSchemaRegistrationPersona3() {
-        RegisterSchema registerSchema = new RegisterSchema("Pedro", "Suarez", "pes44", "1542", "a@bo.com", "20-12-1998");
+        RegisterSchema registerSchema = new RegisterSchema("Pedro", "Suarez", "pes44", "1542", "Barcelona", "a@bo.com", "20-12-1998");
         return registerSchema;
     }
 
     RegisterSchema getFilledSchemaRegistrationPersona4() {
-        RegisterSchema registerSchema = new RegisterSchema("Mario", "Gonzalo", "marGonz", "789", "a@gre.com", "20-12-1998");
+        RegisterSchema registerSchema = new RegisterSchema("Mario", "Gonzalo", "marGonz", "789", "Barcelona", "a@gre.com", "20-12-1998");
         return registerSchema;
     }
 
     RegisterSchema getFilledSchemaRegistrationPersona5() {
-        RegisterSchema registerSchema = new RegisterSchema("Gregorio", "Lopez", "gre647", "abc123", "a@sop.com", "20-12-1998");
+        RegisterSchema registerSchema = new RegisterSchema("Gregorio", "Lopez", "gre647", "abc123", "Barcelona", "a@sop.com", "20-12-1998");
         return registerSchema;
     }
 
@@ -149,6 +149,7 @@ public class PetSittersServiceIntegrationTest {
         assertEquals("Expected the firstName 'Rodrigo'", u.getFirstName(), registerSchema.getFirstName());
         assertEquals("Expected the lastName 'Gomez'", u.getLastName(), registerSchema.getLastName());
         assertEquals("Expected the username 'rod98'", u.getUsername(), registerSchema.getUsername());
+        assertEquals("Expected the city 'Barcelona'", u.getCity(), registerSchema.getCity());
         assertTrue("Expected the password '123'", new BCryptPasswordEncoder().matches("123", u.getPassword()));
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
         Date birthDate = format.parse(registerSchema.getBirthdate());

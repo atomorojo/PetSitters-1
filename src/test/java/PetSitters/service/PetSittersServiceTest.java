@@ -80,6 +80,7 @@ public class PetSittersServiceTest {
         Mockito.when(registerSchema.getLastName()).thenReturn("Gomez");
         Mockito.when(registerSchema.getUsername()).thenReturn("rod98");
         Mockito.when(registerSchema.getPassword()).thenReturn("123");
+        Mockito.when(registerSchema.getCity()).thenReturn("Barcelona");
         Mockito.when(registerSchema.getEmail()).thenReturn("a@b.com");
         Mockito.when(registerSchema.getBirthdate()).thenReturn("20-12-1998");
         return registerSchema;
@@ -91,6 +92,7 @@ public class PetSittersServiceTest {
         Mockito.when(registerSchema.getLastName()).thenReturn("del Castillo");
         Mockito.when(registerSchema.getUsername()).thenReturn("casjua92");
         Mockito.when(registerSchema.getPassword()).thenReturn("789");
+        Mockito.when(registerSchema.getCity()).thenReturn("Barcelona");
         Mockito.when(registerSchema.getEmail()).thenReturn("a@example.com");
         Mockito.when(registerSchema.getBirthdate()).thenReturn("20-7-1992");
         return registerSchema;
@@ -102,6 +104,7 @@ public class PetSittersServiceTest {
         Mockito.when(registerSchema.getLastName()).thenReturn("Suarez");
         Mockito.when(registerSchema.getUsername()).thenReturn("pes44");
         Mockito.when(registerSchema.getPassword()).thenReturn("1542");
+        Mockito.when(registerSchema.getCity()).thenReturn("Barcelona");
         Mockito.when(registerSchema.getEmail()).thenReturn("a@bo.com");
         Mockito.when(registerSchema.getBirthdate()).thenReturn("20-12-1998");
         return registerSchema;
@@ -113,6 +116,7 @@ public class PetSittersServiceTest {
         Mockito.when(registerSchema.getLastName()).thenReturn("Gonzalo");
         Mockito.when(registerSchema.getUsername()).thenReturn("marGonz");
         Mockito.when(registerSchema.getPassword()).thenReturn("789");
+        Mockito.when(registerSchema.getCity()).thenReturn("Barcelona");
         Mockito.when(registerSchema.getEmail()).thenReturn("a@gre.com");
         Mockito.when(registerSchema.getBirthdate()).thenReturn("20-7-1992");
         return registerSchema;
@@ -124,6 +128,7 @@ public class PetSittersServiceTest {
         Mockito.when(registerSchema.getLastName()).thenReturn("Lopez");
         Mockito.when(registerSchema.getUsername()).thenReturn("gre647");
         Mockito.when(registerSchema.getPassword()).thenReturn("abc123");
+        Mockito.when(registerSchema.getCity()).thenReturn("Barcelona");
         Mockito.when(registerSchema.getEmail()).thenReturn("a@sop.com");
         Mockito.when(registerSchema.getBirthdate()).thenReturn("20-12-1998");
         return registerSchema;
@@ -179,6 +184,7 @@ public class PetSittersServiceTest {
         assertEquals("Expected the firstName 'Rodrigo'", u.getFirstName(), registerSchema.getFirstName());
         assertEquals("Expected the lastName 'Gomez'", u.getLastName(), registerSchema.getLastName());
         assertEquals("Expected the username 'rod98'", u.getUsername(), registerSchema.getUsername());
+        assertEquals("Expected the city 'rod98'", u.getCity(), registerSchema.getCity());
         assertTrue("Expected the password '123'",new BCryptPasswordEncoder().matches("123",u.getPassword()));
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
         Date birthDate = format.parse(registerSchema.getBirthdate());

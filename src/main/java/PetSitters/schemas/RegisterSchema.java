@@ -20,6 +20,8 @@ public class RegisterSchema implements Serializable {
     @NotBlank
     String password;
     @NotBlank
+    String city;
+    @NotBlank
     String email;
     @NotBlank
     String birthdate;
@@ -27,11 +29,12 @@ public class RegisterSchema implements Serializable {
     public RegisterSchema() {
     }
 
-    public RegisterSchema(@NotBlank String firstName, @NotBlank String lastName, @NotBlank String username, @NotBlank String password, @NotBlank String email, @NotBlank String birthdate) {
+    public RegisterSchema(@NotBlank String firstName, @NotBlank String lastName, @NotBlank String username, @NotBlank String password, @NotBlank String city, @NotBlank String email, @NotBlank String birthdate) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
         this.password = password;
+        this.city = city;
         this.email = email;
         this.birthdate = birthdate;
     }
@@ -66,6 +69,14 @@ public class RegisterSchema implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
     }
 
     public String getEmail() {
