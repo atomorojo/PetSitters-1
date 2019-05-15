@@ -466,7 +466,7 @@ public class PetSittersService {
     // -----------------------------------------------------------------------------------
 
     public void proposeContract(ContractSchema contract, String usernameFromToken) {
-        Contract c = ContRep.findByUsernameToAndUsernameFrom(contract.getUsername(), usernameFromToken);
+        Contract c = ContRep.findByUsernameFromAndUsernameTo(usernameFromToken,contract.getUsername());
         if (c != null) {
             ContRep.delete(c);
         }
@@ -481,7 +481,7 @@ public class PetSittersService {
     }
 
     public void acceptContract(String usernameB, String usernameFromToken) {
-        Contract cont = ContRep.findByUsernameToAndUsernameFrom(usernameB, usernameFromToken);
+        Contract cont = ContRep.findByUsernameFromAndUsernameTo(usernameB, usernameFromToken);
         if (cont != null) {
             cont.setAccepted(true);
             ContRep.save(cont);
@@ -489,11 +489,11 @@ public class PetSittersService {
     }
 
     public void rejectContract(String usernameB, String usernameFromToken) {
-        Contract cont = ContRep.findByUsernameToAndUsernameFrom(usernameB, usernameFromToken);
+        Contract cont = ContRep.findByUsernameFromAndUsernameTo(usernameB, usernameFromToken);
         if (cont != null) {
             ContRep.delete(cont);
         }
-        cont = ContRep.findByUsernameToAndUsernameFrom(usernameFromToken, usernameB);
+        cont = ContRep.findByUsernameFromAndUsernameTo(usernameFromToken, usernameB);
         if (cont != null) {
             ContRep.delete(cont);
         }
@@ -511,7 +511,7 @@ public class PetSittersService {
     }
 
     public Contract isContracted(String usernameB, String usernameFromToken) {
-        Contract cont = ContRep.findByUsernameToAndUsernameFrom(usernameB, usernameFromToken);
+        Contract cont = ContRep.findByUsernameFromAndUsernameTo(usernameB, usernameFromToken);
         return cont;
     }
 

@@ -1217,12 +1217,13 @@ public class PetSittersControllerIntegrationTest {
                 "   ],\n" +
                 "   \"feedback\":\"false\"\n" +
                 "}").contentType("application/json").header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)).andExpect(status().is2xxSuccessful());
-        Contract c=ContractRepository.findByUsernameToAndUsernameFrom("rod98","guy");
+        Contract c=ContractRepository.findByUsernameFromAndUsernameTo("guy","rod98");
         assertTrue("Exists",c!=null);
     }
 
     @Test
     public void acceptContract() throws Exception {
+        proposeContract();
         String cont = "{\n" +
                 "  \"birthdate\": \"20-11-1987\",\n" +
                 "  \"email\": \"a@b.com\",\n" +
@@ -1232,21 +1233,10 @@ public class PetSittersControllerIntegrationTest {
                 "  \"password\": \"123\",\n" +
                 "  \"username\": \"rod98\"\n" +
                 "}";
-        register(cont).andExpect(status().isOk());
 
-        cont = "{\n" +
-                "  \"birthdate\": \"20-11-1987\",\n" +
-                "  \"email\": \"a@bo.com\",\n" +
-                "  \"firstName\": \"stri1ng\",\n" +
-                "  \"lastName\": \"string\",\n" +
-                "\t\"city\":\"Barcelona\",\n" +
-                "  \"password\": \"123\",\n" +
-                "  \"username\": \"casjua92\"\n" +
-                "}";
-        register(cont).andExpect(status().isOk());
-        String token = validToken();
-        mvc.perform(post("/petsitters/acceptContract?contract=rod98").content("{}").contentType("application/json").header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)).andExpect(status().is2xxSuccessful());
-        Contract c=ContractRepository.findByUsernameToAndUsernameFrom("rod98","guy");
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+        mvc.perform(post("/petsitters/acceptContract?contract=guy").content("{}").contentType("application/json").header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)).andExpect(status().is2xxSuccessful());
+        Contract c=ContractRepository.findByUsernameFromAndUsernameTo("guy","rod98");
         assertTrue("Accepted",c.getAccepted());
     }
     @Test
@@ -1274,7 +1264,7 @@ public class PetSittersControllerIntegrationTest {
         register(cont).andExpect(status().isOk());
         String token = validToken();
         mvc.perform(delete("/petsitters/rejectContract?contract=rod98").content("{}").contentType("application/json").header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)).andExpect(status().is2xxSuccessful());
-        Contract c=ContractRepository.findByUsernameToAndUsernameFrom("rod98","guy");
+        Contract c=ContractRepository.findByUsernameFromAndUsernameTo("guy","rod98");
         assertTrue("Not exists",c==null);
     }
 

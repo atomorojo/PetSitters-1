@@ -644,7 +644,7 @@ public class PetSittersServiceIntegrationTest {
         contract.setFeedback(false);
         contract.setUsername(registerSchema2.getUsername());
         PSS.proposeContract(contract, myUser.getUsername());
-        Contract c=ContractRepository.findByUsernameToAndUsernameFrom(registerSchema2.getUsername(),myUser.getUsername());
+        Contract c=ContractRepository.findByUsernameFromAndUsernameTo(myUser.getUsername(),registerSchema2.getUsername());
         assertTrue("Is not null",c!=null);
     }
     @Test
@@ -652,8 +652,9 @@ public class PetSittersServiceIntegrationTest {
         proposeContract();
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
-        PSS.acceptContract(registerSchema2.getUsername(),registerSchema1.getUsername());
-        Contract c=ContractRepository.findByUsernameToAndUsernameFrom(registerSchema2.getUsername(),registerSchema1.getUsername());
+        PSS.acceptContract(registerSchema1.getUsername(),registerSchema2.getUsername());
+        Contract c=ContractRepository.findByUsernameFromAndUsernameTo(registerSchema1.getUsername(),registerSchema2.getUsername());
+        System.out.println(c.getAccepted());
         assertTrue("Is true",c.getAccepted());
     }
     @Test
@@ -661,8 +662,8 @@ public class PetSittersServiceIntegrationTest {
         proposeContract();
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
-        PSS.rejectContract(registerSchema2.getUsername(),registerSchema1.getUsername());
-        Contract c=ContractRepository.findByUsernameToAndUsernameFrom(registerSchema2.getUsername(),registerSchema1.getUsername());
+        PSS.rejectContract(registerSchema1.getUsername(),registerSchema2.getUsername());
+        Contract c=ContractRepository.findByUsernameFromAndUsernameTo(registerSchema1.getUsername(),registerSchema2.getUsername());
         assertTrue("Is null",c==null);
     }
 
@@ -687,7 +688,7 @@ public class PetSittersServiceIntegrationTest {
         proposeContract();
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
-        Contract c=PSS.isContracted(registerSchema2.getUsername(),registerSchema1.getUsername());
+        Contract c=PSS.isContracted(registerSchema1.getUsername(),registerSchema2.getUsername());
         assertTrue("Is null",c!=null);
     }
 

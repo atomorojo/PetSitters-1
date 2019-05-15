@@ -15,7 +15,7 @@ import java.util.List;
 
 
 @ApiModel("Chat")
-@CompoundIndex(name = "usernameTo_usernameFrom_idx", unique = true, def = "{'usernameFrom' : 1, 'usernameTo' : 1}")
+@CompoundIndex(name = "usernameFrom_usernameTo_idx", unique = true, def = "{'usernameFrom' : 1, 'usernameTo' : 1}")
 @Document
 public class Contract {
     @Id
