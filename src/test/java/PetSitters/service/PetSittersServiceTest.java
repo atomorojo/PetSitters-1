@@ -393,12 +393,27 @@ public class PetSittersServiceTest {
     }
 
     @Test
+    public void getOpenedChats() throws ParseException, ExceptionInvalidAccount, JSONException {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+
+        MessageSchema messageSchema = getMessageSchema("Hello", registerSchema2.getUsername(), false);
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+
+        List<ChatPreviewSchema> list = PSS.getOpenedChats(registerSchema2.getUsername());
+        ChatPreviewSchema chatPreviewSchema = list.get(0);
+        assertEquals("Output should be '" + registerSchema1.getUsername() + "'", chatPreviewSchema.getName(), "Rodrigo Gomez");
+    }
+
+    @Test
     public void getOpenedChatsEmpty() throws ParseException, ExceptionInvalidAccount, JSONException {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
 
-        String array = PSS.getOpenedChats("rod98");
-        assertEquals("Output should be empty", array, "[]");
+        List<ChatPreviewSchema> list = PSS.getOpenedChats(registerSchema1.getUsername());
+        assertEquals("Output should be empty", list.size(), 0);
     }
 
     @Test

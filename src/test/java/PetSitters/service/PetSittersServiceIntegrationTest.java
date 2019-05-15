@@ -600,43 +600,28 @@ public class PetSittersServiceIntegrationTest {
         assertTrue("There are no favorites",people.size()==1);
     }
 
-    /*@Test
+    @Test
     public void getOpenedChats() throws ParseException, ExceptionInvalidAccount, JSONException {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
         PSS.register(registerSchema2);
-        RegisterSchema registerSchema3 = getFilledSchemaRegistrationPersona3();
-        PSS.register(registerSchema3);
-        RegisterSchema registerSchema4 = getFilledSchemaRegistrationPersona4();
-        PSS.register(registerSchema4);
-        RegisterSchema registerSchema5 = getFilledSchemaRegistrationPersona5();
-        PSS.register(registerSchema5);
 
-        StartChatSchema startChatSchema1 = getFilledStartChatSchema("marGonz");
-        StartChatSchema startChatSchema2 = getFilledStartChatSchema("casjua92");
-        StartChatSchema startChatSchema3 = getFilledStartChatSchema("rod98");
-        StartChatSchema startChatSchema4 = getFilledStartChatSchema("pes44");
+        MessageSchema messageSchema = getMessageSchema("Hello", registerSchema2.getUsername(), "false");
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
 
-        PSS.startChat(startChatSchema1, "gre647");
-        PSS.startChat(startChatSchema2, "gre647");
-        PSS.startChat(startChatSchema3, "gre647");
-        PSS.startChat(startChatSchema4, "gre647");
-
-        JSONArray array = PSS.getOpenedChats("gre647");
-        assertEquals("Output should be 'pes44'", array.get(0), "pes44");
-        assertEquals("Output should be 'rod98'", array.get(1), "rod98");
-        assertEquals("Output should be 'casjua92'", array.get(2), "casjua92");
-        assertEquals("Output should be 'marGonz'", array.get(3), "marGonz");
-    }*/
+        List<ChatPreviewSchema> list = PSS.getOpenedChats(registerSchema1.getUsername());
+        ChatPreviewSchema chatPreviewSchema = list.get(0);
+        assertEquals("Output should be '" + registerSchema2.getUsername() + "'", chatPreviewSchema.getName(), "Juan del Castillo");
+    }
 
     @Test
     public void getOpenedChatsEmpty() throws ParseException, ExceptionInvalidAccount, JSONException {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
 
-        String array = PSS.getOpenedChats("rod98");
-        assertEquals("Output should be empty", array, "[]");
+        List<ChatPreviewSchema> list = PSS.getOpenedChats(registerSchema1.getUsername());
+        assertEquals("Output should be empty", list.size(), 0);
     }
 
     @Test

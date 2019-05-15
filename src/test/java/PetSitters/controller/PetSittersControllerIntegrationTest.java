@@ -1094,6 +1094,47 @@ public class PetSittersControllerIntegrationTest {
     }
 
     @Test
+    public void getOpenedChatsEmptyChat() throws Exception {
+        String cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@b.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "  \"username\": \"rod98\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@bo.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "  \"username\": \"casjua92\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@boq.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "  \"username\": \"aare\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+
+        getOpenedChats(token).andExpect(status().isOk());
+    }
+
+    @Test
     public void proposeContract() throws Exception {
         String cont = "{\n" +
                 "  \"birthdate\": \"20-11-1987\",\n" +

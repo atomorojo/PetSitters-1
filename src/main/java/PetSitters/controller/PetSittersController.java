@@ -59,7 +59,7 @@ public class PetSittersController {
     @Autowired
     private UserServiceImpl userService;
 
-    @PostMapping(value = "setProfileImage")
+    @PostMapping(value = "/setProfileImage")
     @ApiOperation(value = "Sets the profile image.")
     public ResponseEntity setProfileImage(@RequestParam("file") MultipartFile file, @RequestHeader("Authorization") String token) throws ParseException, IOException {
         String username = jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length()));
@@ -68,7 +68,7 @@ public class PetSittersController {
         return new ResponseEntity(name, HttpStatus.OK);
     }
 
-    @PostMapping(value = "modify/{name}")
+    @PostMapping(value = "/modify/{name}")
     @ApiOperation(value = "Modify the camp specified.")
     public ResponseEntity modify(@PathVariable String name, @RequestBody String toModify, @RequestHeader("Authorization") String token) throws ParseException, IOException {
         System.out.println(name);
@@ -76,14 +76,14 @@ public class PetSittersController {
         return new ResponseEntity(name, HttpStatus.OK);
     }
 
-    @PostMapping(value = "addFavorites")
+    @PostMapping(value = "/addFavorites")
     @ApiOperation(value = "Add the users specified in the param, separated by a \",\" to the list of favorites of that user.")
     public ResponseEntity addFavorites(@RequestParam String userList, @RequestHeader("Authorization") String token) throws ParseException, IOException {
         petSittersService.addFavorites(userList, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @PostMapping(value = "unsetFavorites")
+    @PostMapping(value = "/unsetFavorites")
     @ApiOperation(value = "Add the users specified in the param, separated by a \",\" to the list of favorites of that user.")
     public ResponseEntity unsetFavorites(@RequestParam String userList, @RequestHeader("Authorization") String token) throws ParseException, IOException {
         petSittersService.unsetFavorites(userList, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
@@ -91,7 +91,7 @@ public class PetSittersController {
     }
 
 
-    @GetMapping(value = "getFavorites")
+    @GetMapping(value = "/getFavorites")
     @ApiOperation(value = "Retrieve all the favorite users of this user.")
     public ResponseEntity getFavorites(@RequestHeader("Authorization") String token) throws ParseException, IOException {
         List<LightUserSchema> favs = petSittersService.getFavorites(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
@@ -99,28 +99,28 @@ public class PetSittersController {
     }
 
 
-    @GetMapping(value = "users")
+    @GetMapping(value = "/users")
     @ApiOperation(value = "Retrieve all users.")
     public ResponseEntity getUsers(@RequestHeader("Authorization") String token) throws ParseException, IOException {
         List<LightUserSchema> users = petSittersService.getUsersLight(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(users, HttpStatus.OK);
     }
 
-    @GetMapping(value = "user/filterExpert")
+    @GetMapping(value = "/user/filterExpert")
     @ApiOperation(value = "Retrieve all users that are expert in that animal.")
     public ResponseEntity getUsersExpert(@RequestParam String animal, @RequestHeader("Authorization") String token) throws ParseException, IOException {
         List<LightUserSchema> users = petSittersService.getUsersExpert(animal, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(users, HttpStatus.OK);
     }
 
-    @GetMapping(value = "user/filterDistance")
+    @GetMapping(value = "/user/filterDistance")
     @ApiOperation(value = "Retrieve all users that are in a radius equal to the paramater's value in km.")
     public ResponseEntity getUsersExpert(@RequestHeader("Authorization") String token, @RequestParam Integer rad) throws ParseException, IOException, JSONException, ExceptionServiceError {
         List<LightUserSchema> users = petSittersService.getUsersDistance(rad, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(users, HttpStatus.OK);
     }
 
-    @GetMapping(value = "user/filterName")
+    @GetMapping(value = "/user/filterName")
     @ApiOperation(value = "Retrieve all users that have that string as a subset of their name.")
     public ResponseEntity getUsersName(@RequestParam String name, @RequestHeader("Authorization") String token) throws ParseException, IOException {
         List<LightUserSchema> users = petSittersService.getUsersName(name, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
@@ -135,7 +135,7 @@ public class PetSittersController {
     }
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
-    @PostMapping(value = "store", consumes = {"multipart/form-data"}, produces = "application/json")
+    @PostMapping(value = "/store", consumes = {"multipart/form-data"}, produces = "application/json")
     @ApiOperation(value = "Store a file.")
     public ResponseEntity store(@RequestParam("file") MultipartFile file, @RequestHeader("Authorization") String token) throws ParseException, IOException {
         String username = jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length()));
@@ -144,7 +144,7 @@ public class PetSittersController {
     }
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
-    @GetMapping(value = "get/{name}")
+    @GetMapping(value = "/get/{name}")
     @ApiOperation(value = "Retrieve a file.")
     public ResponseEntity retrieve(@PathVariable String name) throws ParseException, IOException {
         GridFsResource file = gridFS.getFile(name);
@@ -156,7 +156,7 @@ public class PetSittersController {
         }
     }
 
-    @PostMapping(value = "changePassword", headers = "Accept=application/json")
+    @PostMapping(value = "/changePassword", headers = "Accept=application/json")
     @ApiOperation(value = "Change the password of a user.")
     public ResponseEntity changePassword(@RequestBody ChangePasswordSchema changePassword, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
         petSittersService.changePassword(changePassword, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
@@ -190,7 +190,7 @@ public class PetSittersController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @PostMapping(value = "login", headers = "Accept=application/json")
+    @PostMapping(value = "/login", headers = "Accept=application/json")
     @ApiOperation(value = "Login process.")
     public ApiResponse<AuthToken> register(@RequestBody LoginSchema loginUser) throws AuthenticationException {
         loginUser.validate();
@@ -202,7 +202,7 @@ public class PetSittersController {
         } else return new ApiResponse<>(401, "Account not activated", null);
     }
 
-    @PostMapping(value = "register", headers = "Accept=application/json")
+    @PostMapping(value = "/register", headers = "Accept=application/json")
     @ApiOperation(value = "Register process.")
     public ResponseEntity register(@RequestBody RegisterSchema register) throws ParseException {
         try {
@@ -214,7 +214,7 @@ public class PetSittersController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @PostMapping(value = "sendEmail", headers = "Accept=application/json")
+    @PostMapping(value = "/sendEmail", headers = "Accept=application/json")
     @ApiOperation(value = "Send again an account confirmation email.")
     public ResponseEntity resendEmail(@RequestParam String username) throws ParseException {
         verificationTokenService.createVerification(userRep.findByUsername(username).getEmail());
@@ -222,7 +222,7 @@ public class PetSittersController {
     }
 
 
-    @PostMapping(value = "registerNoMail", headers = "Accept=application/json")
+    @PostMapping(value = "/registerNoMail", headers = "Accept=application/json")
     @ApiOperation(value = "Register process.")
     public ResponseEntity registerNoMail(@RequestBody RegisterSchema register) throws ParseException {
         try {
@@ -234,7 +234,7 @@ public class PetSittersController {
     }
 
 
-    @PostMapping(value = "deleteAccount", headers = "Accept=application/json")
+    @PostMapping(value = "/deleteAccount", headers = "Accept=application/json")
     @ApiOperation(value = "Deletes an existent account.")
     public ResponseEntity deleteAccount(@RequestBody DeleteAccountSchema account, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
         petSittersService.deleteAccount(account, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
@@ -257,39 +257,28 @@ public class PetSittersController {
         return new ResponseEntity(coordinates, HttpStatus.OK);
     }
 
-    /*@PostMapping(value = "/startChat", headers = "Accept=application/json")
-    @ApiOperation(value = "Given the username of another user, starts a chat between both users.")
-    public ResponseEntity startChat(@RequestBody StartChatSchema startChatSchema, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
-        try {
-            petSittersService.startChat(startChatSchema, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
-        } catch (DuplicateKeyException e) {
-            throw new DuplicateKeyException("Chat already exists");
-        }
-        return new ResponseEntity(HttpStatus.OK);
-    }*/
-
     @GetMapping(value = "/getOpenedChats")
     @ApiOperation(value = "Returns all the opened chats of a user. Specifically, it returns usernames who have started previously a chat with this person. The returned array starts with the oldest chat.")
     public ResponseEntity getOpenedChats(@RequestHeader("Authorization") String token) throws ExceptionInvalidAccount, JSONException {
-        String response = petSittersService.getOpenedChats(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        List<ChatPreviewSchema> response = petSittersService.getOpenedChats(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(response, HttpStatus.OK);
     }
 
-    @GetMapping(value = "DEBUGloadDefault")
+    @GetMapping(value = "/DEBUGloadDefault")
     @ApiOperation(value = "Loads 4 users in the database")
     public ResponseEntity loadDefault() throws ParseException {
         petSittersService.DEBUGload();
         return new ResponseEntity("The context has been successfully loaded!", HttpStatus.OK);
     }
 
-    @GetMapping(value = "DEBUGloadWithChats")
+    @GetMapping(value = "/DEBUGloadWithChats")
     @ApiOperation(value = "Loads 4 users in the database and starts some chats without messages")
     public ResponseEntity loadWithChats() throws ParseException, ExceptionInvalidAccount {
         petSittersService.DEBUGloadWithChats();
         return new ResponseEntity("The context has been successfully loaded!", HttpStatus.OK);
     }
 
-    @GetMapping(value = "DEBUGgetAllUsers")
+    @GetMapping(value = "/DEBUGgetAllUsers")
     @ApiOperation(value = "Gets all the usernames in the System")
     public ResponseEntity getAllUsernames() throws ParseException, ExceptionInvalidAccount {
         JSONArray array = petSittersService.DEBUGfindAll();

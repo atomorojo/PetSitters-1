@@ -349,10 +349,10 @@ public class PetSittersService {
         return (rad * 180.0 / Math.PI);
     }
 
-    public String getOpenedChats(String username) {
+    public List<ChatPreviewSchema> getOpenedChats(String username) {
         List<Chat> chatsA = ChatRep.findByUsernameAOrderByLastUseDesc(username);
         List<Chat> chatsB = ChatRep.findByUsernameBOrderByLastUseDesc(username);
-        JSONArray array = new JSONArray();
+        LinkedList<ChatPreviewSchema> array = new LinkedList<>();
         // Merge two sorted lists
         PushbackIterator<Chat> IA = new PushbackIterator<>(chatsA.iterator());
         PushbackIterator<Chat> IB = new PushbackIterator<>(chatsB.iterator());
@@ -362,22 +362,30 @@ public class PetSittersService {
             Chat cB = IB.next();
 
             if (cA.isLastUsed(cB)) {
-                array.put(cA.getUsernameB());
+                UserPetSitters userPetSitters = UserRep.findByUsername(cA.getUsernameB());
+                ChatPreviewSchema chatPreviewSchema = new ChatPreviewSchema(userPetSitters.getFirstName() + " " + userPetSitters.getLastName(), userPetSitters.getImage(), cA.getLastMessage());
+                array.add(chatPreviewSchema);
                 IB.pushback(cB);
             } else {
-                array.put(cB.getUsernameA());
+                UserPetSitters userPetSitters = UserRep.findByUsername(cB.getUsernameA());
+                ChatPreviewSchema chatPreviewSchema = new ChatPreviewSchema(userPetSitters.getFirstName() + " " + userPetSitters.getLastName(), userPetSitters.getImage(), cB.getLastMessage());
+                array.add(chatPreviewSchema);
                 IA.pushback(cA);
             }
         }
         while (IA.hasNext()) {
             Chat cA = IA.next();
-            array.put(cA.getUsernameB());
+            UserPetSitters userPetSitters = UserRep.findByUsername(cA.getUsernameB());
+            ChatPreviewSchema chatPreviewSchema = new ChatPreviewSchema(userPetSitters.getFirstName() + " " + userPetSitters.getLastName(), userPetSitters.getImage(), cA.getLastMessage());
+            array.add(chatPreviewSchema);
         }
         while (IB.hasNext()) {
             Chat cB = IB.next();
-            array.put(cB.getUsernameA());
+            UserPetSitters userPetSitters = UserRep.findByUsername(cB.getUsernameA());
+            ChatPreviewSchema chatPreviewSchema = new ChatPreviewSchema(userPetSitters.getFirstName() + " " + userPetSitters.getLastName(), userPetSitters.getImage(), cB.getLastMessage());
+            array.add(chatPreviewSchema);
         }
-        return array.toString();
+        return array;
     }
 
 
