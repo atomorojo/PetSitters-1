@@ -93,7 +93,7 @@ public class PetSittersControllerIntegrationTest {
     }
 
     ResultActions deleteAccountWithHeader(String cont, String token) throws Exception {
-        return mvc.perform(post("/petsitters/deleteAccount")
+        return mvc.perform(delete("/petsitters/deleteAccount")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(cont));
