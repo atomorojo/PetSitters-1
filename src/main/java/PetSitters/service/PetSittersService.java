@@ -42,6 +42,9 @@ public class PetSittersService {
 
     @Autowired
     ContractRepository ContRep;
+    @Autowired
+    GridFS gridFS;
+
 
 
     private void checkExistence(UserPetSitters u, String username) throws ExceptionInvalidAccount {
@@ -64,12 +67,17 @@ public class PetSittersService {
         if (!u.isTheSamePassword(password)) {
             throw new ExceptionInvalidAccount("The username or password provided are incorrect");
         }
+        if (u.getImage()!=null) gridFS.destroyFile(u.getImage());
         UserRep.deleteByUsername(username);
     }
     public void deleteAccountAdmin(String username) throws ExceptionInvalidAccount {
-        if (UserRep.existsByUsername(username))
-        UserRep.deleteByUsername(username);
+        if (UserRep.existsByUsername(username)) {
+            UserPetSitters user = UserRep.findByUsername(username);
+            if (user.getImage()!=null) gridFS.destroyFile(user.getImage());
+            UserRep.deleteByUsername(username);
+        }
     }
+
 
 
     public void changePassword(ChangePasswordSchema changePassword, String username) throws ExceptionInvalidAccount {

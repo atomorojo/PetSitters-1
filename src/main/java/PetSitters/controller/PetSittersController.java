@@ -359,5 +359,16 @@ public class PetSittersController {
         return new ResponseEntity(HttpStatus.FORBIDDEN);
     }
 
+    @DeleteMapping(value = "/delete/{name}", headers = "Accept=application/json")
+    @ApiOperation(value = "Deletes the account, only admins can execute this action.")
+    public ResponseEntity getUserReports(@PathVariable String name) throws ExceptionInvalidAccount {
+        if (gridFS.getFile(name)!=null) {
+            gridFS.destroyFile(name);
+            return new ResponseEntity(HttpStatus.OK);
+        }
+        else return new ResponseEntity(HttpStatus.NOT_FOUND);
+    }
+
+
 
 }

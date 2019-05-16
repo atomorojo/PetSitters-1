@@ -443,9 +443,20 @@ public class PetSittersControllerIntegrationTest {
     @Test
     public void Store() throws Exception {
         MockMultipartFile file = new MockMultipartFile("file", "hello.txt", MediaType.TEXT_PLAIN_VALUE, "Hello, World!".getBytes());
-        mvc.perform(MockMvcRequestBuilders.multipart("/petsitters/store").file(file).header(HttpHeaders.AUTHORIZATION, "Bearer: " + validToken()))
+        String help=mvc.perform(MockMvcRequestBuilders.multipart("/petsitters/store").file(file).header(HttpHeaders.AUTHORIZATION, "Bearer: " + validToken()))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk()).toString();
+        System.out.println(help);
+    }
+
+    @Test
+    public void Delete() throws Exception {
+        MockMultipartFile file = new MockMultipartFile("file", "hello.txt", MediaType.TEXT_PLAIN_VALUE, "Hello, World!".getBytes());
+        String filename = gridFs.saveFile(file, "dude");
+        String token=validToken();
+        mvc.perform(delete("/petsitters/delete/"+filename).content("{}").contentType("application/json").header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)).andExpect(status().is2xxSuccessful());
+        mvc.perform(get("/petsitters/get/" + filename).header("Not a real header", "lol"))
+                .andExpect(status().is4xxClientError());
     }
 
     @Test
