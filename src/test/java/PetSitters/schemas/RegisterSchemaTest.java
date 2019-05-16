@@ -23,7 +23,7 @@ public class RegisterSchemaTest {
     }
 
     void fillRegisterSchema() {
-        R = new RegisterSchema("Name", "Surname", "UserN", "Pass", "Name@Surname.com", "20-11-1111");
+        R = new RegisterSchema("Name", "Surname", "UserN", "Pass", "Barcelona", "Name@Surname.com", "20-11-1111");
     }
 
     @Test

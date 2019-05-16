@@ -10,6 +10,6 @@ public interface ContractRepository extends MongoRepository<Contract, String> {
 
     List<Contract> findByUsernameTo(String usernameB);
 
-    Contract findByUsernameToAndUsernameFrom(String usernameTo, String usernameFrom);
+    Contract findByUsernameFromAndUsernameTo(String usernameFrom, String usernameTo);
 
 }

@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.validation.constraints.NotBlank;
+import java.util.Date;
 
 @ApiModel("Chat")
 @CompoundIndex(name = "usernameA_usernameB_idx", unique = true, def = "{'usernameA' : 1, 'usernameB' : 1}")
@@ -30,12 +31,22 @@ public class Chat {
     @NotBlank
     private String usernameB;
 
-    private Integer lastUse;
+    @ApiModelProperty(value = "The last time when the chat was used", required = false)
+    private Date lastUse;
 
-    public Chat(@NotBlank String usernameA, @NotBlank String usernameB, Integer lastUse) {
+    @ApiModelProperty(value = "Last message of the chat", required = false)
+    @Field("lastMessage")
+    @NotBlank
+    private String lastMessage;
+
+    public Chat() {
+    }
+
+    public Chat(@NotBlank String usernameA, @NotBlank String usernameB, Date lastUse, @NotBlank String lastMessage) {
         this.usernameA = usernameA;
         this.usernameB = usernameB;
         this.lastUse = lastUse;
+        this.lastMessage = lastMessage;
     }
 
     public String getUsernameA() {
@@ -54,15 +65,23 @@ public class Chat {
         this.usernameB = usernameB;
     }
 
-    public Integer getLastUse() {
+    public Date getLastUse() {
         return lastUse;
     }
 
-    public void setLastUse(Integer lastUse) {
+    public void setLastUse(Date lastUse) {
         this.lastUse = lastUse;
     }
 
+    public String getLastMessage() {
+        return lastMessage;
+    }
+
+    public void setLastMessage(String lastMessage) {
+        this.lastMessage = lastMessage;
+    }
+
     public boolean isLastUsed(Chat cB) {
-        return lastUse > cB.lastUse;
+        return lastUse.after(cB.lastUse);
     }
 }

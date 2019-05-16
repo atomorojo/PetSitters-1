@@ -13,4 +13,6 @@ public interface ReportRepository extends MongoRepository<Report, String> {
 
     List<Report> findByReported(String reported);
 
+    boolean existsByReportedAndReporter(String reported, String reporter);
+
 }
