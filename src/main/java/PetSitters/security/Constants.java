@@ -18,6 +18,7 @@ public class Constants {
     public static final String EMAIL_URL_RESEND = "/petsitters/sendEmail";
     public static final String ADMIN_REPORTS =  "/petsitters/getUserReports";
     public static final String ADMIN_DELETE =  "/petsitters/deleteUserAccount";
+    public static final String ADMIN_USERS =  "/petsitters/getAllReportedUsers";
 
 
     public static final String CHANGE_PASSWORD_WEB_PAGE_PATH = "/src/main/resources/webPages/change-password.html";
