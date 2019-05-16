@@ -619,7 +619,8 @@ public class PetSittersService {
         ChatRep.save(chat);
     }
     public List<Report> getReports(String reported) {
-        List<Report> res =ReportRep.findByReported(reported);
+        String email=UserRep.findByUsername(reported).getEmail();
+        List<Report> res =ReportRep.findByReported(email);
         return res;
     }
 
