@@ -622,4 +622,24 @@ public class PetSittersService {
         List<Report> res =ReportRep.findByReported(reported);
         return res;
     }
+
+    public List<GetAllReportsSchema> getAllReportedUsers() {
+        List<Report> reps=ReportRep.findAll();
+        Set<String> emails=new HashSet<String>();
+        for (Report r:reps) {
+            if (!emails.contains(r.getReported())) emails.add(r.getReported());
+        }
+        List<GetAllReportsSchema> result=new ArrayList<GetAllReportsSchema>();
+        for (String email:emails) {
+            UserPetSitters us=UserRep.findByEmail(email);
+            GetAllReportsSchema rep=new GetAllReportsSchema();
+            rep.setEmail(email);
+            rep.setFirstName(us.getFirstName());
+            rep.setLastName(us.getLastName());
+            rep.setUsername(us.getUsername());
+            rep.setReports(ReportRep.findByReported(email).size());
+            result.add(rep);
+        }
+    return result;
+    }
 }

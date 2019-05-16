@@ -478,7 +478,7 @@ public class PetSittersControllerIntegrationTest {
         System.out.println(help);
     }
 
-    @Test
+    @Test(expected=NestedServletException.class)
     public void Delete() throws Exception {
         MockMultipartFile file = new MockMultipartFile("file", "hello.txt", MediaType.TEXT_PLAIN_VALUE, "Hello, World!".getBytes());
         String filename = gridFs.saveFile(file, "dude");
@@ -1724,5 +1724,44 @@ public class PetSittersControllerIntegrationTest {
         reportAUserNormal();
         ResultActions res=mvc.perform(get("/petsitters/getUserReports?adminToken=111122223333444455556666&reported=casjua92").content("{}").contentType("application/json")).andExpect(status().is2xxSuccessful());
         assertTrue("Account not deleted",res.andReturn().getResponse().getContentAsString()!=null);
+    }
+    @Test
+    public void getAllReports() throws Exception {
+        String cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@b.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
+                "  \"username\": \"rod98\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@bo.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
+                "  \"username\": \"casjua92\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+
+        cont = "{\n" +
+                "\t\"reported\":\"casjua92\",\n" +
+                "\t\"description\":\"No description\"\n" +
+                "}";
+        reportUser(cont, token).andExpect(status().isOk());
+        ResultActions res=mvc.perform(get("/petsitters/getAllReportedUsers?adminToken=111122223333444455556666").content("{}").contentType("application/json")).andExpect(status().is2xxSuccessful());
+        assertTrue("Account not deleted",res.andReturn().getResponse().getContentAsString()!=null);
+
     }
 }

@@ -884,4 +884,15 @@ public class PetSittersServiceIntegrationTest {
         listMessages = PSS.getAllMessagesFromChat(null, registerSchema1.getUsername(), registerSchema2.getUsername());
         assertEquals("The size of the messages repository should be 0", listMessages.size(), 0);
     }
+    @Test
+    public void getAllReportedUsers() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+        ReportSchema reportSchema = getFilledReportSchema();
+        PSS.report(reportSchema, "rod98");
+        assertTrue("Was not found",PSS.getAllReportedUsers()!=null);
+
+    }
 }

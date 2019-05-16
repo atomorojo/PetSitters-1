@@ -342,10 +342,20 @@ public class PetSittersController {
     }
 
     @GetMapping(value = "/getUserReports", headers = "Accept=application/json")
-    @ApiOperation(value = "Deletes the account, only admins can execute this action.")
+    @ApiOperation(value = "Gets the reports of this user, only admins can execute this action.")
     public ResponseEntity getUserReports(@RequestParam String adminToken, @RequestParam String reported) throws ExceptionInvalidAccount {
         if (adminToken.equals("111122223333444455556666")) {
             List<Report> reportList=petSittersService.getReports(reported);
+            return new ResponseEntity(reportList,HttpStatus.OK);
+        }
+        return new ResponseEntity(HttpStatus.FORBIDDEN);
+    }
+
+    @GetMapping(value = "/getAllReportedUsers", headers = "Accept=application/json")
+    @ApiOperation(value = "Gets all users that have been reported, only admins can execute this action.")
+    public ResponseEntity getAllReportedUsers(@RequestParam String adminToken) throws ExceptionInvalidAccount {
+        if (adminToken.equals("111122223333444455556666")) {
+            List<GetAllReportsSchema> reportList=petSittersService.getAllReportedUsers();
             return new ResponseEntity(reportList,HttpStatus.OK);
         }
         return new ResponseEntity(HttpStatus.FORBIDDEN);
