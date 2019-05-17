@@ -364,8 +364,10 @@ public class PetSittersController {
 
     @DeleteMapping(value = "/delete/{name}", headers = "Accept=application/json")
     @ApiOperation(value = "Deletes the account, only admins can execute this action.")
-    public ResponseEntity getUserReports(@PathVariable String name) throws ExceptionInvalidAccount {
-        if (gridFS.getFile(name)!=null) {
+    public ResponseEntity getUserReports(@PathVariable String name) throws ExceptionInvalidAccount, IOException {
+        Boolean booli=false;
+        gridFS.getFile(name,booli);
+        if (booli) {
             gridFS.destroyFile(name);
             return new ResponseEntity(HttpStatus.OK);
         }
