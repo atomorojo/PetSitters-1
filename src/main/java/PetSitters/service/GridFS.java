@@ -41,7 +41,6 @@ public class GridFS {
     public GridFsResource getFile(String filename, Boolean booli) throws IOException {
         System.out.println(filename);
         GridFsResource file = gridFsTemplate.getResource(filename);
-        if (file.getFile()!=null) booli=true;
         return file;
     }
 

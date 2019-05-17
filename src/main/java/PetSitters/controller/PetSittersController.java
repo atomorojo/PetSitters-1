@@ -321,11 +321,18 @@ public class PetSittersController {
     }
 
     @GetMapping(value = "/isContracted", headers = "Accept=application/json")
-    @ApiOperation(value = "Returns the contract that has been set between the 2 users, if it exists.")
+    @ApiOperation(value = "Returns the contract that has been set between the 2 users, if it exists, only if it has been proposed by the user in contract, and received by the user logged in.")
     public ResponseEntity isContracted(@RequestParam String contract, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
         Contract res = petSittersService.isContracted(contract, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())),false);
          return new ResponseEntity(res, HttpStatus.OK);
     }
+    @GetMapping(value = "/hasContracted", headers = "Accept=application/json")
+    @ApiOperation(value = "Returns the contract that has been set between the 2 users, if it exists, only if it has been proposed by the user logged in, and received by the user in the contract.")
+    public ResponseEntity hasContracted(@RequestParam String contract, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
+        Contract res = petSittersService.isContracted(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())),contract, false);
+        return new ResponseEntity(res, HttpStatus.OK);
+    }
+
     @DeleteMapping(value = "/deleteUserAccount", headers = "Accept=application/json")
     @ApiOperation(value = "Deletes the account, only admins can execute this action.")
     public ResponseEntity deleteAccountAdmin(@RequestParam String adminToken, @RequestParam String toDelete) throws ExceptionInvalidAccount, IOException {

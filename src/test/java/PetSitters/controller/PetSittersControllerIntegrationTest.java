@@ -1366,6 +1366,13 @@ public class PetSittersControllerIntegrationTest {
 
     @Test
     public void isContracted() throws Exception {
+        proposeContract();
+        String token = validToken();
+        ResultActions res=mvc.perform(get("/petsitters/isContracted?contract=rod98").content("{}").contentType("application/json").header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)).andExpect(status().is2xxSuccessful());
+    }
+    @Test
+    public void hasContracted() throws Exception {
+        proposeContract();
         String cont = "{\n" +
                 "  \"birthdate\": \"20-11-1987\",\n" +
                 "  \"email\": \"a@b.com\",\n" +
@@ -1375,21 +1382,11 @@ public class PetSittersControllerIntegrationTest {
                 "  \"password\": \"123\",\n" +
                 "  \"username\": \"rod98\"\n" +
                 "}";
-        register(cont).andExpect(status().isOk());
-
-        cont = "{\n" +
-                "  \"birthdate\": \"20-11-1987\",\n" +
-                "  \"email\": \"a@bo.com\",\n" +
-                "  \"firstName\": \"stri1ng\",\n" +
-                "  \"lastName\": \"string\",\n" +
-                "\t\"city\":\"Barcelona\",\n" +
-                "  \"password\": \"123\",\n" +
-                "  \"username\": \"casjua92\"\n" +
-                "}";
-        register(cont).andExpect(status().isOk());
-        String token = validToken();
-        ResultActions res=mvc.perform(get("/petsitters/isContracted?contract=rod98").content("{}").contentType("application/json").header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)).andExpect(status().is2xxSuccessful());
+        String token=ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+        ResultActions res=mvc.perform(get("/petsitters/hasContracted?contract=guy").content("{}").contentType("application/json").header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)).andExpect(status().is2xxSuccessful());
     }
+
+
     @Test
     public void sendMessage() throws Exception {
         String cont = "{\n" +
@@ -1745,7 +1742,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"username\": \"rod98\"\n" +
                 "}";
         register(cont).andExpect(status().isOk());
-        ResultActions res=mvc.perform(post("/petsitters/deleteUserAccount?adminToken=111122223333444455556666&toDelete=rod98").content("{}").contentType("application/json")).andExpect(status().is2xxSuccessful());
+        ResultActions res=mvc.perform(delete("/petsitters/deleteUserAccount?adminToken=111122223333444455556666&toDelete=rod98").content("{}").contentType("application/json")).andExpect(status().is2xxSuccessful());
         assertTrue("Account not deleted",UserRep.findByUsername("rod98")==null);
     }
 
