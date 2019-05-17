@@ -221,7 +221,7 @@ public class PetSittersServiceTest {
     }
 
     @Test
-    public void testDeleteExistingAccount() throws ParseException, ExceptionInvalidAccount {
+    public void testDeleteExistingAccount() throws ParseException, ExceptionInvalidAccount, IOException {
         RegisterSchema registerSchema = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema);
         assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
@@ -231,7 +231,7 @@ public class PetSittersServiceTest {
     }
 
     @Test(expected = ExceptionInvalidAccount.class)
-    public void testDeleteExistingAccountWithDifferentPassword() throws ParseException, ExceptionInvalidAccount {
+    public void testDeleteExistingAccountWithDifferentPassword() throws ParseException, ExceptionInvalidAccount, IOException {
         RegisterSchema registerSchema = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema);
         assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
@@ -241,7 +241,7 @@ public class PetSittersServiceTest {
     }
 
     @Test(expected = ExceptionInvalidAccount.class)
-    public void testDeleteNonExistingAccount() throws ExceptionInvalidAccount {
+    public void testDeleteNonExistingAccount() throws ExceptionInvalidAccount, IOException {
         DeleteAccountSchema deleteAccount = getFilledSchemaDeletion("123");
         assertFalse("The user 'rod98' should not exist", UserRep.existsByUsername("rod98"));
         PSS.deleteAccount(deleteAccount, "rod98");
@@ -251,14 +251,14 @@ public class PetSittersServiceTest {
     public void testValidStorage() throws IOException {
         MultipartFile result=loadFile();
         String filename=gridFs.saveFile(result, "test");
-        GridFsResource res=gridFs.getFile(filename);
+        GridFsResource res=gridFs.getFile(filename,false);
         assertTrue("Same files", IOUtils.contentEquals( result.getInputStream(), res.getInputStream()));
     }
     @Test
     public void testInvalidStorage() throws IOException {
         MultipartFile result=loadFile();
         gridFs.saveFile(result,"fail");
-        GridFsResource res=gridFs.getFile("notFail");
+        GridFsResource res=gridFs.getFile("notFail",false);
     }
 
     private MultipartFile loadFile() {
@@ -642,7 +642,7 @@ public class PetSittersServiceTest {
     }
 
     @Test
-    public void deleteChatNormal() throws ParseException, ExceptionInvalidAccount {
+    public void deleteChatNormal() throws ParseException, ExceptionInvalidAccount, IOException {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
@@ -668,7 +668,7 @@ public class PetSittersServiceTest {
     }
 
     @Test(expected = ExceptionInvalidAccount.class)
-    public void deleteChatDoesNotExist() throws ParseException, ExceptionInvalidAccount {
+    public void deleteChatDoesNotExist() throws ParseException, ExceptionInvalidAccount, IOException {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
@@ -687,7 +687,7 @@ public class PetSittersServiceTest {
     }
 
     @Test(expected = ExceptionInvalidAccount.class)
-    public void deleteChatAlreadyDeleted() throws ParseException, ExceptionInvalidAccount {
+    public void deleteChatAlreadyDeleted() throws ParseException, ExceptionInvalidAccount, IOException {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
@@ -705,7 +705,7 @@ public class PetSittersServiceTest {
     }
 
     @Test(expected = ExceptionInvalidAccount.class)
-    public void deleteChatUsernameWhoDeletesDoesNotExist() throws ParseException, ExceptionInvalidAccount {
+    public void deleteChatUsernameWhoDeletesDoesNotExist() throws ParseException, ExceptionInvalidAccount, IOException {
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
         PSS.register(registerSchema2);
 
@@ -714,7 +714,7 @@ public class PetSittersServiceTest {
     }
 
     @Test(expected = ExceptionInvalidAccount.class)
-    public void deleteChatDoesNotExistWithNoPreviousChats() throws ParseException, ExceptionInvalidAccount {
+    public void deleteChatDoesNotExistWithNoPreviousChats() throws ParseException, ExceptionInvalidAccount, IOException {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
@@ -725,7 +725,7 @@ public class PetSittersServiceTest {
     }
 
     @Test
-    public void deleteAccountAndChats() throws ParseException, ExceptionInvalidAccount {
+    public void deleteAccountAndChats() throws ParseException, ExceptionInvalidAccount, IOException {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();

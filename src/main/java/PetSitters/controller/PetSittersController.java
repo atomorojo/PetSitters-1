@@ -238,7 +238,7 @@ public class PetSittersController {
 
     @DeleteMapping(value = "/deleteAccount", headers = "Accept=application/json")
     @ApiOperation(value = "Deletes an existent account.")
-    public ResponseEntity deleteAccount(@RequestBody DeleteAccountSchema account, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
+    public ResponseEntity deleteAccount(@RequestBody DeleteAccountSchema account, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount, IOException {
         petSittersService.deleteAccount(account, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(HttpStatus.OK);
     }
@@ -340,7 +340,7 @@ public class PetSittersController {
     }
     @DeleteMapping(value = "/deleteUserAccount", headers = "Accept=application/json")
     @ApiOperation(value = "Deletes the account, only admins can execute this action.")
-    public ResponseEntity deleteAccountAdmin(@RequestParam String adminToken, @RequestParam String toDelete) throws ExceptionInvalidAccount {
+    public ResponseEntity deleteAccountAdmin(@RequestParam String adminToken, @RequestParam String toDelete) throws ExceptionInvalidAccount, IOException {
         if (adminToken.equals("111122223333444455556666")) {
             petSittersService.deleteAccountAdmin(toDelete);
             return new ResponseEntity(HttpStatus.OK);
@@ -398,7 +398,7 @@ public class PetSittersController {
 
     @DeleteMapping(value = "/deleteChat")
     @ApiOperation(value = "Deletes a chat between two users. If both users delete the chat, this is erased for good. ")
-    public ResponseEntity deleteChat(@RequestBody DeleteChatSchema deleteChatSchema, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
+    public ResponseEntity deleteChat(@RequestBody DeleteChatSchema deleteChatSchema, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount, IOException {
         petSittersService.deleteChat(deleteChatSchema, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(HttpStatus.OK);
     }

@@ -192,7 +192,7 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test
-    public void testDeleteExistingAccount() throws ParseException, ExceptionInvalidAccount {
+    public void testDeleteExistingAccount() throws ParseException, ExceptionInvalidAccount, IOException {
         RegisterSchema registerSchema = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema);
         assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
@@ -202,7 +202,7 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test(expected = ExceptionInvalidAccount.class)
-    public void testDeleteExistingAccountWithDifferentPassword() throws ParseException, ExceptionInvalidAccount {
+    public void testDeleteExistingAccountWithDifferentPassword() throws ParseException, ExceptionInvalidAccount, IOException {
         RegisterSchema registerSchema = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema);
         assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
@@ -212,7 +212,7 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test(expected = ExceptionInvalidAccount.class)
-    public void testDeleteNonExistingAccount() throws ExceptionInvalidAccount {
+    public void testDeleteNonExistingAccount() throws ExceptionInvalidAccount, IOException {
         DeleteAccountSchema deleteAccount = getFilledSchemaDeletion("123");
         assertFalse("The user 'rod98' should not exist", UserRep.existsByUsername("rod98"));
         PSS.deleteAccount(deleteAccount, "rod98");
@@ -614,7 +614,7 @@ public class PetSittersServiceIntegrationTest {
         proposeContract();
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
-        PSS.acceptContract(registerSchema1.getUsername(),registerSchema2.getUsername());
+        PSS.acceptContract(registerSchema1.getUsername(),registerSchema2.getUsername(),false);
         Contract c=ContractRepository.findByUsernameFromAndUsernameTo(registerSchema1.getUsername(),registerSchema2.getUsername());
         System.out.println(c.getAccepted());
         assertTrue("Is true",c.getAccepted());
@@ -624,7 +624,7 @@ public class PetSittersServiceIntegrationTest {
         proposeContract();
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
-        PSS.rejectContract(registerSchema1.getUsername(),registerSchema2.getUsername());
+        PSS.rejectContract(registerSchema1.getUsername(),registerSchema2.getUsername(),false);
         Contract c=ContractRepository.findByUsernameFromAndUsernameTo(registerSchema1.getUsername(),registerSchema2.getUsername());
         assertTrue("Is null",c==null);
     }
@@ -650,7 +650,7 @@ public class PetSittersServiceIntegrationTest {
         proposeContract();
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
-        Contract c=PSS.isContracted(registerSchema1.getUsername(),registerSchema2.getUsername());
+        Contract c=PSS.isContracted(registerSchema1.getUsername(),registerSchema2.getUsername(),false);
         assertTrue("Is null",c!=null);
     }
 
@@ -848,7 +848,7 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test
-    public void deleteChatNormal() throws ParseException, ExceptionInvalidAccount {
+    public void deleteChatNormal() throws ParseException, ExceptionInvalidAccount, IOException {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
@@ -893,7 +893,7 @@ public class PetSittersServiceIntegrationTest {
         assertNotNull("The chat should exist", ChatRep.findByUsernameAAndUsernameB("casjua92", "rod98"));
         List<Message> listMessages = MessageRep.findAll();
         assertFalse("There should exist some messages", listMessages.isEmpty());
-        assertTrue("The file should exist", gridFs.getFile(filename).exists());
+        assertTrue("The file should exist", gridFs.getFile(filename,false).exists());
 
         deleteChatSchema = getFilledDeleteChatSchema(registerSchema1.getUsername());
         PSS.deleteChat(deleteChatSchema, registerSchema2.getUsername());
@@ -902,11 +902,11 @@ public class PetSittersServiceIntegrationTest {
         listMessages = MessageRep.findAll();
         assertTrue("There should not exist any message", listMessages.isEmpty());
 
-        assertFalse("The file should not exist", gridFs.getFile(filename).exists());
+        assertFalse("The file should not exist", gridFs.getFile(filename,false).exists());
     }
 
     @Test(expected = ExceptionInvalidAccount.class)
-    public void deleteChatDoesNotExist() throws ParseException, ExceptionInvalidAccount {
+    public void deleteChatDoesNotExist() throws ParseException, ExceptionInvalidAccount, IOException {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
@@ -925,7 +925,7 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test(expected = ExceptionInvalidAccount.class)
-    public void deleteChatAlreadyDeleted() throws ParseException, ExceptionInvalidAccount {
+    public void deleteChatAlreadyDeleted() throws ParseException, ExceptionInvalidAccount, IOException {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
@@ -943,7 +943,7 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test(expected = ExceptionInvalidAccount.class)
-    public void deleteChatUsernameWhoDeletesDoesNotExist() throws ParseException, ExceptionInvalidAccount {
+    public void deleteChatUsernameWhoDeletesDoesNotExist() throws ParseException, ExceptionInvalidAccount, IOException {
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
         PSS.register(registerSchema2);
 
@@ -952,7 +952,7 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test(expected = ExceptionInvalidAccount.class)
-    public void deleteChatDoesNotExistWithNoPreviousChats() throws ParseException, ExceptionInvalidAccount {
+    public void deleteChatDoesNotExistWithNoPreviousChats() throws ParseException, ExceptionInvalidAccount, IOException {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
@@ -974,7 +974,7 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test
-    public void deleteAccountAndChats() throws ParseException, ExceptionInvalidAccount {
+    public void deleteAccountAndChats() throws ParseException, ExceptionInvalidAccount, IOException {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
