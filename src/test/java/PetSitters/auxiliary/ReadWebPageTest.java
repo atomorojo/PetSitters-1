@@ -35,7 +35,7 @@ public class ReadWebPageTest {
         assertEquals("The returned message should be 'Hello World!!! TESTING...'", output,"Hello World!!! TESTING...");
     }
 
-    @Test(expected = AccessDeniedException.class)
+    @Test(expected = IOException.class)
     public void getProcessedTextNonExistingFile() throws IOException {
         Map<String, String> data = new HashMap<>();
         data.put("text", "TESTING...");
@@ -48,7 +48,7 @@ public class ReadWebPageTest {
         assertEquals("The returned message should be 'Hello World!!! ${text}'", output,"Hello World!!! ${text}");
     }
 
-    @Test(expected = AccessDeniedException.class)
+    @Test(expected = IOException.class)
     public void getTextNonExistingFile() throws IOException {
         readWebPage.getText("...");
     }
