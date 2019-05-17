@@ -664,9 +664,11 @@ public class PetSittersService {
 		return result;
 	}
 
-    private void deleteAllMultimedia(List<Message> list) {
+    private void deleteAllMultimedia(List<Message> list) throws IOException {
         for (Message message: list) {
-            if (gridFS.getFile(message.getContent()) != null) {
+            Boolean booli=false;
+            gridFS.getFile(message.getContent(),booli);
+            if (booli) {
                 System.out.println("Trying to delete..." + message.getContent());
                 gridFS.destroyFile(message.getContent());
             }
