@@ -148,9 +148,10 @@ public class PetSittersController {
     @GetMapping(value = "/get/{name}")
     @ApiOperation(value = "Retrieve a file.")
     public ResponseEntity retrieve(@PathVariable String name) throws ParseException, IOException {
-        GridFsResource file = gridFS.getFile(name);
+        Boolean booli=false;
+        GridFsResource file = gridFS.getFile(name,booli);
         HttpHeaders headers = new HttpHeaders();
-        if (file != null) {
+        if (booli) {
             return ResponseEntity.ok().contentType(MediaType.parseMediaType(file.getContentType())).contentLength(file.contentLength()).body(file);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("");
@@ -331,7 +332,7 @@ public class PetSittersController {
         Contract res = petSittersService.isContracted(contract, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(res, HttpStatus.OK);
     }
-    @PostMapping(value = "/deleteUserAccount", headers = "Accept=application/json")
+    @DeleteMapping(value = "/deleteUserAccount", headers = "Accept=application/json")
     @ApiOperation(value = "Deletes the account, only admins can execute this action.")
     public ResponseEntity deleteAccountAdmin(@RequestParam String adminToken, @RequestParam String toDelete) throws ExceptionInvalidAccount {
         if (adminToken.equals("111122223333444455556666")) {
