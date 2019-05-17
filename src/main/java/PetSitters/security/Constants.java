@@ -24,6 +24,8 @@ public class Constants {
     public static final String ERROR_EMAIL_CONFIRMATION_WEB_PAGE_PATH = "/src/main/resources/webPages/error-email-confirmation.html";
     public static final String OK_EMAIL_CONFIRMATION_WEB_PAGE_PATH = "/src/main/resources/webPages/ok-email-confirmation.html";
     public static final String ERROR_PAGE_PATH = "/src/main/resources/webPages/error-page.html";
+    public static final String ADMINISTRATOR_PAGE_PATH = "/src/main/resources/webPages/administrator.html";
 
     public static final String DEBUG_PATH = "/petsitters/DEBUG*";
+    public static final String ADMINISTRATOR_PATH = "/admin";
 }
