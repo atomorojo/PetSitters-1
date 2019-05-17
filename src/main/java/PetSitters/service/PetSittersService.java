@@ -54,7 +54,7 @@ public class PetSittersService {
         UserRep.save(newUser);
     }
 
-    public void deleteAccount(DeleteAccountSchema account, String username) throws ExceptionInvalidAccount {
+    public void deleteAccount(DeleteAccountSchema account, String username) throws ExceptionInvalidAccount, IOException {
         account.validate();
         String password = account.getPassword();
         UserPetSitters u = UserRep.findByUsername(username);
@@ -66,7 +66,7 @@ public class PetSittersService {
         deleteAllChats(username);
         UserRep.deleteByUsername(username);
     }
-    public void deleteAccountAdmin(String username) throws ExceptionInvalidAccount {
+    public void deleteAccountAdmin(String username) throws ExceptionInvalidAccount, IOException {
         if (UserRep.existsByUsername(username)) {
             UserPetSitters user = UserRep.findByUsername(username);
             if (user.getImage()!=null) gridFS.destroyFile(user.getImage());
@@ -495,6 +495,7 @@ public class PetSittersService {
         }
         Contract cont = new Contract();
         cont.setAnimal(contract.getAnimal());
+        cont.setStart(contract.getStart());
         cont.setEnd(contract.getEnd());
         cont.setUsernameTo(contract.getUsername());
         cont.setUsernameFrom(usernameFromToken);
@@ -675,7 +676,7 @@ public class PetSittersService {
         }
     }
 
-   public void deleteChat(DeleteChatSchema deleteChatSchema, String usernameWhoDeletes) throws ExceptionInvalidAccount {
+   public void deleteChat(DeleteChatSchema deleteChatSchema, String usernameWhoDeletes) throws ExceptionInvalidAccount, IOException {
        deleteChatSchema.validate();
        String otherUsername = deleteChatSchema.getOtherUsername();
        deleteChat(otherUsername, usernameWhoDeletes);
@@ -686,7 +687,7 @@ public class PetSittersService {
         return usernameA;
     }
 
-    public void deleteAllChats(String usernameWhoDeletes) throws ExceptionInvalidAccount {
+    public void deleteAllChats(String usernameWhoDeletes) throws ExceptionInvalidAccount, IOException {
         List<Chat> listOfChatByA = ChatRep.findByUsernameA(usernameWhoDeletes);
         for (Chat chat: listOfChatByA) {
             String otherUsername = getOtherUsername(chat.getUsernameA(), chat.getUsernameB(), usernameWhoDeletes);
@@ -699,7 +700,7 @@ public class PetSittersService {
         }
     }
 
-    private void deleteChat(String otherUsername, String usernameWhoDeletes) throws ExceptionInvalidAccount {
+    private void deleteChat(String otherUsername, String usernameWhoDeletes) throws ExceptionInvalidAccount, IOException {
         if (!UserRep.existsByUsername(usernameWhoDeletes)) {
             throw new ExceptionInvalidAccount("The specified username '" + usernameWhoDeletes + "' does not belong to any user in the system");
         }
