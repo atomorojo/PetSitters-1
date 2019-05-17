@@ -344,4 +344,11 @@ public class PetSittersController {
         LinkedList<Message> result = petSittersService.getAllMessagesFromChat(limit, userWhoReceives, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(result, HttpStatus.OK);
     }
+
+    @DeleteMapping(value = "/deleteChat")
+    @ApiOperation(value = "Deletes a chat between two users. If both users delete the chat, this is erased for good. ")
+    public ResponseEntity deleteChat(@RequestBody DeleteChatSchema deleteChatSchema, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
+        petSittersService.deleteChat(deleteChatSchema, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(HttpStatus.OK);
+    }
 }

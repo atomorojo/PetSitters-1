@@ -39,6 +39,11 @@ public class Chat {
     @NotBlank
     private String lastMessage;
 
+    @ApiModelProperty(value = "Shows the username of the user who deleted such chat", required = false)
+    @Field("usernameWhoHasNoAccess")
+    @NotBlank
+    private String usernameWhoHasNoAccess;
+
     public Chat() {
     }
 
@@ -47,6 +52,7 @@ public class Chat {
         this.usernameB = usernameB;
         this.lastUse = lastUse;
         this.lastMessage = lastMessage;
+        this.usernameWhoHasNoAccess = null;
     }
 
     public String getUsernameA() {
@@ -83,5 +89,26 @@ public class Chat {
 
     public boolean isLastUsed(Chat cB) {
         return lastUse.after(cB.lastUse);
+    }
+
+    public String getUsernameWhoHasNoAccess() {
+        return usernameWhoHasNoAccess;
+    }
+
+    public void setUsernameWhoHasNoAccess(String usernameWhoHasNoAccess) {
+        this.usernameWhoHasNoAccess = usernameWhoHasNoAccess;
+    }
+
+    public boolean hasAccess(String username) {
+        if (username.equals(usernameA) || username.equals(usernameB)) {
+            if (usernameWhoHasNoAccess == null) {
+                return true;
+            }
+            if (usernameWhoHasNoAccess.equals(username)) {
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 }

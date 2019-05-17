@@ -3,15 +3,19 @@ package PetSitters.controller;
 import PetSitters.entity.Contract;
 import PetSitters.entity.Report;
 import PetSitters.entity.UserPetSitters;
+import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.repository.ChatRepository;
 import PetSitters.repository.ReportRepository;
 import PetSitters.repository.UserRepository;
 import PetSitters.repository.ContractRepository;
+import PetSitters.schemas.MessageSchema;
 import PetSitters.schemas.RegisterSchema;
+import PetSitters.schemas.ReportSchema;
 import PetSitters.schemas.ResultActionLoginSchemaTest;
 import PetSitters.security.JwtTokenUtil;
 import PetSitters.service.GridFS;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.bouncycastle.jcajce.provider.asymmetric.rsa.AlgorithmParametersSpi;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -133,6 +137,13 @@ public class PetSittersControllerIntegrationTest {
 
     ResultActions sendMessage(String token, String cont) throws Exception {
         return mvc.perform(post("/petsitters/sendMessage")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(cont));
+    }
+
+    ResultActions deleteChat(String token, String cont) throws Exception {
+        return mvc.perform(delete("/petsitters/deleteChat")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(cont));
@@ -1053,30 +1064,6 @@ public class PetSittersControllerIntegrationTest {
         assertTrue("Favorite is not set",end.getFavorites().size()==0);
     }
 
-
-
-    @Test
-    public void getOpenedChatsEmpty() throws Exception {
-        String cont = "{\n" +
-                "  \"birthdate\": \"20-11-1987\",\n" +
-                "  \"email\": \"a@b.com\",\n" +
-                "  \"firstName\": \"stri1ng\",\n" +
-                "\t\"city\":\"Barcelona\",\n" +
-                "  \"lastName\": \"string\",\n" +
-                "  \"password\": \"123\",\n" +
-                "  \"username\": \"rod98\"\n" +
-                "}";
-        register(cont).andExpect(status().isOk());
-
-        cont = "{\n" +
-                "\t\"username\":\"rod98\",\n" +
-                "\t\"password\":\"123\"\n" +
-                "}";
-        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
-
-        getOpenedChats(token).andExpect(status().isOk());
-    }
-
     @Test
     public void getOpenedChats() throws Exception {
         String cont = "{\n" +
@@ -1128,6 +1115,52 @@ public class PetSittersControllerIntegrationTest {
 
         cont = "{\n" +
                 "  \"userWhoReceives\": \"aare\",\n" +
+                "  \"content\":\"Hello\",\n" +
+                "  \"isMultimedia\":\"false\"\n" +
+                "}";
+
+        sendMessage(token, cont).andExpect(status().isOk());
+
+        getOpenedChats(token).andExpect(status().isOk());
+    }
+    @Test
+    public void getOpenedChatsReportedWithoutMessagesInOneSide() throws Exception {
+        String cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@b.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
+                "  \"password\": \"123\",\n" +
+                "  \"username\": \"rod98\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@bo.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
+                "  \"password\": \"123\",\n" +
+                "  \"username\": \"casjua92\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+
+        cont = "{\n" +
+                "\t\"reported\":\"casjua92\",\n" +
+                "\t\"description\":\"No description\"\n" +
+                "}";
+        reportUser(cont, token).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "  \"userWhoReceives\": \"casjua92\",\n" +
                 "  \"content\":\"Hello\",\n" +
                 "  \"isMultimedia\":\"false\"\n" +
                 "}";
@@ -1701,6 +1734,161 @@ public class PetSittersControllerIntegrationTest {
         sendMessage(token, cont).andExpect(status().isOk());
 
         getAllMessagesFromChat(token, "casjua92").andExpect(status().isOk());
+    }
+
+    @Test
+    public void deleteChatNormal() throws Exception {
+        String cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@b.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
+                "  \"username\": \"rod98\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@bo.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
+                "  \"username\": \"casjua92\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+
+        cont = "{\n" +
+                "  \"userWhoReceives\": \"casjua92\",\n" +
+                "  \"content\":\"Hello\",\n" +
+                "  \"isMultimedia\":\"false\"\n" +
+                "}";
+
+        sendMessage(token, cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "  \"otherUsername\":\"casjua92\"\n" +
+                "}";
+
+        deleteChat(token, cont).andExpect(status().isOk());
+    }
+
+    @Test
+    public void deleteChatAlreadyDeleted() throws Exception, ExceptionInvalidAccount {
+        String cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@b.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
+                "  \"username\": \"rod98\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@bo.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
+                "  \"username\": \"casjua92\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+
+        cont = "{\n" +
+                "  \"userWhoReceives\": \"casjua92\",\n" +
+                "  \"content\":\"Hello\",\n" +
+                "  \"isMultimedia\":\"false\"\n" +
+                "}";
+
+        sendMessage(token, cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "  \"otherUsername\":\"casjua92\"\n" +
+                "}";
+
+        deleteChat(token, cont).andExpect(status().isOk());
+        deleteChat(token, cont).andExpect(status().is4xxClientError());
+    }
+
+
+    @Test
+    public void deleteChatOtherUsernameDoesNotExist() throws Exception {
+        String cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@b.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
+                "  \"username\": \"rod98\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+
+        cont = "{\n" +
+                "  \"otherUsername\":\"casjua92\"\n" +
+                "}";
+
+        deleteChat(token, cont).andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    public void deleteChatDoesNotExistWithNoPreviousChats() throws Exception {
+        String cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@b.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
+                "  \"username\": \"rod98\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@bo.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
+                "  \"username\": \"casjua92\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+
+        cont = "{\n" +
+                "  \"otherUsername\":\"casjua92\"\n" +
+                "}";
+
+        deleteChat(token, cont).andExpect(status().is4xxClientError());
     }
 
 }
