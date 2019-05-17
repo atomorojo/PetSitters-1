@@ -503,22 +503,25 @@ public class PetSittersService {
         ContRep.save(cont);
     }
 
-    public void acceptContract(String usernameB, String usernameFromToken) {
+    public void acceptContract(String usernameB, String usernameFromToken, Boolean booli) {
         Contract cont = ContRep.findByUsernameFromAndUsernameTo(usernameB, usernameFromToken);
         if (cont != null) {
             cont.setAccepted(true);
             ContRep.save(cont);
+            booli=true;
         }
     }
 
-    public void rejectContract(String usernameB, String usernameFromToken) {
+    public void rejectContract(String usernameB, String usernameFromToken,Boolean booli) {
         Contract cont = ContRep.findByUsernameFromAndUsernameTo(usernameB, usernameFromToken);
         if (cont != null) {
             ContRep.delete(cont);
+            booli=true;
         }
         cont = ContRep.findByUsernameFromAndUsernameTo(usernameFromToken, usernameB);
         if (cont != null) {
             ContRep.delete(cont);
+            booli=true;
         }
 
     }
@@ -533,8 +536,9 @@ public class PetSittersService {
         return cont;
     }
 
-    public Contract isContracted(String usernameB, String usernameFromToken) {
+    public Contract isContracted(String usernameB, String usernameFromToken, Boolean booli) {
         Contract cont = ContRep.findByUsernameFromAndUsernameTo(usernameB, usernameFromToken);
+        if (cont!=null) booli=true;
         return cont;
     }
 

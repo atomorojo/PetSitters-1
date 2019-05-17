@@ -301,15 +301,19 @@ public class PetSittersController {
     @PostMapping(value = "/acceptContract", headers = "Accept=application/json")
     @ApiOperation(value = "Given the username of another user, accepts the contract proposed.")
     public ResponseEntity acceptContract(@RequestParam String contract, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
-        petSittersService.acceptContract(contract, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
-        return new ResponseEntity(HttpStatus.OK);
+        Boolean booli=false;
+        petSittersService.acceptContract(contract, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())),booli);
+        if (booli) return new ResponseEntity(HttpStatus.OK);
+        else return new ResponseEntity(HttpStatus.NOT_FOUND);
     }
 
     @DeleteMapping(value = "/rejectContract", headers = "Accept=application/json")
     @ApiOperation(value = "Given the username of another user, rejects the proposed contract.")
     public ResponseEntity rejectContract(@RequestParam String contract, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
-        petSittersService.rejectContract(contract, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
-        return new ResponseEntity(HttpStatus.OK);
+        Boolean booli=false;
+        petSittersService.rejectContract(contract, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())),booli);
+        if (booli) return new ResponseEntity(HttpStatus.OK);
+        else return new ResponseEntity(HttpStatus.NOT_FOUND);
     }
 
     @GetMapping(value = "/getProposedContracts", headers = "Accept=application/json")
@@ -329,8 +333,10 @@ public class PetSittersController {
     @GetMapping(value = "/isContracted", headers = "Accept=application/json")
     @ApiOperation(value = "Returns the contract that has been set between the 2 users, if it exists.")
     public ResponseEntity isContracted(@RequestParam String contract, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
-        Contract res = petSittersService.isContracted(contract, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
-        return new ResponseEntity(res, HttpStatus.OK);
+        Boolean booli=false;
+        Contract res = petSittersService.isContracted(contract, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())),booli);
+        if (booli) return new ResponseEntity(res, HttpStatus.OK);
+        else return new ResponseEntity(HttpStatus.NOT_FOUND);
     }
     @DeleteMapping(value = "/deleteUserAccount", headers = "Accept=application/json")
     @ApiOperation(value = "Deletes the account, only admins can execute this action.")
