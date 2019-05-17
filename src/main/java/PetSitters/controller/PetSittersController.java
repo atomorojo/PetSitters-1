@@ -148,14 +148,9 @@ public class PetSittersController {
     @GetMapping(value = "/get/{name}")
     @ApiOperation(value = "Retrieve a file.")
     public ResponseEntity retrieve(@PathVariable String name) throws ParseException, IOException {
-        Boolean booli=false;
-        GridFsResource file = gridFS.getFile(name,booli);
+        GridFsResource file = gridFS.getFile(name,false);
         HttpHeaders headers = new HttpHeaders();
-        if (booli) {
             return ResponseEntity.ok().contentType(MediaType.parseMediaType(file.getContentType())).contentLength(file.contentLength()).body(file);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("");
-        }
     }
 
     @PostMapping(value = "/changePassword", headers = "Accept=application/json")
@@ -301,19 +296,14 @@ public class PetSittersController {
     @PostMapping(value = "/acceptContract", headers = "Accept=application/json")
     @ApiOperation(value = "Given the username of another user, accepts the contract proposed.")
     public ResponseEntity acceptContract(@RequestParam String contract, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
-        Boolean booli=false;
-        petSittersService.acceptContract(contract, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())),booli);
-        if (booli) return new ResponseEntity(HttpStatus.OK);
-        else return new ResponseEntity(HttpStatus.NOT_FOUND);
+        petSittersService.acceptContract(contract, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())),false);
+         return new ResponseEntity(HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/rejectContract", headers = "Accept=application/json")
     @ApiOperation(value = "Given the username of another user, rejects the proposed contract.")
     public ResponseEntity rejectContract(@RequestParam String contract, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
-        Boolean booli=false;
-        petSittersService.rejectContract(contract, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())),booli);
-        if (booli) return new ResponseEntity(HttpStatus.OK);
-        else return new ResponseEntity(HttpStatus.NOT_FOUND);
+        petSittersService.rejectContract(contract, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())),false);return new ResponseEntity(HttpStatus.OK);
     }
 
     @GetMapping(value = "/getProposedContracts", headers = "Accept=application/json")
@@ -333,10 +323,8 @@ public class PetSittersController {
     @GetMapping(value = "/isContracted", headers = "Accept=application/json")
     @ApiOperation(value = "Returns the contract that has been set between the 2 users, if it exists.")
     public ResponseEntity isContracted(@RequestParam String contract, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
-        Boolean booli=false;
-        Contract res = petSittersService.isContracted(contract, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())),booli);
-        if (booli) return new ResponseEntity(res, HttpStatus.OK);
-        else return new ResponseEntity(HttpStatus.NOT_FOUND);
+        Contract res = petSittersService.isContracted(contract, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())),false);
+         return new ResponseEntity(res, HttpStatus.OK);
     }
     @DeleteMapping(value = "/deleteUserAccount", headers = "Accept=application/json")
     @ApiOperation(value = "Deletes the account, only admins can execute this action.")
@@ -371,13 +359,9 @@ public class PetSittersController {
     @DeleteMapping(value = "/delete/{name}", headers = "Accept=application/json")
     @ApiOperation(value = "Deletes the account, only admins can execute this action.")
     public ResponseEntity getUserReports(@PathVariable String name) throws ExceptionInvalidAccount, IOException {
-        Boolean booli=false;
-        gridFS.getFile(name,booli);
-        if (booli) {
+        gridFS.getFile(name,false);
             gridFS.destroyFile(name);
             return new ResponseEntity(HttpStatus.OK);
-        }
-        else return new ResponseEntity(HttpStatus.NOT_FOUND);
     }
 
 
