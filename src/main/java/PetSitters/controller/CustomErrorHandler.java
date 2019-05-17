@@ -22,8 +22,17 @@ public class CustomErrorHandler implements ErrorController {
         Integer statusCode = (Integer) request.getAttribute("javax.servlet.error.status_code");
         Exception exception = (Exception) request.getAttribute("javax.servlet.error.exception");
         Map<String, String> data = new HashMap<>();
+        if (exception == null) {
+            switch (statusCode) {
+                case 401:
+                    exception = new Exception("Not Authorized");
+                    data.put("visibility", "visible");
+                    break;
+                default:
+                    data.put("visibility", "none");
+            }
+        }
         data.put("statusCode", String.valueOf(statusCode));
-        data.put("visibility", exception==null? "none": "visible");
         data.put("exception", exception==null? "N/A": exception.getMessage());
         ReadWebPage read = new ReadWebPage();
         String formattedString = read.getProcessedText(ERROR_PAGE_PATH, data);
