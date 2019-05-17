@@ -44,4 +44,9 @@ public class GridFS {
         if (file.getFile()!=null) booli=true;
         return file;
     }
+
+    public void destroyFile(String filename) {
+        System.out.println(filename);
+        this.gridFsTemplate.delete(getFilenameQuery(filename));
+    }
 }

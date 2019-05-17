@@ -343,7 +343,7 @@ public class PetSittersController {
     }
 
     @GetMapping(value = "/getUserReports", headers = "Accept=application/json")
-    @ApiOperation(value = "Deletes the account, only admins can execute this action.")
+    @ApiOperation(value = "Gets the reports of this user, only admins can execute this action.")
     public ResponseEntity getUserReports(@RequestParam String adminToken, @RequestParam String reported) throws ExceptionInvalidAccount {
         if (adminToken.equals("111122223333444455556666")) {
             List<Report> reportList=petSittersService.getReports(reported);
@@ -351,6 +351,27 @@ public class PetSittersController {
         }
         return new ResponseEntity(HttpStatus.FORBIDDEN);
     }
+
+    @GetMapping(value = "/getAllReportedUsers", headers = "Accept=application/json")
+    @ApiOperation(value = "Gets all users that have been reported, only admins can execute this action.")
+    public ResponseEntity getAllReportedUsers(@RequestParam String adminToken) throws ExceptionInvalidAccount {
+        if (adminToken.equals("111122223333444455556666")) {
+            List<GetAllReportsSchema> reportList=petSittersService.getAllReportedUsers();
+            return new ResponseEntity(reportList,HttpStatus.OK);
+        }
+        return new ResponseEntity(HttpStatus.FORBIDDEN);
+    }
+
+    @DeleteMapping(value = "/delete/{name}", headers = "Accept=application/json")
+    @ApiOperation(value = "Deletes the account, only admins can execute this action.")
+    public ResponseEntity getUserReports(@PathVariable String name) throws ExceptionInvalidAccount {
+        if (gridFS.getFile(name)!=null) {
+            gridFS.destroyFile(name);
+            return new ResponseEntity(HttpStatus.OK);
+        }
+        else return new ResponseEntity(HttpStatus.NOT_FOUND);
+    }
+
 
 
     @PostMapping(value = "/sendMessage", headers = "Accept=application/json")
@@ -365,5 +386,12 @@ public class PetSittersController {
     public ResponseEntity getMessagesFromChat(@RequestParam String userWhoReceives, @RequestParam(value = "limit", required = false) Integer limit, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
         LinkedList<Message> result = petSittersService.getAllMessagesFromChat(limit, userWhoReceives, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(result, HttpStatus.OK);
+    }
+
+    @DeleteMapping(value = "/deleteChat")
+    @ApiOperation(value = "Deletes a chat between two users. If both users delete the chat, this is erased for good. ")
+    public ResponseEntity deleteChat(@RequestBody DeleteChatSchema deleteChatSchema, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
+        petSittersService.deleteChat(deleteChatSchema, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(HttpStatus.OK);
     }
 }

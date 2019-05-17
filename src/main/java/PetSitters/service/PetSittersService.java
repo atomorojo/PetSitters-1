@@ -1,6 +1,5 @@
 package PetSitters.service;
 
-import PetSitters.auxiliary.Pair;
 import PetSitters.auxiliary.PushbackIterator;
 import PetSitters.domain.Availability;
 import PetSitters.domain.City;
@@ -37,6 +36,9 @@ public class PetSittersService {
     ContractRepository ContRep;
 
     @Autowired
+    GridFS gridFS;
+
+    @Autowired
     MessageRepository MessageRep;
 
 
@@ -60,13 +62,18 @@ public class PetSittersService {
         if (!u.isTheSamePassword(password)) {
             throw new ExceptionInvalidAccount("The username or password provided are incorrect");
         }
+        if (u.getImage()!=null) gridFS.destroyFile(u.getImage());
+        deleteAllChats(username);
         UserRep.deleteByUsername(username);
     }
     public void deleteAccountAdmin(String username) throws ExceptionInvalidAccount {
-        if (UserRep.existsByUsername(username))
-        UserRep.deleteByUsername(username);
+        if (UserRep.existsByUsername(username)) {
+            UserPetSitters user = UserRep.findByUsername(username);
+            if (user.getImage()!=null) gridFS.destroyFile(user.getImage());
+            deleteAllChats(username);
+            UserRep.deleteByUsername(username);
+        }
     }
-
 
     public void changePassword(ChangePasswordSchema changePassword, String username) throws ExceptionInvalidAccount {
         changePassword.validate();
@@ -91,7 +98,6 @@ public class PetSittersService {
             case "city":
                 modifyCity(value, user);
                 break;
-
             case "expert":
                 modifyExpert(value, user);
                 break;
@@ -354,6 +360,15 @@ public class PetSittersService {
         return (rad * 180.0 / Math.PI);
     }
 
+    private boolean hasAccess(Chat c, String username) {
+        String otherUsername;
+        if (username.equals(c.getUsernameB())) otherUsername = c.getUsernameA();
+        else otherUsername = c.getUsernameB();
+        boolean hasVisibleMessages = MessageRep.existsByIsVisibleAndUserWhoSendsAndUserWhoReceives(true, otherUsername, username);
+        hasVisibleMessages = hasVisibleMessages || MessageRep.existsByUserWhoSendsAndUserWhoReceives(username, otherUsername);
+        return c.hasAccess(username) && hasVisibleMessages;
+    }
+
     public List<ChatPreviewSchema> getOpenedChats(String username) {
         List<Chat> chatsA = ChatRep.findByUsernameAOrderByLastUseDesc(username);
         List<Chat> chatsB = ChatRep.findByUsernameBOrderByLastUseDesc(username);
@@ -367,28 +382,36 @@ public class PetSittersService {
             Chat cB = IB.next();
 
             if (cA.isLastUsed(cB)) {
-                UserPetSitters userPetSitters = UserRep.findByUsername(cA.getUsernameB());
-                ChatPreviewSchema chatPreviewSchema = new ChatPreviewSchema(userPetSitters.getFirstName() + " " + userPetSitters.getLastName(), userPetSitters.getImage(), cA.getLastMessage());
-                array.add(chatPreviewSchema);
+                if (hasAccess(cA, username)) {
+                    UserPetSitters userPetSitters = UserRep.findByUsername(cA.getUsernameB());
+                    ChatPreviewSchema chatPreviewSchema = new ChatPreviewSchema(userPetSitters.getFirstName() + " " + userPetSitters.getLastName(), userPetSitters.getUsername(), userPetSitters.getImage(), cA.getLastMessage());
+                    array.add(chatPreviewSchema);
+                }
                 IB.pushback(cB);
             } else {
-                UserPetSitters userPetSitters = UserRep.findByUsername(cB.getUsernameA());
-                ChatPreviewSchema chatPreviewSchema = new ChatPreviewSchema(userPetSitters.getFirstName() + " " + userPetSitters.getLastName(), userPetSitters.getImage(), cB.getLastMessage());
-                array.add(chatPreviewSchema);
+                if (hasAccess(cB, username)) {
+                    UserPetSitters userPetSitters = UserRep.findByUsername(cB.getUsernameA());
+                    ChatPreviewSchema chatPreviewSchema = new ChatPreviewSchema(userPetSitters.getFirstName() + " " + userPetSitters.getLastName(), userPetSitters.getUsername(), userPetSitters.getImage(), cB.getLastMessage());
+                    array.add(chatPreviewSchema);
+                }
                 IA.pushback(cA);
             }
         }
         while (IA.hasNext()) {
             Chat cA = IA.next();
-            UserPetSitters userPetSitters = UserRep.findByUsername(cA.getUsernameB());
-            ChatPreviewSchema chatPreviewSchema = new ChatPreviewSchema(userPetSitters.getFirstName() + " " + userPetSitters.getLastName(), userPetSitters.getImage(), cA.getLastMessage());
-            array.add(chatPreviewSchema);
+            if (hasAccess(cA, username)) {
+                UserPetSitters userPetSitters = UserRep.findByUsername(cA.getUsernameB());
+                ChatPreviewSchema chatPreviewSchema = new ChatPreviewSchema(userPetSitters.getFirstName() + " " + userPetSitters.getLastName(), userPetSitters.getUsername(), userPetSitters.getImage(), cA.getLastMessage());
+                array.add(chatPreviewSchema);
+            }
         }
         while (IB.hasNext()) {
             Chat cB = IB.next();
-            UserPetSitters userPetSitters = UserRep.findByUsername(cB.getUsernameA());
-            ChatPreviewSchema chatPreviewSchema = new ChatPreviewSchema(userPetSitters.getFirstName() + " " + userPetSitters.getLastName(), userPetSitters.getImage(), cB.getLastMessage());
-            array.add(chatPreviewSchema);
+            if (hasAccess(cB, username)) {
+                UserPetSitters userPetSitters = UserRep.findByUsername(cB.getUsernameA());
+                ChatPreviewSchema chatPreviewSchema = new ChatPreviewSchema(userPetSitters.getFirstName() + " " + userPetSitters.getLastName(), userPetSitters.getUsername(), userPetSitters.getImage(), cB.getLastMessage());
+                array.add(chatPreviewSchema);
+            }
         }
         return array;
     }
@@ -610,8 +633,101 @@ public class PetSittersService {
         ChatRep.deleteByUsernameAAndUsernameB(usernameA, usernameB);
         ChatRep.save(chat);
     }
+
     public List<Report> getReports(String reported) {
-        List<Report> res =ReportRep.findByReported(reported);
+        String email=UserRep.findByUsername(reported).getEmail();
+        List<Report> res =ReportRep.findByReported(email);
         return res;
     }
+
+    public List<GetAllReportsSchema> getAllReportedUsers() {
+        List<Report> reps=ReportRep.findAll();
+        Set<String> emails=new HashSet<String>();
+        for (Report r:reps) {
+            if (!emails.contains(r.getReported())) emails.add(r.getReported());
+        }
+        List<GetAllReportsSchema> result=new ArrayList<GetAllReportsSchema>();
+        for (String email:emails) {
+            UserPetSitters us=UserRep.findByEmail(email);
+            GetAllReportsSchema rep=new GetAllReportsSchema();
+            rep.setEmail(email);
+            rep.setFirstName(us.getFirstName());
+            rep.setLastName(us.getLastName());
+            rep.setUsername(us.getUsername());
+            rep.setReports(ReportRep.findByReported(email).size());
+            result.add(rep);
+        }
+		return result;
+	}
+
+    private void deleteAllMultimedia(List<Message> list) {
+        for (Message message: list) {
+            if (gridFS.getFile(message.getContent()) != null) {
+                System.out.println("Trying to delete..." + message.getContent());
+                gridFS.destroyFile(message.getContent());
+            }
+        }
+    }
+
+   public void deleteChat(DeleteChatSchema deleteChatSchema, String usernameWhoDeletes) throws ExceptionInvalidAccount {
+       deleteChatSchema.validate();
+       String otherUsername = deleteChatSchema.getOtherUsername();
+       deleteChat(otherUsername, usernameWhoDeletes);
+   }
+
+    private String getOtherUsername(String usernameA, String usernameB, String usernameWhoDeletes) {
+        if (usernameWhoDeletes.equals(usernameA)) return usernameB;
+        return usernameA;
+    }
+
+    public void deleteAllChats(String usernameWhoDeletes) throws ExceptionInvalidAccount {
+        List<Chat> listOfChatByA = ChatRep.findByUsernameA(usernameWhoDeletes);
+        for (Chat chat: listOfChatByA) {
+            String otherUsername = getOtherUsername(chat.getUsernameA(), chat.getUsernameB(), usernameWhoDeletes);
+            deleteChat(otherUsername, usernameWhoDeletes);
+        }
+        List<Chat> listOfChatByB = ChatRep.findByUsernameB(usernameWhoDeletes);
+        for (Chat chat: listOfChatByB) {
+            String otherUsername = getOtherUsername(chat.getUsernameA(), chat.getUsernameB(), usernameWhoDeletes);
+            deleteChat(otherUsername, usernameWhoDeletes);
+        }
+    }
+
+    private void deleteChat(String otherUsername, String usernameWhoDeletes) throws ExceptionInvalidAccount {
+        if (!UserRep.existsByUsername(usernameWhoDeletes)) {
+            throw new ExceptionInvalidAccount("The specified username '" + usernameWhoDeletes + "' does not belong to any user in the system");
+        }
+
+        String usernameA, usernameB;
+        if (usernameWhoDeletes.compareTo(otherUsername) < 0) {
+            usernameA = usernameWhoDeletes;
+            usernameB = otherUsername;
+        } else {
+            usernameA = otherUsername;
+            usernameB = usernameWhoDeletes;
+        }
+
+        Chat chat = ChatRep.findByUsernameAAndUsernameB(usernameA, usernameB);
+        if (chat == null) {
+            throw new ExceptionInvalidAccount("Chat does not exist");
+        }
+        String chatUsernameWhoHasNoAccess = chat.getUsernameWhoHasNoAccess();
+
+        if (chatUsernameWhoHasNoAccess == null) {
+            chat.setUsernameWhoHasNoAccess(usernameWhoDeletes);
+            ChatRep.save(chat);
+        } else if (chatUsernameWhoHasNoAccess.equals(usernameWhoDeletes)) {
+            throw new ExceptionInvalidAccount("Chat already deleted");
+        } else if (chatUsernameWhoHasNoAccess.equals(otherUsername) || !UserRep.existsByUsername(otherUsername)) {
+            // Delete media
+            List<Message> mediaChatsAB = MessageRep.findByIsMultimediaAndUserWhoSendsAndUserWhoReceives(true, usernameWhoDeletes, otherUsername);
+            deleteAllMultimedia(mediaChatsAB);
+            List<Message> mediaChatsBA = MessageRep.findByIsMultimediaAndUserWhoSendsAndUserWhoReceives(true, otherUsername, usernameWhoDeletes);
+            deleteAllMultimedia(mediaChatsBA);
+
+            MessageRep.deleteByUserWhoSendsAndUserWhoReceives(usernameWhoDeletes, otherUsername);
+            MessageRep.deleteByUserWhoSendsAndUserWhoReceives(otherUsername, usernameWhoDeletes);
+            ChatRep.deleteByUsernameAAndUsernameB(usernameA, usernameB);
+        }
+	}
 }
