@@ -113,8 +113,8 @@ public class PetSittersServiceIntegrationTest {
         return registerSchema;
     }
 
-    DeleteAccountSchema getFilledSchemaDeletion() {
-        DeleteAccountSchema deleteAccount = new DeleteAccountSchema("123");
+    DeleteAccountSchema getFilledSchemaDeletion(String password) {
+        DeleteAccountSchema deleteAccount = new DeleteAccountSchema(password);
         return deleteAccount;
     }
 
@@ -196,7 +196,7 @@ public class PetSittersServiceIntegrationTest {
         RegisterSchema registerSchema = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema);
         assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
-        DeleteAccountSchema deleteAccount = getFilledSchemaDeletion();
+        DeleteAccountSchema deleteAccount = getFilledSchemaDeletion("123");
         PSS.deleteAccount(deleteAccount, "rod98");
         assertFalse("The user 'rod98' should not exist", UserRep.existsByUsername("rod98"));
     }
@@ -206,14 +206,14 @@ public class PetSittersServiceIntegrationTest {
         RegisterSchema registerSchema = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema);
         assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
-        DeleteAccountSchema deleteAccount = getFilledSchemaDeletion();
+        DeleteAccountSchema deleteAccount = getFilledSchemaDeletion("123");
         deleteAccount.setPassword("321");
         PSS.deleteAccount(deleteAccount, "rod98");
     }
 
     @Test(expected = ExceptionInvalidAccount.class)
     public void testDeleteNonExistingAccount() throws ExceptionInvalidAccount {
-        DeleteAccountSchema deleteAccount = getFilledSchemaDeletion();
+        DeleteAccountSchema deleteAccount = getFilledSchemaDeletion("123");
         assertFalse("The user 'rod98' should not exist", UserRep.existsByUsername("rod98"));
         PSS.deleteAccount(deleteAccount, "rod98");
     }
@@ -952,15 +952,6 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test(expected = ExceptionInvalidAccount.class)
-    public void deleteChatOtherUsernameDoesNotExist() throws ParseException, ExceptionInvalidAccount {
-        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
-        PSS.register(registerSchema2);
-
-        DeleteChatSchema deleteChatSchema = getFilledDeleteChatSchema("erefre");
-        PSS.deleteChat(deleteChatSchema, registerSchema2.getUsername());
-    }
-
-    @Test(expected = ExceptionInvalidAccount.class)
     public void deleteChatDoesNotExistWithNoPreviousChats() throws ParseException, ExceptionInvalidAccount {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
@@ -980,5 +971,30 @@ public class PetSittersServiceIntegrationTest {
         ReportSchema reportSchema = getFilledReportSchema();
         PSS.report(reportSchema, "rod98");
         assertTrue("Was not found",PSS.getAllReportedUsers()!=null);
+    }
+
+    @Test
+    public void deleteAccountAndChats() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+
+        MessageSchema messageSchema = getMessageSchema("Hello", registerSchema2.getUsername(), "false");
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+
+        DeleteAccountSchema deleteAccount = getFilledSchemaDeletion(registerSchema1.getPassword());
+        PSS.deleteAccount(deleteAccount, registerSchema1.getUsername());
+
+        deleteAccount = getFilledSchemaDeletion(registerSchema2.getPassword());
+        PSS.deleteAccount(deleteAccount, registerSchema2.getUsername());
+
+        List<UserPetSitters> users = UserRep.findAll();
+        assertTrue("UserRep should be empty", users.isEmpty());
+        List<Message> messages = MessageRep.findAll();
+        assertTrue("MessageRep should be empty", messages.isEmpty());
+        List<Chat> chats = ChatRep.findAll();
+        assertTrue("ChatRep should be empty", chats.isEmpty());
     }
 }

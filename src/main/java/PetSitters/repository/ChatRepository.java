@@ -14,5 +14,9 @@ public interface ChatRepository extends MongoRepository<Chat, String> {
 
     List<Chat> findByUsernameBOrderByLastUseDesc(String usernameB);
 
+    List<Chat> findByUsernameA(String usernameA);
+
+    List<Chat> findByUsernameB(String usernameB);
+
     void deleteByUsernameAAndUsernameB(String usernameA, String usernameB);
 }
