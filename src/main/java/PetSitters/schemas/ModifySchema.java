@@ -7,7 +7,7 @@ public class ModifySchema implements Serializable {
     String toModify;
 
     public ModifySchema(String name) {
-        this.toModify=name;
+        this.toModify = name;
     }
 
     public String getToModify() {

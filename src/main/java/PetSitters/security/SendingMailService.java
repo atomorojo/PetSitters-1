@@ -23,7 +23,7 @@ public class SendingMailService {
     private final Configuration templates;
 
     @Autowired
-    SendingMailService(MailProperties mailProperties, Configuration templates){
+    SendingMailService(MailProperties mailProperties, Configuration templates) {
         this.mailProperties = mailProperties;
         this.templates = templates;
     }

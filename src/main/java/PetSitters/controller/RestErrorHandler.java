@@ -27,6 +27,7 @@ public class RestErrorHandler extends ResponseEntityExceptionHandler {
         map.addAttribute("error", ex.getMessage());
         return map;
     }
+
     @ExceptionHandler(value = DuplicateKeyException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
@@ -35,6 +36,7 @@ public class RestErrorHandler extends ResponseEntityExceptionHandler {
         map.addAttribute("error", ex.getMessage());
         return map;
     }
+
     @ExceptionHandler(value = ExceptionInvalidAccount.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
@@ -43,6 +45,7 @@ public class RestErrorHandler extends ResponseEntityExceptionHandler {
         map.addAttribute("error", ex.getMessage());
         return map;
     }
+
     @ExceptionHandler(value = NullPointerException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
@@ -51,6 +54,7 @@ public class RestErrorHandler extends ResponseEntityExceptionHandler {
         map.addAttribute("error", ex.getMessage());
         return map;
     }
+
     @ExceptionHandler(value = ExceptionServiceError.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
@@ -59,6 +63,7 @@ public class RestErrorHandler extends ResponseEntityExceptionHandler {
         map.addAttribute("error", ex.getMessage());
         return map;
     }
+
     @ExceptionHandler(value = JSONException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
@@ -67,6 +72,7 @@ public class RestErrorHandler extends ResponseEntityExceptionHandler {
         map.addAttribute("error", ex.getMessage());
         return map;
     }
+
     @ExceptionHandler(value = IOException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody

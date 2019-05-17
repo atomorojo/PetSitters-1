@@ -3,13 +3,15 @@ package PetSitters.schemas;
 import PetSitters.domain.Animal;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class ContractSchema implements Serializable {
 
     String username;
     String start;
     String end;
-    Animal animal;
+    List<Animal> animal;
+    Boolean feedback;
 
     public String getUsername() {
         return username;
@@ -35,11 +37,20 @@ public class ContractSchema implements Serializable {
         this.end = end;
     }
 
-    public Animal getAnimal() {
+    public List<Animal> getAnimal() {
         return animal;
     }
 
-    public void setAnimal(Animal animal) {
+    public void setAnimal(List<Animal> animal) {
         this.animal = animal;
     }
+
+    public Boolean getFeedback() {
+        return feedback;
+    }
+
+    public void setFeedback(Boolean feedback) {
+        this.feedback = feedback;
+    }
+
 }

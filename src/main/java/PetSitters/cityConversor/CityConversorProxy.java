@@ -10,7 +10,7 @@ public class CityConversorProxy implements ICityConversor {
     private CacheCityConversor cacheCityConversor;
     private OpenStreetCityConversor cityConversor;
 
-    public CityConversorProxy () {
+    public CityConversorProxy() {
         cacheCityConversor = new CacheCityConversor(5000);
         cityConversor = new OpenStreetCityConversor();
     }

@@ -9,7 +9,10 @@ import java.util.List;
 
 @Document(collection = "contracts")
 public interface ContractRepository extends MongoRepository<Contract, String> {
-    List<Commentary> findByUsernameA(String usernameA);
-    List<Commentary> findByUsernameB(String usernameB);
+    List<Contract> findByUsernameFrom(String usernameA);
+
+    List<Contract> findByUsernameTo(String usernameB);
+
+    Contract findByUsernameFromAndUsernameTo(String usernameFrom, String usernameTo);
 
 }

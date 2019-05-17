@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.validation.constraints.NotBlank;
+import java.util.Date;
 
 @ApiModel("Chat")
 @CompoundIndex(name = "usernameA_usernameB_idx", unique = true, def = "{'usernameA' : 1, 'usernameB' : 1}")
@@ -30,9 +31,28 @@ public class Chat {
     @NotBlank
     private String usernameB;
 
-    public Chat(@NotBlank String usernameA, @NotBlank String usernameB) {
+    @ApiModelProperty(value = "The last time when the chat was used", required = false)
+    private Date lastUse;
+
+    @ApiModelProperty(value = "Last message of the chat", required = false)
+    @Field("lastMessage")
+    @NotBlank
+    private String lastMessage;
+
+    @ApiModelProperty(value = "Shows the username of the user who deleted such chat", required = false)
+    @Field("usernameWhoHasNoAccess")
+    @NotBlank
+    private String usernameWhoHasNoAccess;
+
+    public Chat() {
+    }
+
+    public Chat(@NotBlank String usernameA, @NotBlank String usernameB, Date lastUse, @NotBlank String lastMessage) {
         this.usernameA = usernameA;
         this.usernameB = usernameB;
+        this.lastUse = lastUse;
+        this.lastMessage = lastMessage;
+        this.usernameWhoHasNoAccess = null;
     }
 
     public String getUsernameA() {
@@ -49,5 +69,46 @@ public class Chat {
 
     public void setUsernameB(String usernameB) {
         this.usernameB = usernameB;
+    }
+
+    public Date getLastUse() {
+        return lastUse;
+    }
+
+    public void setLastUse(Date lastUse) {
+        this.lastUse = lastUse;
+    }
+
+    public String getLastMessage() {
+        return lastMessage;
+    }
+
+    public void setLastMessage(String lastMessage) {
+        this.lastMessage = lastMessage;
+    }
+
+    public boolean isLastUsed(Chat cB) {
+        return lastUse.after(cB.lastUse);
+    }
+
+    public String getUsernameWhoHasNoAccess() {
+        return usernameWhoHasNoAccess;
+    }
+
+    public void setUsernameWhoHasNoAccess(String usernameWhoHasNoAccess) {
+        this.usernameWhoHasNoAccess = usernameWhoHasNoAccess;
+    }
+
+    public boolean hasAccess(String username) {
+        if (username.equals(usernameA) || username.equals(usernameB)) {
+            if (usernameWhoHasNoAccess == null) {
+                return true;
+            }
+            if (usernameWhoHasNoAccess.equals(username)) {
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 }

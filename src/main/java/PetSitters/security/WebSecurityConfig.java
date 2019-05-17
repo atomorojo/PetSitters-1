@@ -21,7 +21,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import javax.annotation.Resource;
-import java.util.Arrays;
 import java.util.Collections;
 
 import static PetSitters.security.Constants.*;
@@ -30,10 +29,6 @@ import static PetSitters.security.Constants.*;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-
-    public WebSecurityConfig() {
-        System.out.println("WebSecurityConfig initialized");
-    }
 
     @Resource(name = "userService")
     private UserDetailsService userDetailsService;
@@ -65,19 +60,25 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .cors().and()
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.GET,SWAGGER_URL,EMAIL_URL,EMAIL_URL_VERIFY)
+                .antMatchers(HttpMethod.DELETE, ADMIN_DELETE)
                 .permitAll()
-                .antMatchers(HttpMethod.POST,REGISTER_URL,EMAIL_URL)
+                .antMatchers(HttpMethod.GET, DEBUG_PATH)
+                .permitAll()
+                .antMatchers(HttpMethod.GET, ADMINISTRATOR_PATH)
+                .permitAll()
+                .antMatchers(HttpMethod.GET, SWAGGER_URL, EMAIL_URL, EMAIL_URL_VERIFY, EMAIL_URL_RESEND,ADMIN_REPORTS,ADMIN_USERS)
+                .permitAll()
+                .antMatchers(HttpMethod.POST, REGISTER_URL, EMAIL_URL, EMAIL_URL_RESEND,ADMIN_DELETE)
                 .permitAll()
                 //.antMatchers(HttpMethod.POST,REGISTER_NO_MAIL_URL)//
                 //.permitAll()//
-                .antMatchers(HttpMethod.POST,REQUEST_RESET_PASSWORD_URL)
+                .antMatchers(HttpMethod.POST, REQUEST_RESET_PASSWORD_URL)
                 .permitAll()
-                .antMatchers(HttpMethod.GET,RESET_PASSWORD_URL)
+                .antMatchers(HttpMethod.GET, RESET_PASSWORD_URL)
                 .permitAll()
-                .antMatchers(HttpMethod.POST,RESET_PASSWORD_URL)
+                .antMatchers(HttpMethod.POST, RESET_PASSWORD_URL)
                 .permitAll()
-                .antMatchers(HttpMethod.POST,LOGIN_URL)
+                .antMatchers(HttpMethod.POST, LOGIN_URL)
                 .permitAll()
                 .antMatchers(HttpMethod.GET,
                         "/v2/api-docs",
@@ -103,9 +104,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public BCryptPasswordEncoder encoder(){
+    public BCryptPasswordEncoder encoder() {
         return new BCryptPasswordEncoder();
     }
+
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -115,7 +117,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         configuration.setExposedHeaders(Collections.singletonList(HttpHeaders.LOCATION));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
-        System.out.println("Cors Configuration Source executing...");
         return source;
     }
 }

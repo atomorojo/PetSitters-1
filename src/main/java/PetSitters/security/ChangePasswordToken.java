@@ -1,12 +1,6 @@
 package PetSitters.security;
 
-import PetSitters.repository.UserRepository;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.data.annotation.Id;
-
-import javax.persistence.*;
-import java.time.LocalDateTime;
-import java.util.UUID;
+import javax.persistence.Entity;
 
 
 @Entity
@@ -14,7 +8,7 @@ public class ChangePasswordToken extends GenericToken {
     public static final String PASSWORD_NOT_CHANGED = "PENDING";
     public static final String PASSWORD_CHANGED = "CHANGED";
 
-    public ChangePasswordToken(){
+    public ChangePasswordToken() {
         super(PASSWORD_NOT_CHANGED);
     }
 

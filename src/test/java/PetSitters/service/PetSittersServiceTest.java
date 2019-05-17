@@ -2,11 +2,13 @@ package PetSitters.service;
 
 import PetSitters.domain.Coordinates;
 import PetSitters.entity.Chat;
+import PetSitters.entity.Message;
 import PetSitters.entity.Report;
 import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.exception.ExceptionServiceError;
 import PetSitters.repository.ChatRepository;
+import PetSitters.repository.MessageRepository;
 import PetSitters.repository.ReportRepository;
 import PetSitters.repository.UserRepository;
 import PetSitters.schemas.*;
@@ -16,7 +18,6 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.springframework.batch.item.validator.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DuplicateKeyException;
@@ -33,6 +34,7 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -58,6 +60,8 @@ public class PetSittersServiceTest {
     @Autowired
     ChatRepository ChatRep;
 
+    @Autowired
+    MessageRepository MessageRep;
 
     @After
     public void tearDown() {  // Add here all the repositories
@@ -65,6 +69,7 @@ public class PetSittersServiceTest {
         UserRep.deleteAll();
         ReportRep.deleteAll();
         ChatRep.deleteAll();
+        MessageRep.deleteAll();
     }
 
     RegisterSchema getFilledSchemaRegistrationPersona1() {
@@ -73,6 +78,7 @@ public class PetSittersServiceTest {
         Mockito.when(registerSchema.getLastName()).thenReturn("Gomez");
         Mockito.when(registerSchema.getUsername()).thenReturn("rod98");
         Mockito.when(registerSchema.getPassword()).thenReturn("123");
+        Mockito.when(registerSchema.getCity()).thenReturn("Barcelona");
         Mockito.when(registerSchema.getEmail()).thenReturn("a@b.com");
         Mockito.when(registerSchema.getBirthdate()).thenReturn("20-12-1998");
         return registerSchema;
@@ -84,14 +90,51 @@ public class PetSittersServiceTest {
         Mockito.when(registerSchema.getLastName()).thenReturn("del Castillo");
         Mockito.when(registerSchema.getUsername()).thenReturn("casjua92");
         Mockito.when(registerSchema.getPassword()).thenReturn("789");
+        Mockito.when(registerSchema.getCity()).thenReturn("Barcelona");
         Mockito.when(registerSchema.getEmail()).thenReturn("a@example.com");
         Mockito.when(registerSchema.getBirthdate()).thenReturn("20-7-1992");
         return registerSchema;
     }
 
-    DeleteAccountSchema getFilledSchemaDeletion() {
+    RegisterSchema getFilledSchemaRegistrationPersona3() {
+        RegisterSchema registerSchema = Mockito.mock(RegisterSchema.class);
+        Mockito.when(registerSchema.getFirstName()).thenReturn("Pedro");
+        Mockito.when(registerSchema.getLastName()).thenReturn("Suarez");
+        Mockito.when(registerSchema.getUsername()).thenReturn("pes44");
+        Mockito.when(registerSchema.getPassword()).thenReturn("1542");
+        Mockito.when(registerSchema.getCity()).thenReturn("Barcelona");
+        Mockito.when(registerSchema.getEmail()).thenReturn("a@bo.com");
+        Mockito.when(registerSchema.getBirthdate()).thenReturn("20-12-1998");
+        return registerSchema;
+    }
+
+    RegisterSchema getFilledSchemaRegistrationPersona4() {
+        RegisterSchema registerSchema = Mockito.mock(RegisterSchema.class);
+        Mockito.when(registerSchema.getFirstName()).thenReturn("Mario");
+        Mockito.when(registerSchema.getLastName()).thenReturn("Gonzalo");
+        Mockito.when(registerSchema.getUsername()).thenReturn("marGonz");
+        Mockito.when(registerSchema.getPassword()).thenReturn("789");
+        Mockito.when(registerSchema.getCity()).thenReturn("Barcelona");
+        Mockito.when(registerSchema.getEmail()).thenReturn("a@gre.com");
+        Mockito.when(registerSchema.getBirthdate()).thenReturn("20-7-1992");
+        return registerSchema;
+    }
+
+    RegisterSchema getFilledSchemaRegistrationPersona5() {
+        RegisterSchema registerSchema = Mockito.mock(RegisterSchema.class);
+        Mockito.when(registerSchema.getFirstName()).thenReturn("Gregorio");
+        Mockito.when(registerSchema.getLastName()).thenReturn("Lopez");
+        Mockito.when(registerSchema.getUsername()).thenReturn("gre647");
+        Mockito.when(registerSchema.getPassword()).thenReturn("abc123");
+        Mockito.when(registerSchema.getCity()).thenReturn("Barcelona");
+        Mockito.when(registerSchema.getEmail()).thenReturn("a@sop.com");
+        Mockito.when(registerSchema.getBirthdate()).thenReturn("20-12-1998");
+        return registerSchema;
+    }
+
+    DeleteAccountSchema getFilledSchemaDeletion(String password) {
         DeleteAccountSchema deleteAccount = Mockito.mock(DeleteAccountSchema.class);
-        Mockito.when(deleteAccount.getPassword()).thenReturn("123");
+        Mockito.when(deleteAccount.getPassword()).thenReturn(password);
         return deleteAccount;
     }
 
@@ -109,16 +152,31 @@ public class PetSittersServiceTest {
         return reportSchema;
     }
 
+    ReportSchema getFilledReportSchema2() {
+        ReportSchema reportSchema = Mockito.mock(ReportSchema.class);
+        Mockito.when(reportSchema.getReported()).thenReturn("rod98");
+        Mockito.when(reportSchema.getDescription()).thenReturn("No description");
+        return reportSchema;
+    }
+
     GetCoordinatesSchema getFilledGetCoordinatesSchema() {
         GetCoordinatesSchema getCoordinatesSchema = Mockito.mock(GetCoordinatesSchema.class);
         Mockito.when(getCoordinatesSchema.getCity()).thenReturn("Los Angeles");
         return getCoordinatesSchema;
     }
 
-    StartChatSchema getFilledStartChatSchema() {
-        StartChatSchema startChatSchema = Mockito.mock(StartChatSchema.class);
-        Mockito.when(startChatSchema.getOtherUsername()).thenReturn("rod98");
-        return startChatSchema;
+    MessageSchema getMessageSchema(String content, String userWhoReceives, Boolean isMultimedia) {
+        MessageSchema messageSchema = Mockito.mock(MessageSchema.class);
+        Mockito.when(messageSchema.getContent()).thenReturn(content);
+        Mockito.when(messageSchema.getUserWhoReceives()).thenReturn(userWhoReceives);
+        Mockito.when(messageSchema.getIsMultimedia()).thenReturn(isMultimedia);
+        return messageSchema;
+    }
+
+    DeleteChatSchema getFilledDeleteChatSchema(String username) {
+        DeleteChatSchema deleteChatSchema = Mockito.mock(DeleteChatSchema.class);
+        Mockito.when(deleteChatSchema.getOtherUsername()).thenReturn(username);
+        return deleteChatSchema;
     }
 
     @Test
@@ -130,6 +188,7 @@ public class PetSittersServiceTest {
         assertEquals("Expected the firstName 'Rodrigo'", u.getFirstName(), registerSchema.getFirstName());
         assertEquals("Expected the lastName 'Gomez'", u.getLastName(), registerSchema.getLastName());
         assertEquals("Expected the username 'rod98'", u.getUsername(), registerSchema.getUsername());
+        assertEquals("Expected the city 'rod98'", u.getCity(), registerSchema.getCity());
         assertTrue("Expected the password '123'",new BCryptPasswordEncoder().matches("123",u.getPassword()));
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
         Date birthDate = format.parse(registerSchema.getBirthdate());
@@ -162,28 +221,28 @@ public class PetSittersServiceTest {
     }
 
     @Test
-    public void testDeleteExistingAccount() throws ParseException, ExceptionInvalidAccount {
+    public void testDeleteExistingAccount() throws ParseException, ExceptionInvalidAccount, IOException {
         RegisterSchema registerSchema = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema);
         assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
-        DeleteAccountSchema deleteAccount = getFilledSchemaDeletion();
+        DeleteAccountSchema deleteAccount = getFilledSchemaDeletion("123");
         PSS.deleteAccount(deleteAccount, "rod98");
         assertFalse("The user 'rod98' should not exist", UserRep.existsByUsername("rod98"));
     }
 
     @Test(expected = ExceptionInvalidAccount.class)
-    public void testDeleteExistingAccountWithDifferentPassword() throws ParseException, ExceptionInvalidAccount {
+    public void testDeleteExistingAccountWithDifferentPassword() throws ParseException, ExceptionInvalidAccount, IOException {
         RegisterSchema registerSchema = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema);
         assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
-        DeleteAccountSchema deleteAccount = getFilledSchemaDeletion();
+        DeleteAccountSchema deleteAccount = getFilledSchemaDeletion("123");
         Mockito.when(deleteAccount.getPassword()).thenReturn("321");
         PSS.deleteAccount(deleteAccount, "rod98");
     }
 
     @Test(expected = ExceptionInvalidAccount.class)
-    public void testDeleteNonExistingAccount() throws ExceptionInvalidAccount {
-        DeleteAccountSchema deleteAccount = getFilledSchemaDeletion();
+    public void testDeleteNonExistingAccount() throws ExceptionInvalidAccount, IOException {
+        DeleteAccountSchema deleteAccount = getFilledSchemaDeletion("123");
         assertFalse("The user 'rod98' should not exist", UserRep.existsByUsername("rod98"));
         PSS.deleteAccount(deleteAccount, "rod98");
     }
@@ -192,14 +251,14 @@ public class PetSittersServiceTest {
     public void testValidStorage() throws IOException {
         MultipartFile result=loadFile();
         String filename=gridFs.saveFile(result, "test");
-        GridFsResource res=gridFs.getFile(filename);
+        GridFsResource res=gridFs.getFile(filename,false);
         assertTrue("Same files", IOUtils.contentEquals( result.getInputStream(), res.getInputStream()));
     }
     @Test
     public void testInvalidStorage() throws IOException {
         MultipartFile result=loadFile();
         gridFs.saveFile(result,"fail");
-        GridFsResource res=gridFs.getFile("notFail");
+        GridFsResource res=gridFs.getFile("notFail",false);
     }
 
     private MultipartFile loadFile() {
@@ -318,74 +377,375 @@ public class PetSittersServiceTest {
     }
 
     @Test
-    public void startNewChatWithAnotherUser() throws ExceptionInvalidAccount, ParseException {
+    public void addFavorites() throws Exception {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        UserPetSitters myUser=UserRep.findByUsername("rod98");
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+        PSS.addFavorites("casjua92","rod98");
+        UserRep.save(myUser);
+        UserPetSitters us=UserRep.findByUsername("rod98");
+        assertEquals("Same favorites",us.getFavorites(),myUser.getFavorites());
+    }
+    @Test
+    public void unsetFavorites() throws Exception {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        UserPetSitters myUser=UserRep.findByUsername("rod98");
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+        myUser.addFavorites("casjua92");
+        UserRep.save(myUser);
+        PSS.unsetFavorites("casjua92","rod98");
+        UserPetSitters us=UserRep.findByUsername("rod98");
+        assertEquals("No favorites",us.getFavorites().size(),0);
+    }
+
+    @Test
+    public void getOpenedChats() throws ParseException, ExceptionInvalidAccount, JSONException {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
         PSS.register(registerSchema2);
 
-        StartChatSchema startChatSchema = getFilledStartChatSchema();
-        PSS.startChat(startChatSchema, "casjua92");
-        Chat c = ChatRep.findByUsernameAAndUsernameB("casjua92","rod98");
-        assertEquals("UsernameA should be 'casjua92'", c.getUsernameA(), "casjua92");
-        assertEquals("UsernameA should be 'rod98'", c.getUsernameB(), "rod98");
+        MessageSchema messageSchema = getMessageSchema("Hello", registerSchema2.getUsername(), false);
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+
+        List<ChatPreviewSchema> list = PSS.getOpenedChats(registerSchema2.getUsername());
+        ChatPreviewSchema chatPreviewSchema = list.get(0);
+        assertEquals("Output should be 'Rodrigo Gomez'", chatPreviewSchema.getName(), "Rodrigo Gomez");
+        assertEquals("Output should be '" + registerSchema1.getUsername() + "'", chatPreviewSchema.getUsername(), registerSchema1.getUsername());
+        assertEquals("Output should be 'null'", chatPreviewSchema.getProfileImage(), null);
+        assertEquals("Output should be 'Hello'", chatPreviewSchema.getLastMessage(), "Hello");
+    }
+
+    @Test
+    public void getOpenedChatsReportedWithoutMessagesInOneSide() throws ParseException, ExceptionInvalidAccount, JSONException {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+
+        ReportSchema reportSchema = getFilledReportSchema();
+        PSS.report(reportSchema, "rod98");
+
+        MessageSchema messageSchema = getMessageSchema("Hello", registerSchema2.getUsername(), false);
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+
+        List<ChatPreviewSchema> list1 = PSS.getOpenedChats(registerSchema1.getUsername());
+        List<ChatPreviewSchema> list2 = PSS.getOpenedChats(registerSchema2.getUsername());
+        assertEquals("List1 should not be empty", list1.size(), 1);
+        assertEquals("List2 should be empty", list2.size(), 0);
+    }
+
+    @Test
+    public void getOpenedChatsEmpty() throws ParseException, ExceptionInvalidAccount, JSONException {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+
+        List<ChatPreviewSchema> list = PSS.getOpenedChats(registerSchema1.getUsername());
+        assertEquals("Output should be empty", list.size(), 0);
+    }
+
+    @Test
+    public void sendMessage() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+        MessageSchema messageSchema = getMessageSchema("Hello", registerSchema2.getUsername(), false);
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+
+        List<Message> listMessages = MessageRep.findAll();
+        assertNotEquals("The size of the messages repository should be greater than 0", listMessages.size(), 0);
+        Message m = listMessages.get(0);
+        assertEquals("The content should be 'Hello'", m.getContent(), "Hello");
+        String sender = registerSchema1.getUsername();
+        String receptor = registerSchema2.getUsername();
+        assertEquals("The userWhoReceives should be '" + receptor + "'", m.getUserWhoReceives(), receptor);
+        assertEquals("The userWhoSends should be '" + sender + "'", m.getUserWhoSends(), sender);
+        assertTrue("The message should be sent before now", m.getWhenSent().before(new Date()));
+        assertTrue("The message should be visible", m.getVisible());
+        assertFalse("The message should not be a multimedia file", m.getMultimedia());
+
+        List<Chat> listChats = ChatRep.findAll();
+        assertNotEquals("The size of the chats repository should be greater than 0", listChats.size(), 0);
+        Chat c = listChats.get(0);
+        assertEquals("The smallest lexicographically username should be 'casjua92'", c.getUsernameA(), "casjua92");
+        assertEquals("The greatest lexicographically username should be 'rod98'", c.getUsernameB(), "rod98");
+        assertEquals("The preview of the last message of the chat should be the content of the last chat sent", c.getLastMessage(), m.getContent());
+        assertEquals("The last chat should be user when the last message was sent", c.getLastUse(), m.getWhenSent());
+    }
+
+    @Test
+    public void sendMessageWithMultimedia() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+        MessageSchema messageSchema = getMessageSchema("Hello", registerSchema2.getUsername(), true);
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+
+        List<Message> listMessages = MessageRep.findAll();
+        Message m = listMessages.get(0);
+        assertTrue("The message should be a multimedia file", m.getMultimedia());
+
+        List<Chat> listChats = ChatRep.findAll();
+        Chat c = listChats.get(0);
+        assertEquals("The preview of the last message of the chat should be the content of the last chat sent", c.getLastMessage(), "Multimedia file");
+    }
+
+    @Test
+    public void sendMessageWithReportedUsers() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+
+        ReportSchema reportSchema = getFilledReportSchema();
+        PSS.report(reportSchema, "rod98");
+
+        MessageSchema messageSchema = getMessageSchema("Hello", registerSchema2.getUsername(), false);
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+
+        List<Message> listMessages = MessageRep.findAll();
+        Message m = listMessages.get(0);
+        assertFalse("The message should not be visible", m.getVisible());
+
+        List<Chat> listChats = ChatRep.findAll();
+        assertNotEquals("The size of the chats repository should be greater than 0", listChats.size(), 0);
+        Chat c = listChats.get(0);
+        assertEquals("The smallest lexicographically username should be 'casjua92'", c.getUsernameA(), "casjua92");
+        assertEquals("The greatest lexicographically username should be 'rod98'", c.getUsernameB(), "rod98");
+        assertEquals("The preview of the last message of the chat should be the content of the last chat sent", c.getLastMessage(), m.getContent());
+        assertEquals("The last chat should be user when the last message was sent", c.getLastUse(), m.getWhenSent());
     }
 
     @Test(expected = ExceptionInvalidAccount.class)
-    public void startNewChatWithHimself() throws Exception {
+    public void sendMessageToMyself() throws ParseException, ExceptionInvalidAccount {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
-
-        StartChatSchema startChatSchema = getFilledStartChatSchema();
-        PSS.startChat(startChatSchema, "rod98");
-        ChatRep.findByUsernameAAndUsernameB("rod98","casjua92");
-    }
-
-    @Test(expected = DuplicateKeyException.class)
-    public void startNewChatWithAnotherUserDuplicated() throws Exception {
-        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
-        PSS.register(registerSchema1);
-        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
-        PSS.register(registerSchema2);
-
-        StartChatSchema startChatSchema = getFilledStartChatSchema();
-        PSS.startChat(startChatSchema, "casjua92");
-        Chat c = ChatRep.findByUsernameAAndUsernameB("casjua92","rod98");
-        assertEquals("UsernameA should be 'casjua92'", c.getUsernameA(), "casjua92");
-        assertEquals("UsernameA should be 'rod98'", c.getUsernameB(), "rod98");
-        PSS.startChat(startChatSchema, "casjua92");
-    }
-
-    @Test(expected = DuplicateKeyException.class)
-    public void startNewChatWithDuplicateReversed() throws Exception {
-        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
-        PSS.register(registerSchema1);
-        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
-        PSS.register(registerSchema2);
-
-        StartChatSchema startChatSchema = getFilledStartChatSchema();
-
-        Mockito.when(startChatSchema.getOtherUsername()).thenReturn("casjua92");
-
-        PSS.startChat(startChatSchema, "rod98");
-        Chat c = ChatRep.findByUsernameAAndUsernameB("casjua92","rod98");
-        assertEquals("UsernameA should be 'casjua92'", c.getUsernameA(), "casjua92");
-        assertEquals("UsernameA should be 'rod98'", c.getUsernameB(), "rod98");
-
-        startChatSchema = getFilledStartChatSchema();
-        PSS.startChat(startChatSchema, "casjua92");
+        MessageSchema messageSchema = getMessageSchema("Hello", registerSchema1.getUsername(), false);
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
     }
 
     @Test(expected = ExceptionInvalidAccount.class)
-    public void startNewChatWithNonExistingUser() throws Exception {
-        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
-        PSS.register(registerSchema1);
-
-        StartChatSchema startChatSchema = getFilledStartChatSchema();
-        PSS.startChat(startChatSchema, "casjua92");
-        Chat c = ChatRep.findByUsernameAAndUsernameB("casjua92","rod98");
-        assertEquals("UsernameA should be 'casjua92'", c.getUsernameA(), "casjua92");
-        assertEquals("UsernameA should be 'rod98'", c.getUsernameB(), "rod98");
+    public void sendMessageSenderDoesNotExist() throws ExceptionInvalidAccount {
+        MessageSchema messageSchema = getMessageSchema("Hello", "ukud", false);
+        PSS.sendMessage(messageSchema,"uruko");
     }
 
+    @Test
+    public void getAllMessagesFromChatNoLimit() throws ExceptionInvalidAccount, ParseException {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+
+        MessageSchema messageSchema = getMessageSchema("Hello", registerSchema2.getUsername(), false);
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+
+        LinkedList<Message> listMessages = PSS.getAllMessagesFromChat(null, registerSchema2.getUsername(), registerSchema1.getUsername());
+        assertNotEquals("The size of the messages repository should be greater than 0", listMessages.size(), 0);
+        Message m = listMessages.get(0);
+        assertEquals("The content should be 'Hello'", m.getContent(), "Hello");
+        String sender = registerSchema1.getUsername();
+        String receptor = registerSchema2.getUsername();
+        assertEquals("The userWhoReceives should be '" + receptor + "'", m.getUserWhoReceives(), receptor);
+        assertEquals("The userWhoSends should be '" + sender + "'", m.getUserWhoSends(), sender);
+        assertTrue("The message should be sent before now", m.getWhenSent().before(new Date()));
+        assertTrue("The message should be visible", m.getVisible());
+        assertFalse("The message should not be a multimedia file", m.getMultimedia());
+    }
+
+    @Test
+    public void getAllMessagesFromChatLimitOf1() throws ExceptionInvalidAccount, ParseException {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+
+        MessageSchema messageSchema = getMessageSchema("Hello", registerSchema2.getUsername(), false);
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+
+        LinkedList<Message> listMessages = PSS.getAllMessagesFromChat(1, registerSchema2.getUsername(), registerSchema1.getUsername());
+        assertEquals("The size of the messages repository should be 1", listMessages.size(), 1);
+    }
+
+    @Test(expected = ExceptionInvalidAccount.class)
+    public void getAllMessagesFromChatNonExistingSender() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+        PSS.getAllMessagesFromChat(null, registerSchema2.getUsername(), "esr");
+    }
+
+    @Test(expected = ExceptionInvalidAccount.class)
+    public void getAllMessagesFromChatNonExistingReceiver() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        PSS.getAllMessagesFromChat(null, "esr", registerSchema1.getUsername());
+    }
+
+    @Test
+    public void getAllMessagesFromChatEmptyChat() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+
+        LinkedList<Message> listMessages = PSS.getAllMessagesFromChat(null, registerSchema2.getUsername(), registerSchema1.getUsername());
+        assertEquals("The size of the messages repository should be 0", listMessages.size(), 0);
+    }
+
+    @Test
+    public void getAllMessagesFromChatBlockedCommunication() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+
+        ReportSchema reportSchema = getFilledReportSchema();
+        PSS.report(reportSchema, "rod98");
+
+        MessageSchema messageSchema = getMessageSchema("Hello", registerSchema2.getUsername(), false);
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+
+        LinkedList<Message> listMessages = PSS.getAllMessagesFromChat(null, registerSchema2.getUsername(), registerSchema1.getUsername());
+        assertEquals("The size of the messages repository should be 2", listMessages.size(), 2);
+
+        listMessages = PSS.getAllMessagesFromChat(null, registerSchema1.getUsername(), registerSchema2.getUsername());
+        assertEquals("The size of the messages repository should be 0", listMessages.size(), 0);
+    }
+
+    @Test
+    public void getAllMessagesFromChatBlockedCommunicationReversed() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+
+        ReportSchema reportSchema = getFilledReportSchema2();
+        PSS.report(reportSchema, "casjua92");
+
+        MessageSchema messageSchema = getMessageSchema("Hello", registerSchema2.getUsername(), false);
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+
+        LinkedList<Message> listMessages = PSS.getAllMessagesFromChat(null, registerSchema2.getUsername(), registerSchema1.getUsername());
+        assertEquals("The size of the messages repository should be 2", listMessages.size(), 2);
+
+        listMessages = PSS.getAllMessagesFromChat(null, registerSchema1.getUsername(), registerSchema2.getUsername());
+        assertEquals("The size of the messages repository should be 0", listMessages.size(), 0);
+    }
+
+    @Test
+    public void deleteChatNormal() throws ParseException, ExceptionInvalidAccount, IOException {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+
+        MessageSchema messageSchema = getMessageSchema("Hello", registerSchema2.getUsername(), false);
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+
+        DeleteChatSchema deleteChatSchema = getFilledDeleteChatSchema(registerSchema2.getUsername());
+        PSS.deleteChat(deleteChatSchema, registerSchema1.getUsername());
+
+        assertNotNull("The chat should exist", ChatRep.findByUsernameAAndUsernameB("casjua92", "rod98"));
+        List<Message> listMessages = MessageRep.findAll();
+        assertFalse("There should exist some messages", listMessages.isEmpty());
+
+        deleteChatSchema = getFilledDeleteChatSchema(registerSchema1.getUsername());
+        PSS.deleteChat(deleteChatSchema, registerSchema2.getUsername());
+
+        assertNull("The chat should not exist", ChatRep.findByUsernameAAndUsernameB("casjua92", "rod98"));
+        listMessages = MessageRep.findAll();
+        assertTrue("There should not exist any message", listMessages.isEmpty());
+    }
+
+    @Test(expected = ExceptionInvalidAccount.class)
+    public void deleteChatDoesNotExist() throws ParseException, ExceptionInvalidAccount, IOException {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+
+        MessageSchema messageSchema = getMessageSchema("Hello", registerSchema2.getUsername(), false);
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+
+        DeleteChatSchema deleteChatSchema = getFilledDeleteChatSchema(registerSchema2.getUsername());
+        PSS.deleteChat(deleteChatSchema, registerSchema1.getUsername());
+
+        deleteChatSchema = getFilledDeleteChatSchema(registerSchema1.getUsername());
+        PSS.deleteChat(deleteChatSchema, registerSchema2.getUsername());
+        PSS.deleteChat(deleteChatSchema, registerSchema2.getUsername());
+    }
+
+    @Test(expected = ExceptionInvalidAccount.class)
+    public void deleteChatAlreadyDeleted() throws ParseException, ExceptionInvalidAccount, IOException {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+
+        MessageSchema messageSchema = getMessageSchema("Hello", registerSchema2.getUsername(), false);
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+
+        DeleteChatSchema deleteChatSchema = getFilledDeleteChatSchema(registerSchema1.getUsername());
+        PSS.deleteChat(deleteChatSchema, registerSchema2.getUsername());
+
+        deleteChatSchema = getFilledDeleteChatSchema(registerSchema1.getUsername());
+        PSS.deleteChat(deleteChatSchema, registerSchema2.getUsername());
+    }
+
+    @Test(expected = ExceptionInvalidAccount.class)
+    public void deleteChatUsernameWhoDeletesDoesNotExist() throws ParseException, ExceptionInvalidAccount, IOException {
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+
+        DeleteChatSchema deleteChatSchema = getFilledDeleteChatSchema(registerSchema2.getUsername());
+        PSS.deleteChat(deleteChatSchema, "erefre");
+    }
+
+    @Test(expected = ExceptionInvalidAccount.class)
+    public void deleteChatDoesNotExistWithNoPreviousChats() throws ParseException, ExceptionInvalidAccount, IOException {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+
+        DeleteChatSchema deleteChatSchema = getFilledDeleteChatSchema(registerSchema1.getUsername());
+        PSS.deleteChat(deleteChatSchema, registerSchema2.getUsername());
+    }
+
+    @Test
+    public void deleteAccountAndChats() throws ParseException, ExceptionInvalidAccount, IOException {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+
+        MessageSchema messageSchema = getMessageSchema("Hello", registerSchema2.getUsername(), false);
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+
+        DeleteAccountSchema deleteAccount = getFilledSchemaDeletion(registerSchema1.getPassword());
+        PSS.deleteAccount(deleteAccount, registerSchema1.getUsername());
+
+        deleteAccount = getFilledSchemaDeletion(registerSchema2.getPassword());
+        PSS.deleteAccount(deleteAccount, registerSchema2.getUsername());
+
+        List<UserPetSitters> users = UserRep.findAll();
+        assertTrue("UserRep should be empty", users.isEmpty());
+        List<Message> messages = MessageRep.findAll();
+        assertTrue("MessageRep should be empty", messages.isEmpty());
+        List<Chat> chats = ChatRep.findAll();
+        assertTrue("ChatRep should be empty", chats.isEmpty());
+    }
 }
