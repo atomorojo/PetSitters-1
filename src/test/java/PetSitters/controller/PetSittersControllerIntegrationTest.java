@@ -2035,4 +2035,133 @@ public class PetSittersControllerIntegrationTest {
         List<Chat> chats = ChatRep.findAll();
         assertTrue("ChatRep should be empty", chats.isEmpty());
     }
+
+    @Test
+    public void deleteAccountAdminAndChatsAlreadyDeleted() throws Exception {
+        String cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@b.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
+                "  \"username\": \"rod98\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@bo.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
+                "  \"username\": \"casjua92\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+
+        cont = "{\n" +
+                "  \"userWhoReceives\": \"casjua92\",\n" +
+                "  \"content\":\"Hello\",\n" +
+                "  \"isMultimedia\":\"false\"\n" +
+                "}";
+
+        sendMessage(token, cont).andExpect(status().isOk());
+        sendMessage(token, cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "  \"otherUsername\":\"casjua92\"\n" +
+                "}";
+
+        deleteChat(token, cont).andExpect(status().is4xxClientError());
+
+        ResultActions res=mvc.perform(post("/petsitters/deleteUserAccount?adminToken=111122223333444455556666&toDelete=rod98").content("{}").contentType("application/json")).andExpect(status().is2xxSuccessful());
+        assertTrue("Account not deleted",UserRep.findByUsername("rod98")==null);
+        res=mvc.perform(post("/petsitters/deleteUserAccount?adminToken=111122223333444455556666&toDelete=casjua92").content("{}").contentType("application/json")).andExpect(status().is2xxSuccessful());
+        assertTrue("Account not deleted",UserRep.findByUsername("casjua92")==null);
+
+        List<UserPetSitters> users = UserRep.findAll();
+        assertTrue("UserRep should be empty", users.isEmpty());
+        List<Message> messages = MessageRep.findAll();
+        assertTrue("MessageRep should be empty", messages.isEmpty());
+        List<Chat> chats = ChatRep.findAll();
+        assertTrue("ChatRep should be empty", chats.isEmpty());
+    }
+
+    @Test
+    public void deleteAccountAndChatsAlreadyDeleted() throws Exception {
+        String cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@b.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
+                "  \"username\": \"rod98\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@bo.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "  \"password\": \"123\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
+                "  \"username\": \"casjua92\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+
+        cont = "{\n" +
+                "  \"userWhoReceives\": \"casjua92\",\n" +
+                "  \"content\":\"Hello\",\n" +
+                "  \"isMultimedia\":\"false\"\n" +
+                "}";
+
+        sendMessage(token, cont).andExpect(status().isOk());
+        sendMessage(token, cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "  \"otherUsername\":\"casjua92\"\n" +
+                "}";
+
+        deleteChat(token, cont).andExpect(status().is4xxClientError());
+
+        cont = "{\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+        deleteAccountWithHeader(cont, token).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "\t\"username\":\"casjua92\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+
+        token = ActivateUserAndLoginOkAndGetToken(cont, "casjua92");
+
+        cont = "{\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+        deleteAccountWithHeader(cont, token).andExpect(status().isOk());
+
+        List<UserPetSitters> users = UserRep.findAll();
+        assertTrue("UserRep should be empty", users.isEmpty());
+        List<Message> messages = MessageRep.findAll();
+        assertTrue("MessageRep should be empty", messages.isEmpty());
+        List<Chat> chats = ChatRep.findAll();
+        assertTrue("ChatRep should be empty", chats.isEmpty());
+    }
+
 }

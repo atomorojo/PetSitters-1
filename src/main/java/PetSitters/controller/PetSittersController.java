@@ -148,7 +148,7 @@ public class PetSittersController {
     @GetMapping(value = "/get/{name}")
     @ApiOperation(value = "Retrieve a file.")
     public ResponseEntity retrieve(@PathVariable String name) throws ParseException, IOException {
-        GridFsResource file = gridFS.getFile(name,false);
+        GridFsResource file = gridFS.getFile(name);
         HttpHeaders headers = new HttpHeaders();
             return ResponseEntity.ok().contentType(MediaType.parseMediaType(file.getContentType())).contentLength(file.contentLength()).body(file);
     }
@@ -366,7 +366,7 @@ public class PetSittersController {
     @DeleteMapping(value = "/delete/{name}", headers = "Accept=application/json")
     @ApiOperation(value = "Deletes the account, only admins can execute this action.")
     public ResponseEntity getUserReports(@PathVariable String name) throws ExceptionInvalidAccount, IOException {
-        gridFS.getFile(name,false);
+        gridFS.getFile(name);
             gridFS.destroyFile(name);
             return new ResponseEntity(HttpStatus.OK);
     }

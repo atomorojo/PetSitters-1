@@ -251,14 +251,14 @@ public class PetSittersServiceTest {
     public void testValidStorage() throws IOException {
         MultipartFile result=loadFile();
         String filename=gridFs.saveFile(result, "test");
-        GridFsResource res=gridFs.getFile(filename,false);
+        GridFsResource res=gridFs.getFile(filename);
         assertTrue("Same files", IOUtils.contentEquals( result.getInputStream(), res.getInputStream()));
     }
     @Test
     public void testInvalidStorage() throws IOException {
         MultipartFile result=loadFile();
         gridFs.saveFile(result,"fail");
-        GridFsResource res=gridFs.getFile("notFail",false);
+        GridFsResource res=gridFs.getFile("notFail");
     }
 
     private MultipartFile loadFile() {
@@ -740,6 +740,62 @@ public class PetSittersServiceTest {
 
         deleteAccount = getFilledSchemaDeletion(registerSchema2.getPassword());
         PSS.deleteAccount(deleteAccount, registerSchema2.getUsername());
+
+        List<UserPetSitters> users = UserRep.findAll();
+        assertTrue("UserRep should be empty", users.isEmpty());
+        List<Message> messages = MessageRep.findAll();
+        assertTrue("MessageRep should be empty", messages.isEmpty());
+        List<Chat> chats = ChatRep.findAll();
+        assertTrue("ChatRep should be empty", chats.isEmpty());
+    }
+
+    @Test
+    public void deleteAccountAndChatsAlreadyDeleted() throws ParseException, ExceptionInvalidAccount, IOException {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+
+        MessageSchema messageSchema = getMessageSchema("Hello", registerSchema2.getUsername(), false);
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+
+        DeleteChatSchema deleteChatSchema = getFilledDeleteChatSchema(registerSchema1.getUsername());
+        PSS.deleteChat(deleteChatSchema, registerSchema2.getUsername());
+
+        DeleteAccountSchema deleteAccount = getFilledSchemaDeletion(registerSchema1.getPassword());
+        PSS.deleteAccount(deleteAccount, registerSchema1.getUsername());
+
+        deleteAccount = getFilledSchemaDeletion(registerSchema2.getPassword());
+        PSS.deleteAccount(deleteAccount, registerSchema2.getUsername());
+
+        List<UserPetSitters> users = UserRep.findAll();
+        assertTrue("UserRep should be empty", users.isEmpty());
+        List<Message> messages = MessageRep.findAll();
+        assertTrue("MessageRep should be empty", messages.isEmpty());
+        List<Chat> chats = ChatRep.findAll();
+        assertTrue("ChatRep should be empty", chats.isEmpty());
+    }
+
+    @Test
+    public void deleteAccountAndChatsAlreadyDeletedAdmin() throws ParseException, ExceptionInvalidAccount, IOException {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+
+        MessageSchema messageSchema = getMessageSchema("Hello", registerSchema2.getUsername(), false);
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+
+        DeleteChatSchema deleteChatSchema = getFilledDeleteChatSchema(registerSchema1.getUsername());
+        PSS.deleteChat(deleteChatSchema, registerSchema2.getUsername());
+
+        DeleteAccountSchema deleteAccount = getFilledSchemaDeletion(registerSchema1.getPassword());
+        PSS.deleteAccount(deleteAccount, registerSchema1.getUsername());
+
+        deleteAccount = getFilledSchemaDeletion(registerSchema2.getPassword());
+        PSS.deleteAccountAdmin(registerSchema2.getUsername());
 
         List<UserPetSitters> users = UserRep.findAll();
         assertTrue("UserRep should be empty", users.isEmpty());

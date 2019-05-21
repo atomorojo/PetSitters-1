@@ -54,6 +54,15 @@ public class PetSittersService {
         UserRep.save(newUser);
     }
 
+    private void deleteUserProfile(String username) throws IOException {
+        UserPetSitters user = UserRep.findByUsername(username);
+        if (user.getImage()!=null) gridFS.destroyFile(user.getImage());
+        try {
+            deleteAllChats(username);
+        } catch (ExceptionInvalidAccount exceptionInvalidAccount) {} // I user has already deleted the chats, the function does not propagate the exception
+        UserRep.deleteByUsername(username);
+    }
+
     public void deleteAccount(DeleteAccountSchema account, String username) throws ExceptionInvalidAccount, IOException {
         account.validate();
         String password = account.getPassword();
@@ -62,16 +71,11 @@ public class PetSittersService {
         if (!u.isTheSamePassword(password)) {
             throw new ExceptionInvalidAccount("The username or password provided are incorrect");
         }
-        if (u.getImage()!=null) gridFS.destroyFile(u.getImage());
-        deleteAllChats(username);
-        UserRep.deleteByUsername(username);
+        deleteUserProfile(username);
     }
     public void deleteAccountAdmin(String username) throws ExceptionInvalidAccount, IOException {
         if (UserRep.existsByUsername(username)) {
-            UserPetSitters user = UserRep.findByUsername(username);
-            if (user.getImage()!=null) gridFS.destroyFile(user.getImage());
-            deleteAllChats(username);
-            UserRep.deleteByUsername(username);
+            deleteUserProfile(username);
         }
     }
 
@@ -667,12 +671,7 @@ public class PetSittersService {
 
     private void deleteAllMultimedia(List<Message> list) throws IOException {
         for (Message message: list) {
-            Boolean booli=false;
-            gridFS.getFile(message.getContent(),booli);
-            if (booli) {
-                System.out.println("Trying to delete..." + message.getContent());
-                gridFS.destroyFile(message.getContent());
-            }
+            gridFS.destroyFile(message.getContent());
         }
     }
 
