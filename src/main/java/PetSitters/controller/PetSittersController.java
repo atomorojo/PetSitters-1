@@ -114,6 +114,13 @@ public class PetSittersController {
         return new ResponseEntity(users, HttpStatus.OK);
     }
 
+    @GetMapping(value = "/user/filterValoration")
+    @ApiOperation(value = "Retrieve all users that are between the upper and lower bounds in their valoration score.")
+    public ResponseEntity getUsersExpert(@RequestParam Integer upperBound,@RequestParam Integer lowerBound, @RequestHeader("Authorization") String token) throws ParseException, IOException {
+        List<LightUserSchema> users = petSittersService.getUsersValoration(upperBound,lowerBound, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(users, HttpStatus.OK);
+    }
+
     @GetMapping(value = "/user/filterDistance")
     @ApiOperation(value = "Retrieve all users that are in a radius equal to the paramater's value in km.")
     public ResponseEntity getUsersExpert(@RequestHeader("Authorization") String token, @RequestParam Integer rad) throws ParseException, IOException, JSONException, ExceptionServiceError {

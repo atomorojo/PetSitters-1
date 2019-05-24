@@ -931,6 +931,12 @@ public class PetSittersControllerIntegrationTest {
     }
 
     @Test
+    public void getUsersValidation() throws Exception {
+        String token = validToken();
+        mvc.perform(get("/petsitters/user/filterValoration?upperBound=3&lowerBound=0").content("").contentType("application/json").header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)).andExpect(status().is2xxSuccessful());
+    }
+
+    @Test
     public void getUsersName() throws Exception {
         String token = validToken();
         mvc.perform(get("/petsitters/user/filterName?name=Rodr").content("").contentType("application/json").header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)).andExpect(status().is2xxSuccessful());
