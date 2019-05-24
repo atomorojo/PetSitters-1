@@ -187,7 +187,7 @@ public class PetSittersService {
         UserPetSitters trueUser = UserRep.findByUsername(username);
         List<LightUserSchema> ret = new ArrayList<LightUserSchema>();
         for (UserPetSitters user : users) {
-            if (notReported(trueUser.getEmail(), user.getEmail())) assignLightUserSchema(ret, user);
+            if (notReported(trueUser.getEmail(), user.getEmail()) && !username.equals(user.getUsername())) assignLightUserSchema(ret, user);
         }
         return ret;
     }
@@ -736,4 +736,20 @@ public class PetSittersService {
             ChatRep.deleteByUsernameAAndUsernameB(usernameA, usernameB);
         }
 	}
+
+    public List<LightUserSchema> getUsersValoration(Integer upperBound, Integer lowerBound, String usernameFromToken) {
+        List<UserPetSitters> users = UserRep.findAll();
+        List<LightUserSchema> toret = new ArrayList<LightUserSchema>();
+        for (UserPetSitters user : users) {
+            if (user.getStars() != null) {
+                if (!usernameFromToken.equals(user.getUsername())) {
+                    if (user.getStars() >= lowerBound && user.getStars() <= upperBound) {
+                        assignLightUserSchema(toret, user);
+                    }
+                }
+            }
+        }
+        return toret;
+
+    }
 }

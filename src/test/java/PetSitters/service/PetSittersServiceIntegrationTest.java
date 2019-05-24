@@ -441,9 +441,11 @@ public class PetSittersServiceIntegrationTest {
     public void getAllUsersLight() throws ParseException, ExceptionInvalidAccount {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
         Boolean good=false;
         List<LightUserSchema> users= PSS.getUsersLight("rod98");
-        if (UserRep.findAll().size()==users.size()) {
+        if (UserRep.findAll().size()-1==users.size()) {
             good=true;
         }
         assertTrue("All users received",good);
@@ -496,6 +498,28 @@ public class PetSittersServiceIntegrationTest {
 
         }
         assertTrue("User with cat received",good);
+    }
+
+    @Test
+    public void getUserValoration() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        UserPetSitters myUser=UserRep.findByUsername("rod98");
+        myUser.setStars(2.0);
+        UserRep.save(myUser);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+        UserPetSitters myUser2=UserRep.findByUsername("casjua92");
+        myUser2.setStars(1.0);
+        UserRep.save(myUser2);
+        Boolean good=false;
+        List<LightUserSchema> users= PSS.getUsersValoration(3,0,"rod98");
+        for (LightUserSchema user:users)  {
+            System.out.println(user.getName()+" "+registerSchema2.getFirstName()+" "+registerSchema2.getLastName());
+            if (user.getName().equals(registerSchema2.getFirstName()+" "+registerSchema2.getLastName())) good=true;
+
+        }
+        assertTrue("User with correct valoration not received",good);
     }
 
     @Test

@@ -2,9 +2,10 @@ package PetSitters.schemas;
 
 import PetSitters.domain.Animal;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class ContractSchema {
+public class ContractSchema implements Serializable {
 
     String username;
     String start;
