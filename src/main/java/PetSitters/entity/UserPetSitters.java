@@ -58,7 +58,7 @@ public class UserPetSitters {
     private String city;
 
     @ApiModelProperty(value = "The user's score")
-    private Double stars;
+    private Double stars = 0.0;
 
     @ApiModelProperty(value = "The user's profile image")
     private String image;
