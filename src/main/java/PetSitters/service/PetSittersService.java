@@ -746,6 +746,7 @@ public class PetSittersService {
             }
         }
         return toret;
+    }
 
     public void saveValuation(ValuationSchema valuationSchema, String usernameWhoValues) throws ExceptionInvalidAccount {
         valuationSchema.validate();
