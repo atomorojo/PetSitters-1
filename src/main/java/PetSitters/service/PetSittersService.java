@@ -41,6 +41,8 @@ public class PetSittersService {
     @Autowired
     MessageRepository MessageRep;
 
+    @Autowired
+    ValuationRepository ValuationRep;
 
     private void checkExistence(UserPetSitters u, String username) throws ExceptionInvalidAccount {
         if (u == null) {
@@ -54,16 +56,7 @@ public class PetSittersService {
         UserRep.save(newUser);
     }
 
-    private void deleteUserProfile(String username) throws IOException {
-        UserPetSitters user = UserRep.findByUsername(username);
-        if (user.getImage()!=null) gridFS.destroyFile(user.getImage());
-        try {
-            deleteAllChats(username);
-        } catch (ExceptionInvalidAccount exceptionInvalidAccount) {} // I user has already deleted the chats, the function does not propagate the exception
-        UserRep.deleteByUsername(username);
-    }
-
-    public void deleteAccount(DeleteAccountSchema account, String username) throws ExceptionInvalidAccount, IOException {
+    public void deleteAccount(DeleteAccountSchema account, String username) throws ExceptionInvalidAccount {
         account.validate();
         String password = account.getPassword();
         UserPetSitters u = UserRep.findByUsername(username);
@@ -71,11 +64,16 @@ public class PetSittersService {
         if (!u.isTheSamePassword(password)) {
             throw new ExceptionInvalidAccount("The username or password provided are incorrect");
         }
-        deleteUserProfile(username);
+        if (u.getImage()!=null) gridFS.destroyFile(u.getImage());
+        deleteAllChats(username);
+        UserRep.deleteByUsername(username);
     }
-    public void deleteAccountAdmin(String username) throws ExceptionInvalidAccount, IOException {
+    public void deleteAccountAdmin(String username) throws ExceptionInvalidAccount {
         if (UserRep.existsByUsername(username)) {
-            deleteUserProfile(username);
+            UserPetSitters user = UserRep.findByUsername(username);
+            if (user.getImage()!=null) gridFS.destroyFile(user.getImage());
+            deleteAllChats(username);
+            UserRep.deleteByUsername(username);
         }
     }
 
@@ -499,7 +497,6 @@ public class PetSittersService {
         }
         Contract cont = new Contract();
         cont.setAnimal(contract.getAnimal());
-        cont.setStart(contract.getStart());
         cont.setEnd(contract.getEnd());
         cont.setUsernameTo(contract.getUsername());
         cont.setUsernameFrom(usernameFromToken);
@@ -508,25 +505,22 @@ public class PetSittersService {
         ContRep.save(cont);
     }
 
-    public void acceptContract(String usernameB, String usernameFromToken, Boolean booli) {
+    public void acceptContract(String usernameB, String usernameFromToken) {
         Contract cont = ContRep.findByUsernameFromAndUsernameTo(usernameB, usernameFromToken);
         if (cont != null) {
             cont.setAccepted(true);
             ContRep.save(cont);
-            booli=true;
         }
     }
 
-    public void rejectContract(String usernameB, String usernameFromToken,Boolean booli) {
+    public void rejectContract(String usernameB, String usernameFromToken) {
         Contract cont = ContRep.findByUsernameFromAndUsernameTo(usernameB, usernameFromToken);
         if (cont != null) {
             ContRep.delete(cont);
-            booli=true;
         }
         cont = ContRep.findByUsernameFromAndUsernameTo(usernameFromToken, usernameB);
         if (cont != null) {
             ContRep.delete(cont);
-            booli=true;
         }
 
     }
@@ -541,9 +535,8 @@ public class PetSittersService {
         return cont;
     }
 
-    public Contract isContracted(String usernameB, String usernameFromToken, Boolean booli) {
+    public Contract isContracted(String usernameB, String usernameFromToken) {
         Contract cont = ContRep.findByUsernameFromAndUsernameTo(usernameB, usernameFromToken);
-        if (cont!=null) booli=true;
         return cont;
     }
 
@@ -669,13 +662,16 @@ public class PetSittersService {
 		return result;
 	}
 
-    private void deleteAllMultimedia(List<Message> list) throws IOException {
+    private void deleteAllMultimedia(List<Message> list) {
         for (Message message: list) {
-            gridFS.destroyFile(message.getContent());
+            if (gridFS.getFile(message.getContent()) != null) {
+                System.out.println("Trying to delete..." + message.getContent());
+                gridFS.destroyFile(message.getContent());
+            }
         }
     }
 
-   public void deleteChat(DeleteChatSchema deleteChatSchema, String usernameWhoDeletes) throws ExceptionInvalidAccount, IOException {
+   public void deleteChat(DeleteChatSchema deleteChatSchema, String usernameWhoDeletes) throws ExceptionInvalidAccount {
        deleteChatSchema.validate();
        String otherUsername = deleteChatSchema.getOtherUsername();
        deleteChat(otherUsername, usernameWhoDeletes);
@@ -686,7 +682,7 @@ public class PetSittersService {
         return usernameA;
     }
 
-    public void deleteAllChats(String usernameWhoDeletes) throws ExceptionInvalidAccount, IOException {
+    public void deleteAllChats(String usernameWhoDeletes) throws ExceptionInvalidAccount {
         List<Chat> listOfChatByA = ChatRep.findByUsernameA(usernameWhoDeletes);
         for (Chat chat: listOfChatByA) {
             String otherUsername = getOtherUsername(chat.getUsernameA(), chat.getUsernameB(), usernameWhoDeletes);
@@ -699,7 +695,7 @@ public class PetSittersService {
         }
     }
 
-    private void deleteChat(String otherUsername, String usernameWhoDeletes) throws ExceptionInvalidAccount, IOException {
+    private void deleteChat(String otherUsername, String usernameWhoDeletes) throws ExceptionInvalidAccount {
         if (!UserRep.existsByUsername(usernameWhoDeletes)) {
             throw new ExceptionInvalidAccount("The specified username '" + usernameWhoDeletes + "' does not belong to any user in the system");
         }
@@ -736,4 +732,36 @@ public class PetSittersService {
             ChatRep.deleteByUsernameAAndUsernameB(usernameA, usernameB);
         }
 	}
+
+    public void saveValuation(ValuationSchema valuationSchema, String usernameWhoValues) throws ExceptionInvalidAccount {
+        valuationSchema.validate();
+        if (!UserRep.existsByUsername(usernameWhoValues)) {
+            throw new ExceptionInvalidAccount("The specified username '" + usernameWhoValues + "' does not belong to any user in the system");
+        }
+        if (!UserRep.existsByUsername(valuationSchema.getValuedUser())) {
+            throw new ExceptionInvalidAccount("The specified username '" + valuationSchema.getValuedUser() + "' does not belong to any user in the system");
+        }
+        if (usernameWhoValues.equals(valuationSchema.getValuedUser())) {
+            throw new ExceptionInvalidAccount("A user cannot value himself");
+        }
+        Contract contract = ContRep.findByUsernameFromAndUsernameTo(usernameWhoValues, valuationSchema.getValuedUser());
+        if (contract == null) {
+            throw new ExceptionInvalidAccount("The valuation is not associated to any contract in the system");
+        }
+        String valuedUsername = valuationSchema.getValuedUser();
+
+        Long countValuations = ValuationRep.countByValuedUser(valuedUsername);
+
+        Valuation valuation = new Valuation(valuationSchema, usernameWhoValues, new Date(), contract.getAnimal());
+        ValuationRep.save(valuation);
+
+        UserPetSitters userPetSitters = UserRep.findByUsername(valuedUsername);
+        Double average = userPetSitters.getStars();
+
+        Double suma = average*((double)countValuations);
+        Double newAverage = (suma + (double)valuation.getstars())/((double)countValuations + 1);
+        userPetSitters.setStars(newAverage);
+
+        UserRep.save(userPetSitters);
+    }
 }
