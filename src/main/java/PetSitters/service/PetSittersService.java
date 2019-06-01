@@ -779,4 +779,20 @@ public class PetSittersService {
 
         UserRep.save(userPetSitters);
     }
+
+    public LinkedList<ValuationPreviewSchema> getValuations(String username) throws ExceptionInvalidAccount {
+        if (!UserRep.existsByUsername(username)) {
+            throw new ExceptionInvalidAccount("The specified username '" + username + "' does not belong to any user in the system");
+        }
+        List<Valuation> valuations = ValuationRep.findByValuedUser(username);
+        LinkedList<ValuationPreviewSchema> array = new LinkedList<>();
+
+        for (Valuation valuation: valuations) {
+            UserPetSitters userPetSitters = UserRep.findByUsername(valuation.getUserWhoValues());
+            ValuationPreviewSchema valuationPreviewSchema = new ValuationPreviewSchema(valuation.getUserWhoValues(), valuation.getDate(), userPetSitters.getImage(), valuation.getStars(), valuation.getCommentary());
+            array.addLast(valuationPreviewSchema);
+        }
+
+        return array;
+    }
 }

@@ -857,4 +857,65 @@ public class PetSittersServiceTest {
 
         PSS.saveValuation(valuationSchema, registerSchema1.getUsername());
     }
+
+    @Test
+    public void getValuationsNormal() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        PSS.setProfileImage(registerSchema1.getUsername(), "PROFILE_IMAGE1");
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+        PSS.setProfileImage(registerSchema2.getUsername(), "PROFILE_IMAGE2");
+        proposeContractAuxiliary();
+        ValuationSchema valuationSchema = getFilledValuationSchema(registerSchema2.getUsername()); // 1 --> 2
+        PSS.saveValuation(valuationSchema, registerSchema1.getUsername());
+        valuationSchema.setCommentary(null);
+        PSS.saveValuation(valuationSchema, registerSchema1.getUsername());
+        List<Valuation> valuations = ValuationRep.findByUserWhoValuesAndValuedUser(registerSchema1.getUsername(), registerSchema2.getUsername());
+
+        LinkedList<ValuationPreviewSchema> valuationPreviewSchemas = PSS.getValuations(registerSchema2.getUsername());
+
+        ValuationPreviewSchema valuationPreviewSchema1 = valuationPreviewSchemas.get(0);
+        ValuationPreviewSchema valuationPreviewSchema2 = valuationPreviewSchemas.get(1);
+
+        Valuation valuation1 = valuations.get(0);
+        Valuation valuation2 = valuations.get(1);
+
+        assertEquals("The user who values should be equal", valuationPreviewSchema1.getUsernameWhoValues(), valuation1.getUserWhoValues());
+        assertEquals("The comment should be equal", valuationPreviewSchema1.getComment(), valuation1.getCommentary());
+        UserPetSitters userPetSitters = UserRep.findByUsername(registerSchema1.getUsername());
+        assertEquals("The profile image should be equal", valuationPreviewSchema1.getProfileImage(), userPetSitters.getImage());
+        assertEquals("The number of stars should be equal", valuationPreviewSchema1.getStars(), valuation1.getStars());
+        assertEquals("The date should be equal", valuationPreviewSchema1.getWhenValued(), valuation1.getDate());
+
+        assertEquals("The user who values should be equal", valuationPreviewSchema2.getUsernameWhoValues(), valuation2.getUserWhoValues());
+        assertEquals("The comment should be equal", valuationPreviewSchema2.getComment(), valuation2.getCommentary());
+        userPetSitters = UserRep.findByUsername(registerSchema1.getUsername());
+        assertEquals("The profile image should be equal", valuationPreviewSchema2.getProfileImage(), userPetSitters.getImage());
+        assertEquals("The number of stars should be equal", valuationPreviewSchema2.getStars(), valuation2.getStars());
+        assertEquals("The date should be equal", valuationPreviewSchema2.getWhenValued(), valuation2.getDate());
+    }
+
+    @Test
+    public void getValuationsEmpty() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        PSS.setProfileImage(registerSchema1.getUsername(), "PROFILE_IMAGE1");
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+        PSS.setProfileImage(registerSchema2.getUsername(), "PROFILE_IMAGE2");
+        proposeContractAuxiliary();
+
+        List<Valuation> valuations = ValuationRep.findByUserWhoValuesAndValuedUser(registerSchema1.getUsername(), registerSchema2.getUsername());
+
+        LinkedList<ValuationPreviewSchema> valuationPreviewSchemas = PSS.getValuations(registerSchema2.getUsername());
+
+        assertTrue("The valuations from the database should be empty", valuations.isEmpty());
+        assertTrue("The valuations from the service should be empty", valuationPreviewSchemas.isEmpty());
+    }
+
+    @Test(expected = ExceptionInvalidAccount.class)
+    public void getValuationsUserDoesNotExist() throws ParseException, ExceptionInvalidAccount {
+        LinkedList<ValuationPreviewSchema> valuationPreviewSchemas = PSS.getValuations("nobody");
+    }
 }

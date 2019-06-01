@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -165,6 +166,11 @@ public class PetSittersControllerIntegrationTest {
                 .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(cont));
+    }
+
+    ResultActions getValuations(String token) throws Exception {
+        return mvc.perform(get("/petsitters/getValuations")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token));
     }
 
     String ActivateUserAndLoginOkAndGetToken(String cont, String username) throws Exception {
@@ -2146,5 +2152,42 @@ public class PetSittersControllerIntegrationTest {
                 "}";
 
         valueUser(cont, token).andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    public void getValuationsNormal() throws Exception {
+        proposeContract();
+        UserPetSitters userPetSitters = UserRep.findByUsername("guy");
+        userPetSitters.setImage("IMAGE");
+        String cont = "{\n" +
+                "  \"valuedUser\": \"rod98\",\n" +
+                //"  \"commentary\":\"Hello\",\n" +
+                "  \"stars\":1\n" +
+                "}";
+
+        valueUser(cont, validToken()).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+
+        getValuations(token).andExpect(status().isOk());
+    }
+
+    @Test
+    public void getValuationsEmpty() throws Exception {
+        proposeContract();
+        UserPetSitters userPetSitters = UserRep.findByUsername("guy");
+        userPetSitters.setImage("IMAGE");
+
+        String cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+
+        getValuations(token).andExpect(status().isOk());
     }
 }

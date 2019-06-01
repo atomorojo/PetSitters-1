@@ -11,5 +11,7 @@ public interface ValuationRepository extends MongoRepository<Valuation, String> 
     Long countByValuedUser(String valuedUsername);
 
     List<Valuation> findByUserWhoValuesAndValuedUser(String userWhoValues, String valuedUser);
+
+    List<Valuation> findByValuedUser(String valuedUser);
 }
 

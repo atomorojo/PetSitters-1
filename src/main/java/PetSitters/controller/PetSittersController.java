@@ -1,10 +1,7 @@
 package PetSitters.controller;
 
 import PetSitters.domain.Coordinates;
-import PetSitters.entity.Contract;
-import PetSitters.entity.Message;
-import PetSitters.entity.Report;
-import PetSitters.entity.UserPetSitters;
+import PetSitters.entity.*;
 import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.exception.ExceptionServiceError;
 import PetSitters.repository.UserRepository;
@@ -378,8 +375,6 @@ public class PetSittersController {
         else return new ResponseEntity(HttpStatus.NOT_FOUND);
     }
 
-
-
     @PostMapping(value = "/sendMessage", headers = "Accept=application/json")
     @ApiOperation(value = "Sends a message to a user.")
     public ResponseEntity sendMessage(@RequestBody MessageSchema messageSchema, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
@@ -406,5 +401,12 @@ public class PetSittersController {
     public ResponseEntity saveValuation(@RequestBody ValuationSchema valuationSchema, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
         petSittersService.saveValuation(valuationSchema, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/getValuations")
+    @ApiOperation(value = "Gets all valuations of the logged user ")
+    public ResponseEntity getValuations(@RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
+        LinkedList<ValuationPreviewSchema> array = petSittersService.getValuations(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(array, HttpStatus.OK);
     }
 }
