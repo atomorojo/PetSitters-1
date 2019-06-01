@@ -16,6 +16,7 @@ import javax.validation.constraints.NotBlank;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -75,6 +76,10 @@ public class UserPetSitters {
     @ApiModelProperty(value = "The user's availabilityy")
     private Availability availability;
 
+    @ApiModelProperty(value = "Trophies")
+    private Boolean[] trophy;
+
+
     private boolean active;
 
     public UserPetSitters() {
@@ -90,6 +95,9 @@ public class UserPetSitters {
         this.birthdate = format.parse(R.getBirthdate());
         this.active = false;
         this.city = R.getCity();
+        Boolean[] trophies = new Boolean[45];
+        Arrays.fill(trophies, Boolean.FALSE);
+        this.trophy=trophies;
     }
 
     private String encrypt(String password) {
@@ -237,5 +245,12 @@ public class UserPetSitters {
     }
 
 
+    public Boolean[] getTrophy() {
+        return trophy;
+    }
+
+    public void setTrophy(Boolean[] trophy) {
+        this.trophy = trophy;
+    }
 }
 

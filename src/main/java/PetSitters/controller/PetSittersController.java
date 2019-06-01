@@ -296,6 +296,12 @@ public class PetSittersController {
             petSittersService.proposeContract(contract, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         } catch (DuplicateKeyException e) {
             throw new DuplicateKeyException("Contract already exists");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (ExceptionServiceError exceptionServiceError) {
+            exceptionServiceError.printStackTrace();
         }
         return new ResponseEntity(HttpStatus.OK);
     }

@@ -41,6 +41,10 @@ public class PetSittersService {
     @Autowired
     MessageRepository MessageRep;
 
+    @Autowired
+    TrophyService Trophy;
+
+
 
     private void checkExistence(UserPetSitters u, String username) throws ExceptionInvalidAccount {
         if (u == null) {
@@ -110,6 +114,7 @@ public class PetSittersService {
                 modifyImage(value, user);
                 break;
         }
+        Trophy.trophy01(UserRep.findByUsername(user));
     }
 
     private void modifyDescription(String value, String user) {
@@ -200,7 +205,7 @@ public class PetSittersService {
         ret.setName(user.getFirstName() + " " + user.getLastName());
         if (user.getStars() == null) {
             ret.setStars(0);
-        } else ret.setStars(user.getStars().intValue());
+        } else ret.setStars((int) Math.round(user.getStars()));
         if (user.getCity() == null) {
             ret.setLocalization("");
         } else ret.setLocalization(user.getCity());
@@ -288,7 +293,7 @@ public class PetSittersService {
         LightUserSchema us = new LightUserSchema();
         if (user.getStars() == null) {
             us.setStars(0);
-        } else us.setStars(user.getStars().intValue());
+        } else us.setStars((int) Math.round(user.getStars()));
         us.setName(user.getFirstName() + " " + user.getLastName());
         us.setProfile_pic(user.getImage());
         us.setUsername(user.getUsername());
@@ -321,8 +326,12 @@ public class PetSittersService {
         String[] users = userList.split(",");
         UserPetSitters us = UserRep.findByUsername(usernameFromToken);
         for (String s : users) {
-            if (notReported(us.getEmail(), UserRep.findByUsername(s).getEmail())) us.addFavorites(s);
+            if (notReported(us.getEmail(), UserRep.findByUsername(s).getEmail())) {
+                us.addFavorites(s);
+                Trophy.trophy03(UserRep.findByUsername(s));
+            }
         }
+        Trophy.trophy02(us);
         UserRep.save(us);
     }
 
@@ -492,7 +501,7 @@ public class PetSittersService {
 
     // -----------------------------------------------------------------------------------
 
-    public void proposeContract(ContractSchema contract, String usernameFromToken) {
+    public void proposeContract(ContractSchema contract, String usernameFromToken) throws JSONException, IOException, ExceptionServiceError {
         Contract c = ContRep.findByUsernameFromAndUsernameTo(usernameFromToken,contract.getUsername());
         if (c != null) {
             ContRep.delete(c);
@@ -506,6 +515,20 @@ public class PetSittersService {
         cont.setFeedback(contract.getFeedback());
         cont.setAccepted(false);
         ContRep.save(cont);
+        UserPetSitters trueUser=UserRep.findByUsername(usernameFromToken);
+        UserPetSitters user=UserRep.findByUsername(contract.getUsername());
+        if (user.getCity() != null && trueUser.getCity()!=null) {
+            City city1 = new City(user.getCity());
+            City city2 = new City(trueUser.getCity());
+            Coordinates coord2 = city1.getCoordinates();
+            Coordinates coord1 = city2.getCoordinates();
+            Double distanceKm = distance(coord1.getLatitude(), coord1.getLongitude(), coord2.getLatitude(), coord2.getLongitude());
+            System.out.println(distanceKm);
+            if (distanceKm>=50) {
+                Trophy.trophy15(trueUser);
+            }
+        }
+
     }
 
     public void acceptContract(String usernameB, String usernameFromToken, Boolean booli) {
@@ -550,6 +573,7 @@ public class PetSittersService {
     public void setProfileImage(String username, String name) {
         UserPetSitters user = UserRep.findByUsername(username);
         user.setImage(name);
+        Trophy.trophy01(user);
         UserRep.save(user);
     }
 
@@ -582,6 +606,7 @@ public class PetSittersService {
         Message message = new Message(messageSchema, usernameWhoSends, timestamp, !blocked);
 
         MessageRep.save(message);
+        Trophy.trophy12_14(userWhoSends);
     }
 
    public LinkedList<Message> getAllMessagesFromChat(Integer threshold, String usernameWhoReceives, String usernameWhoSends) throws ExceptionInvalidAccount {

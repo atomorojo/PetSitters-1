@@ -12,6 +12,8 @@ public interface MessageRepository extends MongoRepository<Message, String> {
 
     List<Message> findByUserWhoSendsAndUserWhoReceivesOrderByWhenSentDesc(String usernameWhoSends, String usernameWhoReceives);
 
+    List<Message> findByUserWhoSendsAndIsVisible(String usernameWhoSends,Boolean isVisible);
+
     void deleteByUserWhoSendsAndUserWhoReceives(String usernameWhoSends, String usernameWhoReceives);
 
     List<Message> findByIsMultimediaAndUserWhoSendsAndUserWhoReceives(Boolean b, String usernameWhoSends, String usernameWhoReceives);
