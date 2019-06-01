@@ -773,8 +773,8 @@ public class PetSittersService {
         UserPetSitters userPetSitters = UserRep.findByUsername(valuedUsername);
         Double average = userPetSitters.getStars();
 
-        Double suma = average*((double)countValuations);
-        Double newAverage = (suma + (double)valuation.getstars())/((double)countValuations + 1);
+        Double sum = average*((double)countValuations);
+        Double newAverage = (sum + (double)valuation.getstars())/((double)countValuations + 1);
         userPetSitters.setStars(newAverage);
 
         UserRep.save(userPetSitters);
