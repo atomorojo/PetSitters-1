@@ -12,6 +12,7 @@ import PetSitters.service.PetSittersService;
 import freemarker.template.TemplateException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponses;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -405,6 +406,8 @@ public class PetSittersController {
 
     @GetMapping(value = "/getValuations")
     @ApiOperation(value = "Gets all valuations of the logged user ")
+    @ApiResponses( value = {
+            @io.swagger.annotations.ApiResponse( code = 200, message = "Success", response = ValuationPreviewSchema.class, responseContainer = "List" ) } )
     public ResponseEntity getValuations(@RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
         LinkedList<ValuationPreviewSchema> array = petSittersService.getValuations(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(array, HttpStatus.OK);
