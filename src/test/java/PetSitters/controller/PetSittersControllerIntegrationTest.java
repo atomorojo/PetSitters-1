@@ -2,15 +2,14 @@ package PetSitters.controller;
 
 import PetSitters.entity.*;
 import PetSitters.exception.ExceptionInvalidAccount;
+import PetSitters.exception.ExceptionServiceError;
 import PetSitters.repository.*;
-import PetSitters.schemas.MessageSchema;
-import PetSitters.schemas.RegisterSchema;
-import PetSitters.schemas.ReportSchema;
-import PetSitters.schemas.ResultActionLoginSchemaTest;
+import PetSitters.schemas.*;
 import PetSitters.security.JwtTokenUtil;
 import PetSitters.service.GridFS;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bouncycastle.jcajce.provider.asymmetric.rsa.AlgorithmParametersSpi;
+import org.codehaus.jettison.json.JSONException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,9 +33,11 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.util.NestedServletException;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -158,6 +159,18 @@ public class PetSittersControllerIntegrationTest {
         return mvc.perform(get("/petsitters/getMessagesFromChat")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)
                 .param("userWhoReceives", userWhoReceives));
+    }
+
+    ResultActions valueUser(String cont, String token) throws Exception {
+        return mvc.perform(post("/petsitters/saveValuation")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(cont));
+    }
+
+    ResultActions getValuations(String token) throws Exception {
+        return mvc.perform(get("/petsitters/getValuations")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token));
     }
 
     String ActivateUserAndLoginOkAndGetToken(String cont, String username) throws Exception {
@@ -1372,13 +1385,6 @@ public class PetSittersControllerIntegrationTest {
 
     @Test
     public void isContracted() throws Exception {
-        proposeContract();
-        String token = validToken();
-        ResultActions res=mvc.perform(get("/petsitters/isContracted?contract=rod98").content("{}").contentType("application/json").header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)).andExpect(status().is2xxSuccessful());
-    }
-    @Test
-    public void hasContracted() throws Exception {
-        proposeContract();
         String cont = "{\n" +
                 "  \"birthdate\": \"20-11-1987\",\n" +
                 "  \"email\": \"a@b.com\",\n" +
@@ -1388,11 +1394,21 @@ public class PetSittersControllerIntegrationTest {
                 "  \"password\": \"123\",\n" +
                 "  \"username\": \"rod98\"\n" +
                 "}";
-        String token=ActivateUserAndLoginOkAndGetToken(cont, "rod98");
-        ResultActions res=mvc.perform(get("/petsitters/hasContracted?contract=guy").content("{}").contentType("application/json").header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)).andExpect(status().is2xxSuccessful());
+        register(cont).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "  \"birthdate\": \"20-11-1987\",\n" +
+                "  \"email\": \"a@bo.com\",\n" +
+                "  \"firstName\": \"stri1ng\",\n" +
+                "  \"lastName\": \"string\",\n" +
+                "\t\"city\":\"Barcelona\",\n" +
+                "  \"password\": \"123\",\n" +
+                "  \"username\": \"casjua92\"\n" +
+                "}";
+        register(cont).andExpect(status().isOk());
+        String token = validToken();
+        ResultActions res=mvc.perform(get("/petsitters/isContracted?contract=rod98").content("{}").contentType("application/json").header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)).andExpect(status().is2xxSuccessful());
     }
-
-
     @Test
     public void sendMessage() throws Exception {
         String cont = "{\n" +
@@ -1748,7 +1764,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"username\": \"rod98\"\n" +
                 "}";
         register(cont).andExpect(status().isOk());
-        ResultActions res=mvc.perform(delete("/petsitters/deleteUserAccount?adminToken=111122223333444455556666&toDelete=rod98").content("{}").contentType("application/json")).andExpect(status().is2xxSuccessful());
+        ResultActions res=mvc.perform(post("/petsitters/deleteUserAccount?adminToken=111122223333444455556666&toDelete=rod98").content("{}").contentType("application/json")).andExpect(status().is2xxSuccessful());
         assertTrue("Account not deleted",UserRep.findByUsername("rod98")==null);
     }
 
@@ -2043,65 +2059,64 @@ public class PetSittersControllerIntegrationTest {
     }
 
     @Test
-    public void deleteAccountAdminAndChatsAlreadyDeleted() throws Exception {
-        String cont = "{\n" +
-                "  \"birthdate\": \"20-11-1987\",\n" +
-                "  \"email\": \"a@b.com\",\n" +
-                "  \"firstName\": \"stri1ng\",\n" +
-                "  \"lastName\": \"string\",\n" +
-                "  \"password\": \"123\",\n" +
-                "\t\"city\":\"Barcelona\",\n" +
-                "  \"username\": \"rod98\"\n" +
+    public void saveValuationNormal() throws Exception {
+        proposeContract();
+
+       String cont = "{\n" +
+                "\t\"username\":\"guy\",\n" +
+                "\t\"password\":\"pass\"\n" +
                 "}";
-        register(cont).andExpect(status().isOk());
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "guy");
 
         cont = "{\n" +
-                "  \"birthdate\": \"20-11-1987\",\n" +
-                "  \"email\": \"a@bo.com\",\n" +
-                "  \"firstName\": \"stri1ng\",\n" +
-                "  \"lastName\": \"string\",\n" +
-                "  \"password\": \"123\",\n" +
-                "\t\"city\":\"Barcelona\",\n" +
-                "  \"username\": \"casjua92\"\n" +
-                "}";
-        register(cont).andExpect(status().isOk());
-
-        cont = "{\n" +
-                "\t\"username\":\"rod98\",\n" +
-                "\t\"password\":\"123\"\n" +
-                "}";
-        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
-
-        cont = "{\n" +
-                "  \"userWhoReceives\": \"casjua92\",\n" +
-                "  \"content\":\"Hello\",\n" +
-                "  \"isMultimedia\":\"false\"\n" +
+                "   \"valuedUser\":\"rod98\",\n" +
+                "   \"commentary\":\"Hello\",\n" +
+                "   \"stars\":1\n" +
                 "}";
 
-        sendMessage(token, cont).andExpect(status().isOk());
-        sendMessage(token, cont).andExpect(status().isOk());
-
-        cont = "{\n" +
-                "  \"otherUsername\":\"casjua92\"\n" +
-                "}";
-
-        deleteChat(token, cont).andExpect(status().is4xxClientError());
-
-        ResultActions res=mvc.perform(post("/petsitters/deleteUserAccount?adminToken=111122223333444455556666&toDelete=rod98").content("{}").contentType("application/json")).andExpect(status().is2xxSuccessful());
-        assertTrue("Account not deleted",UserRep.findByUsername("rod98")==null);
-        res=mvc.perform(post("/petsitters/deleteUserAccount?adminToken=111122223333444455556666&toDelete=casjua92").content("{}").contentType("application/json")).andExpect(status().is2xxSuccessful());
-        assertTrue("Account not deleted",UserRep.findByUsername("casjua92")==null);
-
-        List<UserPetSitters> users = UserRep.findAll();
-        assertTrue("UserRep should be empty", users.isEmpty());
-        List<Message> messages = MessageRep.findAll();
-        assertTrue("MessageRep should be empty", messages.isEmpty());
-        List<Chat> chats = ChatRep.findAll();
-        assertTrue("ChatRep should be empty", chats.isEmpty());
+        valueUser(cont, token).andExpect(status().isOk());
     }
 
     @Test
-    public void deleteAccountAndChatsAlreadyDeleted() throws Exception {
+    public void saveValuationValuedUserDoesNotExists() throws Exception {
+        proposeContract();
+
+        String cont = "{\n" +
+                "\t\"username\":\"guy\",\n" +
+                "\t\"password\":\"pass\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "guy");
+
+        cont = "{\n" +
+                "  \"valuedUser\": \"sdjkf\",\n" +
+                "  \"commentary\":\"Hello\",\n" +
+                "  \"stars\":1\n" +
+                "}";
+
+        valueUser(cont, token).andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    public void saveValuationValueItself() throws Exception {
+        proposeContract();
+
+        String cont = "{\n" +
+                "\t\"username\":\"guy\",\n" +
+                "\t\"password\":\"pass\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "guy");
+
+        cont = "{\n" +
+                "  \"valuedUser\": \"guy\",\n" +
+                "  \"commentary\":\"Hello\",\n" +
+                "  \"stars\":\"1\"\n" +
+                "}";
+
+        valueUser(cont, token).andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    public void saveValuationContractDoesNotExists() throws Exception {
         String cont = "{\n" +
                 "  \"birthdate\": \"20-11-1987\",\n" +
                 "  \"email\": \"a@b.com\",\n" +
@@ -2131,43 +2146,48 @@ public class PetSittersControllerIntegrationTest {
         String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
 
         cont = "{\n" +
-                "  \"userWhoReceives\": \"casjua92\",\n" +
-                "  \"content\":\"Hello\",\n" +
-                "  \"isMultimedia\":\"false\"\n" +
+                "  \"valuedUser\": \"casjua92\",\n" +
+                "  \"commentary\":\"Hello\",\n" +
+                "  \"stars\":1\n" +
                 "}";
 
-        sendMessage(token, cont).andExpect(status().isOk());
-        sendMessage(token, cont).andExpect(status().isOk());
-
-        cont = "{\n" +
-                "  \"otherUsername\":\"casjua92\"\n" +
-                "}";
-
-        deleteChat(token, cont).andExpect(status().is4xxClientError());
-
-        cont = "{\n" +
-                "\t\"password\":\"123\"\n" +
-                "}";
-        deleteAccountWithHeader(cont, token).andExpect(status().isOk());
-
-        cont = "{\n" +
-                "\t\"username\":\"casjua92\",\n" +
-                "\t\"password\":\"123\"\n" +
-                "}";
-
-        token = ActivateUserAndLoginOkAndGetToken(cont, "casjua92");
-
-        cont = "{\n" +
-                "\t\"password\":\"123\"\n" +
-                "}";
-        deleteAccountWithHeader(cont, token).andExpect(status().isOk());
-
-        List<UserPetSitters> users = UserRep.findAll();
-        assertTrue("UserRep should be empty", users.isEmpty());
-        List<Message> messages = MessageRep.findAll();
-        assertTrue("MessageRep should be empty", messages.isEmpty());
-        List<Chat> chats = ChatRep.findAll();
-        assertTrue("ChatRep should be empty", chats.isEmpty());
+        valueUser(cont, token).andExpect(status().is4xxClientError());
     }
 
+    @Test
+    public void getValuationsNormal() throws Exception {
+        proposeContract();
+        UserPetSitters userPetSitters = UserRep.findByUsername("guy");
+        userPetSitters.setImage("IMAGE");
+        String cont = "{\n" +
+                "  \"valuedUser\": \"rod98\",\n" +
+                //"  \"commentary\":\"Hello\",\n" +
+                "  \"stars\":1\n" +
+                "}";
+
+        valueUser(cont, validToken()).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+
+        getValuations(token).andExpect(status().isOk());
+    }
+
+    @Test
+    public void getValuationsEmpty() throws Exception {
+        proposeContract();
+        UserPetSitters userPetSitters = UserRep.findByUsername("guy");
+        userPetSitters.setImage("IMAGE");
+
+        String cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+
+        getValuations(token).andExpect(status().isOk());
+    }
 }

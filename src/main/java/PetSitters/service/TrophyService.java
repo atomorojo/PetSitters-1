@@ -1,9 +1,12 @@
 package PetSitters.service;
 
+import PetSitters.domain.Animal;
 import PetSitters.entity.Message;
 import PetSitters.entity.UserPetSitters;
+import PetSitters.entity.Valuation;
 import PetSitters.repository.MessageRepository;
 import PetSitters.repository.UserRepository;
+import PetSitters.repository.ValuationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +18,8 @@ public class TrophyService {
     UserRepository UserRep;
     @Autowired
     MessageRepository MessageRep;
-
+    @Autowired
+    ValuationRepository ValuationRep;
 
     public void trophy01(UserPetSitters user) {
         if (user.getImage() != null && user.getDescription() != null && user.getAvailability() != null && user.getExpert() != null) {
@@ -96,14 +100,29 @@ public class TrophyService {
         }
     }
 
-    public boolean trophy09(UserPetSitters user) {
-        return true;
+    public void trophy09(UserPetSitters user) {
+        if (ValuationRep.findByUserWhoValues(user.getUsername()).size()>=1) {
+            Boolean[] troph=user.getTrophy();
+            troph[8]=true;
+            user.setTrophy(troph);
+            UserRep.save(user);
+        }
     }
-    public boolean trophy10(UserPetSitters user) {
-        return true;
+    public void trophy10(UserPetSitters user) {
+        if (ValuationRep.findByUserWhoValues(user.getUsername()).size()>=5) {
+            Boolean[] troph=user.getTrophy();
+            troph[9]=true;
+            user.setTrophy(troph);
+            UserRep.save(user);
+        }
     }
-    public boolean trophy11(UserPetSitters user) {
-        return true;
+    public void trophy11(UserPetSitters user) {
+        if (ValuationRep.findByUserWhoValues(user.getUsername()).size()>=10) {
+            Boolean[] troph=user.getTrophy();
+            troph[10]=true;
+            user.setTrophy(troph);
+            UserRep.save(user);
+        }
     }
 
     public void trophy12_14(UserPetSitters user) {
@@ -282,7 +301,16 @@ public class TrophyService {
     }
 
     private List<String> getAnimalsCaredFor(UserPetSitters user) {
-        return new ArrayList<String>();
+        List<Animal> strings=new ArrayList<Animal>();
+        List<Valuation> vals=ValuationRep.findByValuedUser(user.getUsername());
+        for (Valuation val:vals) {
+            strings.addAll(val.getAnimals());
+        }
+        List<String> ret=new ArrayList<String>();
+        for (Animal a:strings) {
+            ret.add(a.getTipus());
+        }
+        return ret;
     }
 
 }

@@ -1,10 +1,7 @@
 package PetSitters.controller;
 
 import PetSitters.domain.Coordinates;
-import PetSitters.entity.Contract;
-import PetSitters.entity.Message;
-import PetSitters.entity.Report;
-import PetSitters.entity.UserPetSitters;
+import PetSitters.entity.*;
 import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.exception.ExceptionServiceError;
 import PetSitters.repository.UserRepository;
@@ -15,6 +12,7 @@ import PetSitters.service.PetSittersService;
 import freemarker.template.TemplateException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponses;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -157,7 +155,11 @@ public class PetSittersController {
     public ResponseEntity retrieve(@PathVariable String name) throws ParseException, IOException {
         GridFsResource file = gridFS.getFile(name);
         HttpHeaders headers = new HttpHeaders();
+        if (file != null) {
             return ResponseEntity.ok().contentType(MediaType.parseMediaType(file.getContentType())).contentLength(file.contentLength()).body(file);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("");
+        }
     }
 
     @PostMapping(value = "/changePassword", headers = "Accept=application/json")
@@ -240,7 +242,7 @@ public class PetSittersController {
 
     @DeleteMapping(value = "/deleteAccount", headers = "Accept=application/json")
     @ApiOperation(value = "Deletes an existent account.")
-    public ResponseEntity deleteAccount(@RequestBody DeleteAccountSchema account, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount, IOException {
+    public ResponseEntity deleteAccount(@RequestBody DeleteAccountSchema account, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
         petSittersService.deleteAccount(account, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(HttpStatus.OK);
     }
@@ -309,14 +311,15 @@ public class PetSittersController {
     @PostMapping(value = "/acceptContract", headers = "Accept=application/json")
     @ApiOperation(value = "Given the username of another user, accepts the contract proposed.")
     public ResponseEntity acceptContract(@RequestParam String contract, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
-        petSittersService.acceptContract(contract, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())),false);
-         return new ResponseEntity(HttpStatus.OK);
+        petSittersService.acceptContract(contract, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/rejectContract", headers = "Accept=application/json")
     @ApiOperation(value = "Given the username of another user, rejects the proposed contract.")
     public ResponseEntity rejectContract(@RequestParam String contract, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
-        petSittersService.rejectContract(contract, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())),false);return new ResponseEntity(HttpStatus.OK);
+        petSittersService.rejectContract(contract, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     @GetMapping(value = "/getProposedContracts", headers = "Accept=application/json")
@@ -334,21 +337,14 @@ public class PetSittersController {
     }
 
     @GetMapping(value = "/isContracted", headers = "Accept=application/json")
-    @ApiOperation(value = "Returns the contract that has been set between the 2 users, if it exists, only if it has been proposed by the user in contract, and received by the user logged in.")
+    @ApiOperation(value = "Returns the contract that has been set between the 2 users, if it exists.")
     public ResponseEntity isContracted(@RequestParam String contract, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
-        Contract res = petSittersService.isContracted(contract, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())),false);
-         return new ResponseEntity(res, HttpStatus.OK);
-    }
-    @GetMapping(value = "/hasContracted", headers = "Accept=application/json")
-    @ApiOperation(value = "Returns the contract that has been set between the 2 users, if it exists, only if it has been proposed by the user logged in, and received by the user in the contract.")
-    public ResponseEntity hasContracted(@RequestParam String contract, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
-        Contract res = petSittersService.isContracted(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())),contract, false);
+        Contract res = petSittersService.isContracted(contract, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(res, HttpStatus.OK);
     }
-
-    @DeleteMapping(value = "/deleteUserAccount", headers = "Accept=application/json")
+    @PostMapping(value = "/deleteUserAccount", headers = "Accept=application/json")
     @ApiOperation(value = "Deletes the account, only admins can execute this action.")
-    public ResponseEntity deleteAccountAdmin(@RequestParam String adminToken, @RequestParam String toDelete) throws ExceptionInvalidAccount, IOException {
+    public ResponseEntity deleteAccountAdmin(@RequestParam String adminToken, @RequestParam String toDelete) throws ExceptionInvalidAccount {
         if (adminToken.equals("111122223333444455556666")) {
             petSittersService.deleteAccountAdmin(toDelete);
             return new ResponseEntity(HttpStatus.OK);
@@ -378,13 +374,13 @@ public class PetSittersController {
 
     @DeleteMapping(value = "/delete/{name}", headers = "Accept=application/json")
     @ApiOperation(value = "Deletes the account, only admins can execute this action.")
-    public ResponseEntity getUserReports(@PathVariable String name) throws ExceptionInvalidAccount, IOException {
-        gridFS.getFile(name);
+    public ResponseEntity getUserReports(@PathVariable String name) throws ExceptionInvalidAccount {
+        if (gridFS.getFile(name)!=null) {
             gridFS.destroyFile(name);
             return new ResponseEntity(HttpStatus.OK);
+        }
+        else return new ResponseEntity(HttpStatus.NOT_FOUND);
     }
-
-
 
     @PostMapping(value = "/sendMessage", headers = "Accept=application/json")
     @ApiOperation(value = "Sends a message to a user.")
@@ -402,8 +398,31 @@ public class PetSittersController {
 
     @DeleteMapping(value = "/deleteChat")
     @ApiOperation(value = "Deletes a chat between two users. If both users delete the chat, this is erased for good. ")
-    public ResponseEntity deleteChat(@RequestBody DeleteChatSchema deleteChatSchema, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount, IOException {
+    public ResponseEntity deleteChat(@RequestBody DeleteChatSchema deleteChatSchema, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
         petSittersService.deleteChat(deleteChatSchema, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/saveValuation", headers = "Accept=application/json")
+    @ApiOperation(value = "Saves a valuation. ")
+    public ResponseEntity saveValuation(@RequestBody ValuationSchema valuationSchema, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
+        petSittersService.saveValuation(valuationSchema, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/getValuations")
+    @ApiOperation(value = "Gets all valuations of the logged user ")
+    @ApiResponses( value = {
+            @io.swagger.annotations.ApiResponse( code = 200, message = "Success", response = ValuationPreviewSchema.class, responseContainer = "List" ) } )
+    public ResponseEntity getValuations(@RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
+        LinkedList<ValuationPreviewSchema> array = petSittersService.getValuations(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(array, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/getTrophies")
+    @ApiOperation(value = "Gets all trophies of the logged user ")
+    public ResponseEntity getTrophies(@RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
+        Boolean[] ret = petSittersService.getTrophies(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(ret, HttpStatus.OK);
     }
 }

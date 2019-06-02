@@ -79,6 +79,9 @@ public class PetSittersServiceIntegrationTest {
     @Autowired
     GridFS gridFs;
 
+    @Autowired
+    ValuationRepository ValuationRep;
+
     @After
     public void tearDown() {  // Add here all the repositories
         PSS = null;
@@ -86,6 +89,8 @@ public class PetSittersServiceIntegrationTest {
         ReportRep.deleteAll();
         ChatRep.deleteAll();
         MessageRep.deleteAll();
+        ContractRepository.deleteAll();
+        ValuationRep.deleteAll();
     }
 
     RegisterSchema getFilledSchemaRegistrationPersona1() {
@@ -151,6 +156,12 @@ public class PetSittersServiceIntegrationTest {
         return deleteChatSchema;
     }
 
+    ValuationSchema getFilledValuationSchema(String username) {
+        ValuationSchema valuationSchema = new ValuationSchema(username, "Comment", 1);
+        return valuationSchema;
+    }
+
+
     @Test
     public void testRegisterNormal() throws ParseException {
         RegisterSchema registerSchema = getFilledSchemaRegistrationPersona1();
@@ -192,7 +203,7 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test
-    public void testDeleteExistingAccount() throws ParseException, ExceptionInvalidAccount, IOException {
+    public void testDeleteExistingAccount() throws ParseException, ExceptionInvalidAccount {
         RegisterSchema registerSchema = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema);
         assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
@@ -202,7 +213,7 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test(expected = ExceptionInvalidAccount.class)
-    public void testDeleteExistingAccountWithDifferentPassword() throws ParseException, ExceptionInvalidAccount, IOException {
+    public void testDeleteExistingAccountWithDifferentPassword() throws ParseException, ExceptionInvalidAccount {
         RegisterSchema registerSchema = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema);
         assertTrue("The user 'rod98' should exist", UserRep.existsByUsername("rod98"));
@@ -212,7 +223,7 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test(expected = ExceptionInvalidAccount.class)
-    public void testDeleteNonExistingAccount() throws ExceptionInvalidAccount, IOException {
+    public void testDeleteNonExistingAccount() throws ExceptionInvalidAccount {
         DeleteAccountSchema deleteAccount = getFilledSchemaDeletion("123");
         assertFalse("The user 'rod98' should not exist", UserRep.existsByUsername("rod98"));
         PSS.deleteAccount(deleteAccount, "rod98");
@@ -638,7 +649,7 @@ public class PetSittersServiceIntegrationTest {
         proposeContract();
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
-        PSS.acceptContract(registerSchema1.getUsername(),registerSchema2.getUsername(),false);
+        PSS.acceptContract(registerSchema1.getUsername(),registerSchema2.getUsername());
         Contract c=ContractRepository.findByUsernameFromAndUsernameTo(registerSchema1.getUsername(),registerSchema2.getUsername());
         System.out.println(c.getAccepted());
         assertTrue("Is true",c.getAccepted());
@@ -648,7 +659,7 @@ public class PetSittersServiceIntegrationTest {
         proposeContract();
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
-        PSS.rejectContract(registerSchema1.getUsername(),registerSchema2.getUsername(),false);
+        PSS.rejectContract(registerSchema1.getUsername(),registerSchema2.getUsername());
         Contract c=ContractRepository.findByUsernameFromAndUsernameTo(registerSchema1.getUsername(),registerSchema2.getUsername());
         assertTrue("Is null",c==null);
     }
@@ -674,7 +685,7 @@ public class PetSittersServiceIntegrationTest {
         proposeContract();
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
-        Contract c=PSS.isContracted(registerSchema1.getUsername(),registerSchema2.getUsername(),false);
+        Contract c=PSS.isContracted(registerSchema1.getUsername(),registerSchema2.getUsername());
         assertTrue("Is null",c!=null);
     }
 
@@ -872,7 +883,7 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test
-    public void deleteChatNormal() throws ParseException, ExceptionInvalidAccount, IOException {
+    public void deleteChatNormal() throws ParseException, ExceptionInvalidAccount {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
@@ -930,7 +941,7 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test(expected = ExceptionInvalidAccount.class)
-    public void deleteChatDoesNotExist() throws ParseException, ExceptionInvalidAccount, IOException {
+    public void deleteChatDoesNotExist() throws ParseException, ExceptionInvalidAccount {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
@@ -949,7 +960,7 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test(expected = ExceptionInvalidAccount.class)
-    public void deleteChatAlreadyDeleted() throws ParseException, ExceptionInvalidAccount, IOException {
+    public void deleteChatAlreadyDeleted() throws ParseException, ExceptionInvalidAccount {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
@@ -967,7 +978,7 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test(expected = ExceptionInvalidAccount.class)
-    public void deleteChatUsernameWhoDeletesDoesNotExist() throws ParseException, ExceptionInvalidAccount, IOException {
+    public void deleteChatUsernameWhoDeletesDoesNotExist() throws ParseException, ExceptionInvalidAccount {
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
         PSS.register(registerSchema2);
 
@@ -976,7 +987,7 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test(expected = ExceptionInvalidAccount.class)
-    public void deleteChatDoesNotExistWithNoPreviousChats() throws ParseException, ExceptionInvalidAccount, IOException {
+    public void deleteChatDoesNotExistWithNoPreviousChats() throws ParseException, ExceptionInvalidAccount {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
@@ -998,7 +1009,7 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test
-    public void deleteAccountAndChats() throws ParseException, ExceptionInvalidAccount, IOException {
+    public void deleteAccountAndChats() throws ParseException, ExceptionInvalidAccount {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
@@ -1022,59 +1033,159 @@ public class PetSittersServiceIntegrationTest {
         assertTrue("ChatRep should be empty", chats.isEmpty());
     }
 
-    @Test
-    public void deleteAccountAndChatsAlreadyDeleted() throws ParseException, ExceptionInvalidAccount, IOException {
-        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
-        PSS.register(registerSchema1);
-        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
-        PSS.register(registerSchema2);
-
-        MessageSchema messageSchema = getMessageSchema("Hello", registerSchema2.getUsername(), "false");
-        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
-        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
-
-        DeleteChatSchema deleteChatSchema = getFilledDeleteChatSchema(registerSchema1.getUsername());
-        PSS.deleteChat(deleteChatSchema, registerSchema2.getUsername());
-
-        DeleteAccountSchema deleteAccount = getFilledSchemaDeletion(registerSchema1.getPassword());
-        PSS.deleteAccount(deleteAccount, registerSchema1.getUsername());
-
-        deleteAccount = getFilledSchemaDeletion(registerSchema2.getPassword());
-        PSS.deleteAccount(deleteAccount, registerSchema2.getUsername());
-
-        List<UserPetSitters> users = UserRep.findAll();
-        assertTrue("UserRep should be empty", users.isEmpty());
-        List<Message> messages = MessageRep.findAll();
-        assertTrue("MessageRep should be empty", messages.isEmpty());
-        List<Chat> chats = ChatRep.findAll();
-        assertTrue("ChatRep should be empty", chats.isEmpty());
+    private void proposeContractAuxiliary() throws ParseException, IOException, JSONException, ExceptionServiceError {
+        UserPetSitters myUser=UserRep.findByUsername("rod98");
+        ContractSchema contract=new ContractSchema();
+        Animal dog=new Animal();
+        dog.setName("Doggy");
+        dog.setTipus("Dog");
+        List<Animal> an=new ArrayList<Animal>();
+        an.add(dog);
+        contract.setAnimal(an);
+        contract.setEnd("2019-01-01");
+        contract.setStart("2018-01-01");
+        contract.setFeedback(false);
+        contract.setUsername("casjua92");
+        PSS.proposeContract(contract, myUser.getUsername());
+        Contract c=ContractRepository.findByUsernameFromAndUsernameTo(myUser.getUsername(),"casjua92");
+        assertTrue("Is not null",c!=null);
     }
 
     @Test
-    public void deleteAccountAndChatsAlreadyDeletedAdmin() throws ParseException, ExceptionInvalidAccount, IOException {
+    public void saveValuationNormal() throws ParseException, ExceptionInvalidAccount, JSONException, IOException, ExceptionServiceError {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
         PSS.register(registerSchema2);
 
-        MessageSchema messageSchema = getMessageSchema("Hello", registerSchema2.getUsername(), "false");
-        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
-        PSS.sendMessage(messageSchema,registerSchema1.getUsername());
+        proposeContractAuxiliary();
 
-        DeleteChatSchema deleteChatSchema = getFilledDeleteChatSchema(registerSchema1.getUsername());
-        PSS.deleteChat(deleteChatSchema, registerSchema2.getUsername());
+        ValuationSchema valuationSchema = getFilledValuationSchema(registerSchema2.getUsername());
 
-        DeleteAccountSchema deleteAccount = getFilledSchemaDeletion(registerSchema1.getPassword());
-        PSS.deleteAccount(deleteAccount, registerSchema1.getUsername());
+        PSS.saveValuation(valuationSchema, registerSchema1.getUsername());
 
-        deleteAccount = getFilledSchemaDeletion(registerSchema2.getPassword());
-        PSS.deleteAccountAdmin(registerSchema2.getUsername());
+        List<Valuation> valuations = ValuationRep.findByUserWhoValuesAndValuedUser(registerSchema1.getUsername(), registerSchema2.getUsername());
+        Valuation valuation = valuations.get(0);
 
-        List<UserPetSitters> users = UserRep.findAll();
-        assertTrue("UserRep should be empty", users.isEmpty());
-        List<Message> messages = MessageRep.findAll();
-        assertTrue("MessageRep should be empty", messages.isEmpty());
-        List<Chat> chats = ChatRep.findAll();
-        assertTrue("ChatRep should be empty", chats.isEmpty());
+        assertEquals("The user who values should be equal", valuation.getUserWhoValues(), registerSchema1.getUsername());
+        assertEquals("The valued user should be equal", valuation.getValuedUser(), registerSchema2.getUsername());
+        assertEquals("The number of stars should be equal", valuation.getstars(), valuationSchema.getStars());
+        assertEquals("The commentary should be equal", valuation.getCommentary(), valuationSchema.getCommentary());
+        assertTrue("The date should be before", valuation.getDate().before(new Date()));
+
+        Contract contract = ContractRepository.findByUsernameFromAndUsernameTo(registerSchema1.getUsername(), registerSchema2.getUsername());
+
+        assertEquals("The list of animals should be equal", valuation.getAnimals(), contract.getAnimal());
+
+        UserPetSitters userPetSitters = UserRep.findByUsername(valuationSchema.getValuedUser());
+
+        assertEquals("The number of stars should be 1", Math.round(userPetSitters.getStars()), 1);
+    }
+
+    @Test(expected = ExceptionInvalidAccount.class)
+    public void saveValuationValuedUserDoesNotExists() throws ParseException, ExceptionInvalidAccount, JSONException, IOException, ExceptionServiceError {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+
+        proposeContractAuxiliary();
+
+        ValuationSchema valuationSchema = getFilledValuationSchema("fjdklfds");
+
+        PSS.saveValuation(valuationSchema, registerSchema1.getUsername());
+    }
+
+    @Test(expected = ExceptionInvalidAccount.class)
+    public void saveValuationUserDoesNotExists() throws ParseException, ExceptionInvalidAccount, JSONException, IOException, ExceptionServiceError {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+
+        proposeContractAuxiliary();
+
+        ValuationSchema valuationSchema = getFilledValuationSchema(registerSchema1.getUsername());
+
+        PSS.saveValuation(valuationSchema, "djkls");
+    }
+
+    @Test(expected = ExceptionInvalidAccount.class)
+    public void saveValuationContractDoesNotExists() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+
+        ValuationSchema valuationSchema = getFilledValuationSchema(registerSchema2.getUsername());
+
+        PSS.saveValuation(valuationSchema, registerSchema1.getUsername());
+    }
+
+    @Test(expected = ExceptionInvalidAccount.class)
+    public void saveValuationValueItself() throws ParseException, ExceptionInvalidAccount {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+
+        ValuationSchema valuationSchema = getFilledValuationSchema(registerSchema1.getUsername());
+
+        PSS.saveValuation(valuationSchema, registerSchema1.getUsername());
+    }
+
+    @Test
+    public void getValuationsNormal() throws ParseException, ExceptionInvalidAccount, JSONException, IOException, ExceptionServiceError {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        PSS.setProfileImage(registerSchema1.getUsername(), "PROFILE_IMAGE1");
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+        PSS.setProfileImage(registerSchema2.getUsername(), "PROFILE_IMAGE2");
+        proposeContractAuxiliary();
+        ValuationSchema valuationSchema = getFilledValuationSchema(registerSchema2.getUsername()); // 1 --> 2
+        PSS.saveValuation(valuationSchema, registerSchema1.getUsername());
+        valuationSchema.setCommentary(null);
+        PSS.saveValuation(valuationSchema, registerSchema1.getUsername());
+        List<Valuation> valuations = ValuationRep.findByUserWhoValuesAndValuedUser(registerSchema1.getUsername(), registerSchema2.getUsername());
+
+        LinkedList<ValuationPreviewSchema> valuationPreviewSchemas = PSS.getValuations(registerSchema2.getUsername());
+
+        ValuationPreviewSchema valuationPreviewSchema1 = valuationPreviewSchemas.get(0);
+        ValuationPreviewSchema valuationPreviewSchema2 = valuationPreviewSchemas.get(1);
+
+        Valuation valuation1 = valuations.get(0);
+        Valuation valuation2 = valuations.get(1);
+
+        assertEquals("The user who values should be equal", valuationPreviewSchema1.getUsernameWhoValues(), valuation1.getUserWhoValues());
+        assertEquals("The comment should be equal", valuationPreviewSchema1.getComment(), valuation1.getCommentary());
+        UserPetSitters userPetSitters = UserRep.findByUsername(registerSchema1.getUsername());
+        assertEquals("The profile image should be equal", valuationPreviewSchema1.getProfileImage(), userPetSitters.getImage());
+        assertEquals("The number of stars should be equal", valuationPreviewSchema1.getStars(), valuation1.getStars());
+        assertEquals("The date should be equal", valuationPreviewSchema1.getWhenValued(), valuation1.getDate());
+
+        assertEquals("The user who values should be equal", valuationPreviewSchema2.getUsernameWhoValues(), valuation2.getUserWhoValues());
+        assertEquals("The comment should be equal", valuationPreviewSchema2.getComment(), valuation2.getCommentary());
+        userPetSitters = UserRep.findByUsername(registerSchema1.getUsername());
+        assertEquals("The profile image should be equal", valuationPreviewSchema2.getProfileImage(), userPetSitters.getImage());
+        assertEquals("The number of stars should be equal", valuationPreviewSchema2.getStars(), valuation2.getStars());
+        assertEquals("The date should be equal", valuationPreviewSchema2.getWhenValued(), valuation2.getDate());
+    }
+
+    @Test
+    public void getValuationsEmpty() throws ParseException, ExceptionInvalidAccount, JSONException, IOException, ExceptionServiceError {
+        RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
+        PSS.register(registerSchema1);
+        PSS.setProfileImage(registerSchema1.getUsername(), "PROFILE_IMAGE1");
+        RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
+        PSS.register(registerSchema2);
+        PSS.setProfileImage(registerSchema2.getUsername(), "PROFILE_IMAGE2");
+        proposeContractAuxiliary();
+
+        List<Valuation> valuations = ValuationRep.findByUserWhoValuesAndValuedUser(registerSchema1.getUsername(), registerSchema2.getUsername());
+
+        LinkedList<ValuationPreviewSchema> valuationPreviewSchemas = PSS.getValuations(registerSchema2.getUsername());
+
+        assertTrue("The valuations from the database should be empty", valuations.isEmpty());
+        assertTrue("The valuations from the service should be empty", valuationPreviewSchemas.isEmpty());
+    }
+
+    @Test(expected = ExceptionInvalidAccount.class)
+    public void getValuationsUserDoesNotExist() throws ParseException, ExceptionInvalidAccount {
+        LinkedList<ValuationPreviewSchema> valuationPreviewSchemas = PSS.getValuations("nobody");
     }
 }
