@@ -506,6 +506,7 @@ public class PetSittersService {
         Contract cont = new Contract();
         cont.setAnimal(contract.getAnimal());
         cont.setEnd(contract.getEnd());
+        cont.setStart(contract.getStart());
         cont.setUsernameTo(contract.getUsername());
         cont.setUsernameFrom(usernameFromToken);
         cont.setFeedback(contract.getFeedback());
