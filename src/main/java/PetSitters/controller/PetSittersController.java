@@ -425,4 +425,11 @@ public class PetSittersController {
         Boolean[] ret = petSittersService.getTrophies(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(ret, HttpStatus.OK);
     }
+    @GetMapping(value = "/hasContracted", headers = "Accept=application/json")
+    @ApiOperation(value = "Returns the contract that has been set between the 2 users, if it exists.")
+    public ResponseEntity hasContracted(@RequestParam String contract, @RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
+        Contract res = petSittersService.isContracted(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())),contract);
+        return new ResponseEntity(res, HttpStatus.OK);
+    }
+
 }
