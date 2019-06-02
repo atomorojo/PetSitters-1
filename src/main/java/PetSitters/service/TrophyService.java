@@ -163,34 +163,34 @@ public class TrophyService {
         List<String> animalsCaredFor=getAnimalsCaredFor(user);
         Boolean[] troph=user.getTrophy();
         for (String s:animalsCaredFor) {
-            if (s.equals("Other")) {
+            if (s.equals("Others")) {
                 other++;
             }
-            else if (s.equals("Dog")) {
+            else if (s.equals("Dogs")) {
                 dog++;
             }
-            else if (s.equals("Ferret")) {
+            else if (s.equals("Ferrets")) {
                 ferret++;
             }
-            else if (s.equals("Cat")) {
+            else if (s.equals("Cats")) {
                 cat++;
             }
-            else if (s.equals("Bird")) {
+            else if (s.equals("Birds")) {
                 bird++;
             }
-            else if (s.equals("Reptile")) {
+            else if (s.equals("Reptiles")) {
                 reptile++;
             }
-            else if (s.equals("Rodent")) {
+            else if (s.equals("Rodents")) {
                 rodent++;
             }
-            else if (s.equals("Fish")) {
+            else if (s.equals("Fishes")) {
                 fish++;
             }
-            else if (s.equals("Amphibian")) {
+            else if (s.equals("Amphibians")) {
                 amphibian++;
             }
-            else if (s.equals("Arthoprod")) {
+            else if (s.equals("Arthoprods")) {
                 arthoprod++;
             }
         }
