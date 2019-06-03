@@ -3,6 +3,7 @@ package PetSitters.serviceLocator;
 import PetSitters.cityConversor.CityConversorProxy;
 import PetSitters.cityConversor.ICityConversor;
 import PetSitters.exception.ExceptionServiceError;
+import PetSitters.translation.TranslationProxy;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +30,13 @@ public class ServiceLocatorTest {
         Service getCoordinates = serviceLocator.find("GetCoordinates");
         // We ensure that the service is instance of class CityConversorProxy
         assertThat(getCoordinates, instanceOf(CityConversorProxy.class));
+    }
+
+    @Test
+    public void testTranslationService() throws ExceptionServiceError {
+        Service translation = serviceLocator.find("Translation");
+        // We ensure that the service is instance of class TranslationProxy
+        assertThat(translation, instanceOf(TranslationProxy.class));
     }
 
     @Test(expected = ExceptionServiceError.class)

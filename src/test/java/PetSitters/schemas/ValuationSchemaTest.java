@@ -1,6 +1,5 @@
 package PetSitters.schemas;
 
-import PetSitters.entity.Valuation;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

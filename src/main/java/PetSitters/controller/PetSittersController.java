@@ -1,7 +1,10 @@
 package PetSitters.controller;
 
 import PetSitters.domain.Coordinates;
-import PetSitters.entity.*;
+import PetSitters.entity.Contract;
+import PetSitters.entity.Message;
+import PetSitters.entity.Report;
+import PetSitters.entity.UserPetSitters;
 import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.exception.ExceptionServiceError;
 import PetSitters.repository.UserRepository;
@@ -33,7 +36,6 @@ import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Vector;
 
 @SuppressWarnings("ALL")
 @RestController
@@ -121,7 +123,7 @@ public class PetSittersController {
 
     @GetMapping(value = "/user/filterDistance")
     @ApiOperation(value = "Retrieve all users that are in a radius equal to the paramater's value in km.")
-    public ResponseEntity getUsersExpert(@RequestHeader("Authorization") String token, @RequestParam Integer rad) throws ParseException, IOException, JSONException, ExceptionServiceError {
+    public ResponseEntity getUsersExpert(@RequestHeader("Authorization") String token, @RequestParam Integer rad) throws Exception {
         List<LightUserSchema> users = petSittersService.getUsersDistance(rad, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(users, HttpStatus.OK);
     }
@@ -258,7 +260,7 @@ public class PetSittersController {
     @PostMapping(value = "/getCoordinates", headers = "Accept=application/json")
     @ApiOperation(value = "Given the name of a city, returns the geographical position (latitude and longitude)")
     @ResponseBody
-    public ResponseEntity getCoordinates(@RequestBody GetCoordinatesSchema getCoordinatesSchema) throws IOException, ExceptionServiceError, JSONException {
+    public ResponseEntity getCoordinates(@RequestBody GetCoordinatesSchema getCoordinatesSchema) throws Exception {
         Coordinates coordinates = petSittersService.getCoordinates(getCoordinatesSchema);
         return new ResponseEntity(coordinates, HttpStatus.OK);
     }
@@ -412,8 +414,8 @@ public class PetSittersController {
 
     @GetMapping(value = "/getValuations")
     @ApiOperation(value = "Gets all valuations of the logged user ")
-    @ApiResponses( value = {
-            @io.swagger.annotations.ApiResponse( code = 200, message = "Success", response = ValuationPreviewSchema.class, responseContainer = "List" ) } )
+    @ApiResponses(value = {
+            @io.swagger.annotations.ApiResponse(code = 200, message = "Success", response = ValuationPreviewSchema.class, responseContainer = "List")})
     public ResponseEntity getValuations(@RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
         LinkedList<ValuationPreviewSchema> array = petSittersService.getValuations(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(array, HttpStatus.OK);
@@ -432,4 +434,12 @@ public class PetSittersController {
         return new ResponseEntity(res, HttpStatus.OK);
     }
 
+    @PostMapping(value = "/translate", headers = "Accept=application/json")
+    @ApiOperation(value = "Translates the given text into another language. See the attached document in Drive: 'DocumentacioMultiidioma.pdf' in order to know how to pass the language. ")
+    @ApiResponses(value = {
+            @io.swagger.annotations.ApiResponse(code = 200, message = "Success", response = String.class, responseContainer = "List")})
+    public ResponseEntity translate(@RequestBody TranslationSchema translationSchema) throws Exception {
+        LinkedList<String> array = petSittersService.translate(translationSchema);
+        return new ResponseEntity(array, HttpStatus.OK);
+    }
 }

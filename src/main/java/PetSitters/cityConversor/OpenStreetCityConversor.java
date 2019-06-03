@@ -50,7 +50,7 @@ public class OpenStreetCityConversor implements ICityConversor {
             String latitude = element.getString("lat");
             return new DTOCoordinates(longitude, latitude);
         } else {
-            throw new ExceptionServiceError("There is an error in the Service Provider");
+            throw new ExceptionServiceError("There is an error in the Service Provider, responseCode = " + responseCode);
         }
     }
 }

@@ -18,6 +18,9 @@ public class ServiceLocator {
         if (service.equals("GetCoordinates")) {
             Factory f = Factory.getInstance();
             return f.getCityConversor();
+        } else if (service.equals("Translation")) {
+            Factory f = Factory.getInstance();
+            return f.getTranslation();
         }
         throw new ExceptionServiceError("The service does not exist");
     }
