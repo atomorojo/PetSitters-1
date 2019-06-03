@@ -501,7 +501,7 @@ public class PetSittersService {
 
     // -----------------------------------------------------------------------------------
 
-    public void proposeContract(ContractSchema contract, String usernameFromToken) throws JSONException, IOException, ExceptionServiceError {
+    public void proposeContract(ContractSchema contract, String usernameFromToken) throws Exception {
         Contract c = ContRep.findByUsernameFromAndUsernameTo(usernameFromToken,contract.getUsername());
         if (c != null) {
             ContRep.delete(c);
@@ -528,7 +528,6 @@ public class PetSittersService {
                 Trophy.trophy15(trueUser);
             }
         }
-
     }
 
     public void acceptContract(String usernameB, String usernameFromToken) {
@@ -834,8 +833,9 @@ public class PetSittersService {
     }
 
     public Boolean[] getTrophies(String usernameFromToken) {
-        UserPetSitters us=UserRep.findByUsername(usernameFromToken);
+        UserPetSitters us = UserRep.findByUsername(usernameFromToken);
         return us.getTrophy();
+    }
 
     public LinkedList<String> translate(TranslationSchema translationSchema) throws Exception {
         translationSchema.validate();

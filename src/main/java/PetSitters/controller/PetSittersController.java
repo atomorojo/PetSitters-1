@@ -306,6 +306,8 @@ public class PetSittersController {
             e.printStackTrace();
         } catch (ExceptionServiceError exceptionServiceError) {
             exceptionServiceError.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return new ResponseEntity(HttpStatus.OK);
     }

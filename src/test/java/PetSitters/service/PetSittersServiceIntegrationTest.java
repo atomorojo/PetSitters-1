@@ -634,7 +634,7 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test
-    public void proposeContract() throws IOException, JSONException, ExceptionServiceError, ParseException {
+    public void proposeContract() throws Exception {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
         UserPetSitters myUser=UserRep.findByUsername("rod98");
@@ -656,7 +656,7 @@ public class PetSittersServiceIntegrationTest {
         assertTrue("Is not null",c!=null);
     }
     @Test
-    public void acceptContract() throws IOException, JSONException, ExceptionServiceError, ParseException {
+    public void acceptContract() throws Exception {
         proposeContract();
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
@@ -666,7 +666,7 @@ public class PetSittersServiceIntegrationTest {
         assertTrue("Is true",c.getAccepted());
     }
     @Test
-    public void rejectContract() throws IOException, JSONException, ExceptionServiceError, ParseException {
+    public void rejectContract() throws Exception {
         proposeContract();
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
@@ -676,7 +676,7 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test
-    public void getContractsTo() throws IOException, JSONException, ExceptionServiceError, ParseException {
+    public void getContractsTo() throws Exception {
         proposeContract();
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
         List<Contract> c=PSS.contractListReceived(registerSchema2.getUsername());
@@ -684,7 +684,7 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test
-    public void getContractsFrom() throws IOException, JSONException, ExceptionServiceError, ParseException {
+    public void getContractsFrom() throws Exception {
         proposeContract();
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         List<Contract> c=PSS.contractListProposed(registerSchema1.getUsername());
@@ -692,7 +692,7 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test
-    public void isContracted() throws IOException, JSONException, ExceptionServiceError, ParseException {
+    public void isContracted() throws Exception {
         proposeContract();
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
@@ -1044,7 +1044,7 @@ public class PetSittersServiceIntegrationTest {
         assertTrue("ChatRep should be empty", chats.isEmpty());
     }
 
-    private void proposeContractAuxiliary() throws ParseException, IOException, JSONException, ExceptionServiceError {
+    private void proposeContractAuxiliary() throws Exception {
         UserPetSitters myUser=UserRep.findByUsername("rod98");
         ContractSchema contract=new ContractSchema();
         Animal dog=new Animal();
@@ -1063,7 +1063,7 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test
-    public void saveValuationNormal() throws ParseException, ExceptionInvalidAccount, JSONException, IOException, ExceptionServiceError {
+    public void saveValuationNormal() throws Exception {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
         RegisterSchema registerSchema2 = getFilledSchemaRegistrationPersona2();
@@ -1094,7 +1094,7 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test(expected = ExceptionInvalidAccount.class)
-    public void saveValuationValuedUserDoesNotExists() throws ParseException, ExceptionInvalidAccount, JSONException, IOException, ExceptionServiceError {
+    public void saveValuationValuedUserDoesNotExists() throws Exception {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
 
@@ -1106,7 +1106,7 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test(expected = ExceptionInvalidAccount.class)
-    public void saveValuationUserDoesNotExists() throws ParseException, ExceptionInvalidAccount, JSONException, IOException, ExceptionServiceError {
+    public void saveValuationUserDoesNotExists() throws Exception {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
 
@@ -1140,7 +1140,7 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test
-    public void getValuationsNormal() throws ParseException, ExceptionInvalidAccount, JSONException, IOException, ExceptionServiceError {
+    public void getValuationsNormal() throws Exception {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
         PSS.setProfileImage(registerSchema1.getUsername(), "PROFILE_IMAGE1");
@@ -1178,7 +1178,7 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test
-    public void getValuationsEmpty() throws ParseException, ExceptionInvalidAccount, JSONException, IOException, ExceptionServiceError {
+    public void getValuationsEmpty() throws Exception {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
         PSS.setProfileImage(registerSchema1.getUsername(), "PROFILE_IMAGE1");
