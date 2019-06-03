@@ -9,6 +9,9 @@ import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.exception.ExceptionServiceError;
 import PetSitters.repository.*;
 import PetSitters.schemas.*;
+import PetSitters.serviceDTO.DTOTranslationIncoming;
+import PetSitters.serviceDTO.DTOTranslationOutgoing;
+import PetSitters.serviceLocator.ServiceLocator;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -173,7 +176,7 @@ public class PetSittersService {
         ReportRep.save(r);
     }
 
-    public Coordinates getCoordinates(GetCoordinatesSchema getCoordinatesSchema) throws JSONException, IOException, ExceptionServiceError {
+    public Coordinates getCoordinates(GetCoordinatesSchema getCoordinatesSchema) throws Exception {
         getCoordinatesSchema.validate();
         City city = new City(getCoordinatesSchema.getCity());
         Coordinates coordinates = city.getCoordinates();
@@ -233,7 +236,7 @@ public class PetSittersService {
         return toret;
     }
 
-    public List<LightUserSchema> getUsersDistance(Integer rad, String username) throws JSONException, IOException, ExceptionServiceError {
+    public List<LightUserSchema> getUsersDistance(Integer rad, String username) throws Exception {
         List<LightUserSchema> toret = new ArrayList<LightUserSchema>();
         UserPetSitters trueUser = UserRep.findByUsername(username);
         if (trueUser.getCity() != null) {
@@ -773,8 +776,8 @@ public class PetSittersService {
         UserPetSitters userPetSitters = UserRep.findByUsername(valuedUsername);
         Double average = userPetSitters.getStars();
 
-        Double sum = average*((double)countValuations);
-        Double newAverage = (sum + (double)valuation.getstars())/((double)countValuations + 1);
+        Double sum = average * ((double) countValuations);
+        Double newAverage = (sum + (double) valuation.getstars()) / ((double) countValuations + 1);
         userPetSitters.setStars(newAverage);
 
         UserRep.save(userPetSitters);
@@ -787,12 +790,23 @@ public class PetSittersService {
         List<Valuation> valuations = ValuationRep.findByValuedUser(username);
         LinkedList<ValuationPreviewSchema> array = new LinkedList<>();
 
-        for (Valuation valuation: valuations) {
+        for (Valuation valuation : valuations) {
             UserPetSitters userPetSitters = UserRep.findByUsername(valuation.getUserWhoValues());
             ValuationPreviewSchema valuationPreviewSchema = new ValuationPreviewSchema(valuation.getUserWhoValues(), valuation.getDate(), userPetSitters.getImage(), valuation.getStars(), valuation.getCommentary());
             array.addLast(valuationPreviewSchema);
         }
 
         return array;
+    }
+
+    public LinkedList<String> translate(TranslationSchema translationSchema) throws Exception {
+        translationSchema.validate();
+        ServiceLocator serviceLocator = ServiceLocator.getInstance();
+        PetSitters.serviceLocator.Service service = serviceLocator.find("Translation");
+        LinkedList<String> toList = new LinkedList<>();
+        for (String s: translationSchema.getInputInEnglish()) toList.addLast(s);
+        DTOTranslationIncoming dtoToTranslate = new DTOTranslationIncoming(toList, translationSchema.getOutputLanguage());
+        DTOTranslationOutgoing result = (DTOTranslationOutgoing) service.execute(dtoToTranslate);
+        return result.getText();
     }
 }

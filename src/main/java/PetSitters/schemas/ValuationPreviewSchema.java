@@ -8,7 +8,7 @@ public class ValuationPreviewSchema {
     Date whenValued;
     String profileImage;
     Integer stars;
-    String comment;//----?
+    String comment;
 
     public ValuationPreviewSchema() {
     }

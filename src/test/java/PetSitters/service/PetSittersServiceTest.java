@@ -7,6 +7,7 @@ import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.exception.ExceptionServiceError;
 import PetSitters.repository.*;
 import PetSitters.schemas.*;
+import PetSitters.translation.TranslationProxy;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.junit.After;
@@ -34,9 +35,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertFalse;
-
-import java.math.*;
 
 
 @RunWith(SpringRunner.class)
@@ -191,6 +189,22 @@ public class PetSittersServiceTest {
         Mockito.when(valuationSchema.getCommentary()).thenReturn("Comment");
         Mockito.when(valuationSchema.getStars()).thenReturn(1);
         return valuationSchema;
+    }
+
+    TranslationSchema getFilledTranslationSchema() {
+        String[] list = {"Hello", "Monday"};
+        TranslationSchema translationSchema = Mockito.mock(TranslationSchema.class);
+        Mockito.when(translationSchema.getInputInEnglish()).thenReturn(list);
+        Mockito.when(translationSchema.getOutputLanguage()).thenReturn("es");
+        return translationSchema;
+    }
+
+    TranslationSchema getFilledTranslationSchema2() {
+        String[] list = {"Hello", "Monday", "Blue"};
+        TranslationSchema translationSchema = Mockito.mock(TranslationSchema.class);
+        Mockito.when(translationSchema.getInputInEnglish()).thenReturn(list);
+        Mockito.when(translationSchema.getOutputLanguage()).thenReturn("es");
+        return translationSchema;
     }
 
     @Test
@@ -365,7 +379,7 @@ public class PetSittersServiceTest {
     }
 
     @Test
-    public void getCoordinatesFromService() throws IOException, JSONException, ExceptionServiceError {
+    public void getCoordinatesFromService() throws Exception {
         GetCoordinatesSchema getCoordinatesSchema = getFilledGetCoordinatesSchema();
         Coordinates c = PSS.getCoordinates(getCoordinatesSchema);
         assertEquals("The latitude should be 34.0536909", c.getLatitude(), 34.0536909, 0.05);
@@ -373,7 +387,7 @@ public class PetSittersServiceTest {
     }
 
     @Test
-    public void getCoordinatesFromServiceWithCachedResult() throws IOException, JSONException, ExceptionServiceError {
+    public void getCoordinatesFromServiceWithCachedResult() throws Exception {
         GetCoordinatesSchema getCoordinatesSchema = getFilledGetCoordinatesSchema();
         Coordinates c = PSS.getCoordinates(getCoordinatesSchema);
         assertEquals("The latitude should be 34.0536909", c.getLatitude(), 34.0536909, 0.05);
@@ -384,7 +398,7 @@ public class PetSittersServiceTest {
     }
 
     @Test(expected = ExceptionServiceError.class)
-    public void getCoordinatesFromServiceWithNonExistingCity() throws IOException, JSONException, ExceptionServiceError {
+    public void getCoordinatesFromServiceWithNonExistingCity() throws Exception {
         GetCoordinatesSchema getCoordinatesSchema = getFilledGetCoordinatesSchema();
         Mockito.when(getCoordinatesSchema.getCity()).thenReturn("Llefsdfida");
         Coordinates c = PSS.getCoordinates(getCoordinatesSchema);
@@ -917,5 +931,39 @@ public class PetSittersServiceTest {
     @Test(expected = ExceptionInvalidAccount.class)
     public void getValuationsUserDoesNotExist() throws ParseException, ExceptionInvalidAccount {
         LinkedList<ValuationPreviewSchema> valuationPreviewSchemas = PSS.getValuations("nobody");
+    }
+
+    @Test
+    public void executeNonCachedResult() throws Exception {
+        TranslationSchema translationSchema = getFilledTranslationSchema();
+        LinkedList<String> translated = PSS.translate(translationSchema);
+        LinkedList<String> output = new LinkedList<>();
+        output.addLast("Hola");
+        output.addLast("lunes");
+        assertEquals("The translated texts should be equal to output list",translated, output);
+    }
+
+    @Test
+    public void executeCachedResult() throws Exception {
+        TranslationSchema translationSchema = getFilledTranslationSchema();
+        PSS.translate(translationSchema);
+        LinkedList<String> translated = PSS.translate(translationSchema);
+        LinkedList<String> output = new LinkedList<>();
+        output.addLast("Hola");
+        output.addLast("lunes");
+        assertEquals("The translated texts should be equal to output list",translated, output);
+    }
+
+    @Test
+    public void executeCachedResultEntangled() throws Exception {
+        TranslationSchema translationSchema = getFilledTranslationSchema();
+        PSS.translate(translationSchema);
+        TranslationSchema translationSchema2 = getFilledTranslationSchema2();
+        LinkedList<String> translated = PSS.translate(translationSchema2);
+        LinkedList<String> output = new LinkedList<>();
+        output.addLast("Hola");
+        output.addLast("lunes");
+        output.addLast("Azul");
+        assertEquals("The translated texts should be equal to output list",translated, output);
     }
 }

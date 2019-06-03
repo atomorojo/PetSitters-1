@@ -7,8 +7,10 @@ import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.exception.ExceptionServiceError;
 import PetSitters.repository.*;
 import PetSitters.schemas.*;
-import PetSitters.security.*;
-import org.codehaus.jettison.json.JSONArray;
+import PetSitters.security.JwtTokenUtil;
+import PetSitters.security.UserServiceImpl;
+import PetSitters.security.VerificationToken;
+import PetSitters.security.VerificationTokenService;
 import org.codehaus.jettison.json.JSONException;
 import org.junit.After;
 import org.junit.Test;
@@ -161,6 +163,15 @@ public class PetSittersServiceIntegrationTest {
         return valuationSchema;
     }
 
+    TranslationSchema getFilledTranslationSchema() {
+        String[] list = {"Hello", "Monday"};
+        return new TranslationSchema(list, "es");
+    }
+
+    TranslationSchema getFilledTranslationSchema2() {
+        String[] list = {"Hello", "Monday", "Blue"};
+        return new TranslationSchema(list, "es");
+    }
 
     @Test
     public void testRegisterNormal() throws ParseException {
@@ -410,14 +421,14 @@ public class PetSittersServiceIntegrationTest {
         PSS.report(report, "rod98");
     }
 
-    public void getCoordinatesFromService() throws IOException, JSONException, ExceptionServiceError {
+    public void getCoordinatesFromService() throws Exception {
         GetCoordinatesSchema getCoordinatesSchema = getFilledGetCoordinatesSchema();
         Coordinates c = PSS.getCoordinates(getCoordinatesSchema);
         assertEquals("The latitude should be 34.0536909", c.getLatitude(), 34.0536909, 0.05);
         assertEquals("The longitude should be -118.2427666", c.getLongitude(), -118.2427666, 0.05);
     }
 
-    public void getCoordinatesFromServiceWithCachedResult() throws IOException, JSONException, ExceptionServiceError {
+    public void getCoordinatesFromServiceWithCachedResult() throws Exception {
         GetCoordinatesSchema getCoordinatesSchema = getFilledGetCoordinatesSchema();
         Coordinates c = PSS.getCoordinates(getCoordinatesSchema);
         assertEquals("The latitude should be 34.0536909", c.getLatitude(), 34.0536909, 0.05);
@@ -428,21 +439,21 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test(expected = ExceptionServiceError.class)
-    public void getCoordinatesFromServiceWithNonExistingCity() throws IOException, JSONException, ExceptionServiceError {
+    public void getCoordinatesFromServiceWithNonExistingCity() throws Exception {
         GetCoordinatesSchema getCoordinatesSchema = getFilledGetCoordinatesSchema();
         getCoordinatesSchema.setCity("Llefsdfida");
         Coordinates c = PSS.getCoordinates(getCoordinatesSchema);
     }
 
     @Test(expected = ValidationException.class)
-    public void getCoordinatesFromServiceEmptyCity() throws IOException, JSONException, ExceptionServiceError {
+    public void getCoordinatesFromServiceEmptyCity() throws Exception {
         GetCoordinatesSchema getCoordinatesSchema = getFilledGetCoordinatesSchema();
         getCoordinatesSchema.setCity("");
         Coordinates c = PSS.getCoordinates(getCoordinatesSchema);
     }
 
     @Test(expected = ValidationException.class)
-    public void getCoordinatesFromServiceNullCity() throws IOException, JSONException, ExceptionServiceError {
+    public void getCoordinatesFromServiceNullCity() throws Exception {
         GetCoordinatesSchema getCoordinatesSchema = getFilledGetCoordinatesSchema();
         getCoordinatesSchema.setCity(null);
         Coordinates c = PSS.getCoordinates(getCoordinatesSchema);
@@ -534,7 +545,7 @@ public class PetSittersServiceIntegrationTest {
     }
 
     @Test
-    public void distanceCalc() throws IOException, JSONException, ExceptionServiceError, ParseException {
+    public void distanceCalc() throws Exception {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
         UserPetSitters myUser=UserRep.findByUsername("rod98");
@@ -549,7 +560,7 @@ public class PetSittersServiceIntegrationTest {
         assertTrue("They are within 100km",people.size()>0);
     }
     @Test
-    public void distanceCalcError() throws IOException, JSONException, ExceptionServiceError, ParseException {
+    public void distanceCalcError() throws Exception {
         RegisterSchema registerSchema1 = getFilledSchemaRegistrationPersona1();
         PSS.register(registerSchema1);
         UserPetSitters myUser=UserRep.findByUsername("rod98");
@@ -1187,5 +1198,39 @@ public class PetSittersServiceIntegrationTest {
     @Test(expected = ExceptionInvalidAccount.class)
     public void getValuationsUserDoesNotExist() throws ParseException, ExceptionInvalidAccount {
         LinkedList<ValuationPreviewSchema> valuationPreviewSchemas = PSS.getValuations("nobody");
+    }
+
+    @Test
+    public void executeNonCachedResult() throws Exception {
+        TranslationSchema translationSchema = getFilledTranslationSchema();
+        LinkedList<String> translated = PSS.translate(translationSchema);
+        LinkedList<String> output = new LinkedList<>();
+        output.addLast("Hola");
+        output.addLast("lunes");
+        assertEquals("The translated texts should be equal to output list",translated, output);
+    }
+
+    @Test
+    public void executeCachedResult() throws Exception {
+        TranslationSchema translationSchema = getFilledTranslationSchema();
+        PSS.translate(translationSchema);
+        LinkedList<String> translated = PSS.translate(translationSchema);
+        LinkedList<String> output = new LinkedList<>();
+        output.addLast("Hola");
+        output.addLast("lunes");
+        assertEquals("The translated texts should be equal to output list",translated, output);
+    }
+
+    @Test
+    public void executeCachedResultEntangled() throws Exception {
+        TranslationSchema translationSchema = getFilledTranslationSchema();
+        PSS.translate(translationSchema);
+        TranslationSchema translationSchema2 = getFilledTranslationSchema2();
+        LinkedList<String> translated = PSS.translate(translationSchema2);
+        LinkedList<String> output = new LinkedList<>();
+        output.addLast("Hola");
+        output.addLast("lunes");
+        output.addLast("Azul");
+        assertEquals("The translated texts should be equal to output list",translated, output);
     }
 }

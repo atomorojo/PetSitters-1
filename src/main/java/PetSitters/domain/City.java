@@ -24,7 +24,7 @@ public class City {
         this.name = name;
     }
 
-    public Coordinates getCoordinates() throws ExceptionServiceError, IOException, JSONException {
+    public Coordinates getCoordinates() throws Exception {
         ServiceLocator serviceLocator = ServiceLocator.getInstance();
         Service service = serviceLocator.find("GetCoordinates");
         DTOCity dtoCity = new DTOCity(name);

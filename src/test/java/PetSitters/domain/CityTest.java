@@ -29,7 +29,7 @@ public class CityTest {
     }
 
     @Test
-    public void getCoordinatesFromExistingCity() throws ExceptionServiceError, IOException, JSONException {
+    public void getCoordinatesFromExistingCity() throws Exception {
         city.setName("Los Angeles");
         Coordinates c = city.getCoordinates();
         // We compare the floating-point numbers with a tolerance of 5%
@@ -38,7 +38,7 @@ public class CityTest {
     }
 
     @Test(expected = ExceptionServiceError.class)
-    public void getCoordinatesFromNonExistingCity() throws ExceptionServiceError, IOException, JSONException {
+    public void getCoordinatesFromNonExistingCity() throws Exception {
         city.setName("Los Angedlgjdflles");
         Coordinates c = city.getCoordinates();
     }
