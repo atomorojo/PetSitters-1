@@ -5,6 +5,7 @@ import java.util.Date;
 public class ValuationPreviewSchema {
 
     String usernameWhoValues;
+    String NameOfUserWhoValues;
     Date whenValued;
     String profileImage;
     Integer stars;
@@ -13,8 +14,9 @@ public class ValuationPreviewSchema {
     public ValuationPreviewSchema() {
     }
 
-    public ValuationPreviewSchema(String usernameWhoValues, Date whenValued, String profileImage, Integer stars, String comment) {
+    public ValuationPreviewSchema(String usernameWhoValues, String nameOfUserWhoValues, Date whenValued, String profileImage, Integer stars, String comment) {
         this.usernameWhoValues = usernameWhoValues;
+        NameOfUserWhoValues = nameOfUserWhoValues;
         this.whenValued = whenValued;
         this.profileImage = profileImage;
         this.stars = stars;
@@ -27,6 +29,14 @@ public class ValuationPreviewSchema {
 
     public void setUsernameWhoValues(String usernameWhoValues) {
         this.usernameWhoValues = usernameWhoValues;
+    }
+
+    public String getNameOfUserWhoValues() {
+        return NameOfUserWhoValues;
+    }
+
+    public void setNameOfUserWhoValues(String nameOfUserWhoValues) {
+        NameOfUserWhoValues = nameOfUserWhoValues;
     }
 
     public Date getWhenValued() {
@@ -45,19 +55,19 @@ public class ValuationPreviewSchema {
         this.profileImage = profileImage;
     }
 
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
-
     public Integer getStars() {
         return stars;
     }
 
     public void setStars(Integer stars) {
         this.stars = stars;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 }

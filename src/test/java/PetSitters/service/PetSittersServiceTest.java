@@ -780,17 +780,23 @@ public class PetSittersServiceTest {
     private void proposeContractAuxiliary() throws Exception {
         UserPetSitters myUser=UserRep.findByUsername("rod98");
         ContractSchema contract=new ContractSchema();
+        System.out.println("HEY1");
         Animal dog=new Animal();
         dog.setName("Doggy");
         dog.setTipus("Dog");
+        System.out.println("HEY2");
         List<Animal> an=new ArrayList<Animal>();
+        System.out.println("HEY3");
         an.add(dog);
         contract.setAnimal(an);
         contract.setEnd("2019-01-01");
         contract.setStart("2018-01-01");
         contract.setFeedback(false);
+        System.out.println("HEY4");
         contract.setUsername("casjua92");
+        System.out.println("HEY5");
         PSS.proposeContract(contract, myUser.getUsername());
+        System.out.println("HEY6");
         Contract c=ContractRepository.findByUsernameFromAndUsernameTo(myUser.getUsername(),"casjua92");
         assertTrue("Is not null",c!=null);
     }
@@ -901,6 +907,7 @@ public class PetSittersServiceTest {
         assertEquals("The profile image should be equal", valuationPreviewSchema1.getProfileImage(), userPetSitters.getImage());
         assertEquals("The number of stars should be equal", valuationPreviewSchema1.getStars(), valuation1.getStars());
         assertEquals("The date should be equal", valuationPreviewSchema1.getWhenValued(), valuation1.getDate());
+        assertEquals("The name should be equal", valuationPreviewSchema1.getNameOfUserWhoValues(), registerSchema1.getFirstName() + " " + registerSchema1.getLastName());
 
         assertEquals("The user who values should be equal", valuationPreviewSchema2.getUsernameWhoValues(), valuation2.getUserWhoValues());
         assertEquals("The comment should be equal", valuationPreviewSchema2.getComment(), valuation2.getCommentary());
@@ -908,6 +915,7 @@ public class PetSittersServiceTest {
         assertEquals("The profile image should be equal", valuationPreviewSchema2.getProfileImage(), userPetSitters.getImage());
         assertEquals("The number of stars should be equal", valuationPreviewSchema2.getStars(), valuation2.getStars());
         assertEquals("The date should be equal", valuationPreviewSchema2.getWhenValued(), valuation2.getDate());
+        assertEquals("The name should be equal", valuationPreviewSchema2.getNameOfUserWhoValues(), registerSchema1.getFirstName() + " " + registerSchema1.getLastName());
     }
 
     @Test

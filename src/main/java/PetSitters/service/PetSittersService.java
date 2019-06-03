@@ -502,6 +502,14 @@ public class PetSittersService {
     // -----------------------------------------------------------------------------------
 
     public void proposeContract(ContractSchema contract, String usernameFromToken) throws Exception {
+        UserPetSitters trueUser=UserRep.findByUsername(usernameFromToken);
+        UserPetSitters user=UserRep.findByUsername(contract.getUsername());
+        if (trueUser == null) {
+            throw new ExceptionInvalidAccount("The specified username '" + usernameFromToken + "' does not belong to any user in the system");
+        }
+        if (user == null) {
+            throw new ExceptionInvalidAccount("The specified username '" + contract.getUsername() + "' does not belong to any user in the system");
+        }
         Contract c = ContRep.findByUsernameFromAndUsernameTo(usernameFromToken,contract.getUsername());
         if (c != null) {
             ContRep.delete(c);
@@ -515,8 +523,6 @@ public class PetSittersService {
         cont.setFeedback(contract.getFeedback());
         cont.setAccepted(false);
         ContRep.save(cont);
-        UserPetSitters trueUser=UserRep.findByUsername(usernameFromToken);
-        UserPetSitters user=UserRep.findByUsername(contract.getUsername());
         if (user.getCity() != null && trueUser.getCity()!=null) {
             City city1 = new City(user.getCity());
             City city2 = new City(trueUser.getCity());
@@ -802,18 +808,17 @@ public class PetSittersService {
 
         Double sum = average * ((double) countValuations);
         Double newAverage = (sum + (double) valuation.getstars()) / ((double) countValuations + 1);
+        UserRep.delete(userPetSitters);
         userPetSitters.setStars(newAverage);
-
-        UserPetSitters us=UserRep.findByUsername(valuedUsername);
         UserRep.save(userPetSitters);
-        Trophy.trophy06(us);
-        Trophy.trophy07(us);
-        Trophy.trophy08(us);
+
+        Trophy.trophy06(userPetSitters);
+        Trophy.trophy07(userPetSitters);
+        Trophy.trophy08(userPetSitters);
         Trophy.trophy09(userPetSitters);
         Trophy.trophy10(userPetSitters);
         Trophy.trophy11(userPetSitters);
-        Trophy.trophy16_45(us);
-
+        Trophy.trophy16_45(userPetSitters);
     }
 
     public LinkedList<ValuationPreviewSchema> getValuations(String username) throws ExceptionInvalidAccount {
@@ -825,7 +830,7 @@ public class PetSittersService {
 
         for (Valuation valuation : valuations) {
             UserPetSitters userPetSitters = UserRep.findByUsername(valuation.getUserWhoValues());
-            ValuationPreviewSchema valuationPreviewSchema = new ValuationPreviewSchema(valuation.getUserWhoValues(), valuation.getDate(), userPetSitters.getImage(), valuation.getStars(), valuation.getCommentary());
+            ValuationPreviewSchema valuationPreviewSchema = new ValuationPreviewSchema(valuation.getUserWhoValues(), userPetSitters.getFirstName() + " " + userPetSitters.getLastName(), valuation.getDate(), userPetSitters.getImage(), valuation.getStars(), valuation.getCommentary());
             array.addLast(valuationPreviewSchema);
         }
 
