@@ -26,8 +26,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
@@ -431,5 +435,14 @@ public class PetSittersController {
         Contract res = petSittersService.isContracted(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())),contract);
         return new ResponseEntity(res, HttpStatus.OK);
     }
+
+    @GetMapping(value = "/getNotifications", headers = "Accept=application/json")
+    @ApiOperation(value = "Gets notifications. Position 1 is chat, position 2 is trophy, position 3 is valuation")
+    public ResponseEntity hasContracted(@RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
+        Boolean[] nots=petSittersService.getNotifications(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(nots,HttpStatus.OK);
+    }
+
+
 
 }

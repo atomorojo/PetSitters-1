@@ -78,6 +78,14 @@ public class UserPetSitters {
 
     @ApiModelProperty(value = "Trophies")
     private Boolean[] trophy;
+    @ApiModelProperty(value = "Whether the user has to be notified of a opened chat")
+    private Boolean notificationChat=false;
+    @ApiModelProperty(value = "Whether the user has to be notified of a newly obtained trophy")
+    private Boolean notificationTrophy=false;
+    @ApiModelProperty(value = "Whether the user has to be notified of having to value someone")
+    private Boolean notificationValue=false;
+
+
 
 
     private boolean active;
@@ -231,6 +239,30 @@ public class UserPetSitters {
 
     public void removeFavorites(String s) {
         this.favorites.remove(s);
+    }
+
+    public Boolean getNotificationChat() {
+        return notificationChat;
+    }
+
+    public void setNotificationChat(Boolean notificationChat) {
+        this.notificationChat = notificationChat;
+    }
+
+    public Boolean getNotificationTrophy() {
+        return notificationTrophy;
+    }
+
+    public void setNotificationTrophy(Boolean notificationTrophy) {
+        this.notificationTrophy = notificationTrophy;
+    }
+
+    public Boolean getNotificationValue() {
+        return notificationValue;
+    }
+
+    public void setNotificationValue(Boolean notificationValue) {
+        this.notificationValue = notificationValue;
     }
 
     @Override
