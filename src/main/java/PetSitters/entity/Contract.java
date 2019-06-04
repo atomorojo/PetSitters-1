@@ -11,13 +11,14 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.validation.constraints.NotBlank;
+import java.io.Serializable;
 import java.util.List;
 
 
 @ApiModel("Chat")
 @CompoundIndex(name = "usernameFrom_usernameTo_idx", unique = true, def = "{'usernameFrom' : 1, 'usernameTo' : 1}")
 @Document
-public class Contract {
+public class Contract implements Serializable {
     @Id
     @ApiModelProperty(value = "Contract's id", required = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)

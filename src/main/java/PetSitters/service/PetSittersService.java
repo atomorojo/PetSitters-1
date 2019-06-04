@@ -16,11 +16,15 @@ import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @EnableAutoConfiguration
@@ -43,6 +47,10 @@ public class PetSittersService {
 
     @Autowired
     MessageRepository MessageRep;
+
+    @Autowired
+    SessionRepository SessionRep;
+
 
     @Autowired
     TrophyService Trophy;
@@ -72,6 +80,7 @@ public class PetSittersService {
         }
         if (u.getImage()!=null) gridFS.destroyFile(u.getImage());
         deleteAllChats(username);
+        killContract(username);
         UserRep.deleteByUsername(username);
     }
     public void deleteAccountAdmin(String username) throws ExceptionInvalidAccount {
@@ -79,6 +88,7 @@ public class PetSittersService {
             UserPetSitters user = UserRep.findByUsername(username);
             if (user.getImage()!=null) gridFS.destroyFile(user.getImage());
             deleteAllChats(username);
+            killContract(username);
             UserRep.deleteByUsername(username);
         }
     }
@@ -555,6 +565,21 @@ public class PetSittersService {
         }
 
     }
+    public void killContract(String usernameFromToken) {
+        List<Contract> cont = ContRep.findByUsernameFrom(usernameFromToken);
+        if (cont != null) {
+            for (Contract c:cont) {
+                ContRep.delete(c);
+            }
+        }
+        cont= ContRep.findByUsernameTo(usernameFromToken);
+        if (cont != null) {
+            for (Contract c:cont) {
+                ContRep.delete(c);
+            }        }
+
+    }
+
 
     public List<Contract> contractListProposed(String usernameFromToken) {
         List<Contract> cont = ContRep.findByUsernameFrom(usernameFromToken);
@@ -608,6 +633,9 @@ public class PetSittersService {
 
         MessageRep.save(message);
         Trophy.trophy12_14(userWhoSends);
+        UserPetSitters us=UserRep.findByUsername(messageSchema.getUserWhoReceives());
+        us.setNotificationChat(true);
+        UserRep.save(us);
     }
 
    public LinkedList<Message> getAllMessagesFromChat(Integer threshold, String usernameWhoReceives, String usernameWhoSends) throws ExceptionInvalidAccount {
@@ -852,9 +880,41 @@ public class PetSittersService {
         ServiceLocator serviceLocator = ServiceLocator.getInstance();
         PetSitters.serviceLocator.Service service = serviceLocator.find("Translation");
         LinkedList<String> toList = new LinkedList<>();
-        for (String s: translationSchema.getInputInEnglish()) toList.addLast(s);
+        for (String s : translationSchema.getInputInEnglish()) toList.addLast(s);
         DTOTranslationIncoming dtoToTranslate = new DTOTranslationIncoming(toList, translationSchema.getOutputLanguage());
         DTOTranslationOutgoing result = (DTOTranslationOutgoing) service.execute(dtoToTranslate);
         return result.getText();
+
+    }
+
+    @Scheduled(fixedDelay=100000)
+    public void contractCheck() throws ParseException {
+        List<Contract> contr=ContRep.findAll();
+        for (Contract c:contr) {
+            //Massive ball of fucking spaghetti code, why is this format used in front-end
+            String[] aberration=c.getEnd().split("-");
+            String[] worse=aberration[2].split(",");
+            SimpleDateFormat inFormat = new SimpleDateFormat("yyyy-MM-dd");
+            String newDate=worse[0]+"-"+aberration[1]+"-"+aberration[0];
+            Date dtIn = inFormat.parse(newDate);
+            Date today=new Date();
+            //Don't touch this or it breaks, its spaghetti
+            long diffInMillies = Math.abs(today.getTime() - dtIn.getTime());
+            long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+            if (diff<=0) {
+                UserPetSitters u=UserRep.findByUsername(c.getUsernameFrom());
+                u.setNotificationValue(true);
+                UserRep.save(u);
+            }
+        }
+    }
+
+    public Boolean[] getNotifications(String usernameFromToken) {
+        Boolean[] b=new Boolean[3];
+        UserPetSitters us=UserRep.findByUsername(usernameFromToken);
+        b[0]=us.getNotificationChat();
+        b[1]=us.getNotificationTrophy();
+        b[2]=us.getNotificationValue();
+        return b;
     }
 }
