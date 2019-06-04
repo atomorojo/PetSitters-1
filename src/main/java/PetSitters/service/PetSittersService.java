@@ -498,6 +498,9 @@ public class PetSittersService {
         sendMessage(new MessageSchema("daniel", "false", "Hola, 123"), "ruben");
         sendMessage(new MessageSchema("daniel", "false", "Hola, 123"), "pere");
         sendMessage(new MessageSchema("pere", "false", "Hola, 4321"), "daniel");
+
+        report(new ReportSchema("antoni", "None"), "daniel");
+        report(new ReportSchema("daniel", "None"), "hector");
     }
 
     public JSONArray DEBUGfindAll() {
@@ -700,21 +703,16 @@ public class PetSittersService {
     public List<Report> getReports(String reported) {
         String email=UserRep.findByUsername(reported).getEmail();
         List<Report> res =ReportRep.findByReported(email);
-        LinkedList<Report> resFiltered = new LinkedList<>();
-        for (Report report: res) {
-            if (UserRep.existsByEmail(report.getReported()))
-                resFiltered.addLast(report);
-        }
-        return resFiltered;
+        return res;
     }
 
     public List<GetAllReportsSchema> getAllReportedUsers() {
         List<Report> reps=ReportRep.findAll();
-        Set<String> emails=new HashSet<String>();
+        Set<String> emails=new HashSet<>();
         for (Report r:reps) {
-            if (!emails.contains(r.getReported())) emails.add(r.getReported());
+            if (UserRep.existsByEmail(r.getReported()) && !emails.contains(r.getReported())) emails.add(r.getReported());
         }
-        List<GetAllReportsSchema> result=new ArrayList<GetAllReportsSchema>();
+        List<GetAllReportsSchema> result=new ArrayList<>();
         for (String email:emails) {
             UserPetSitters us=UserRep.findByEmail(email);
             GetAllReportsSchema rep=new GetAllReportsSchema();
