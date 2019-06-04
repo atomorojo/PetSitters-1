@@ -20,6 +20,8 @@ public interface UserRepository extends MongoRepository<UserPetSitters, String> 
     UserPetSitters findByEmail(String email);
 
     List<UserPetSitters> findAll();
+
+    boolean existsByEmail(String email);
 }
 
 

@@ -672,7 +672,12 @@ public class PetSittersService {
     public List<Report> getReports(String reported) {
         String email=UserRep.findByUsername(reported).getEmail();
         List<Report> res =ReportRep.findByReported(email);
-        return res;
+        LinkedList<Report> resFiltered = new LinkedList<>();
+        for (Report report: res) {
+            if (UserRep.existsByEmail(report.getReported()))
+                resFiltered.addLast(report);
+        }
+        return resFiltered;
     }
 
     public List<GetAllReportsSchema> getAllReportedUsers() {
