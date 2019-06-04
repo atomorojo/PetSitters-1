@@ -22,37 +22,55 @@ public class TrophyService {
     ValuationRepository ValuationRep;
 
     public void trophy01(UserPetSitters user) {
+        Boolean[] oldTrophies=user.getTrophy();
         if (user.getImage() != null && user.getDescription() != null && user.getAvailability() != null && user.getExpert() != null) {
             Boolean[] troph=user.getTrophy();
             troph[0]=true;
             user.setTrophy(troph);
+            setNotification(user,oldTrophies);
             UserRep.save(user);
             trophy05(user);
         }
     }
 
+    private void setNotification(UserPetSitters user, Boolean[] oldTrophies) {
+        Boolean[] helper=user.getTrophy();
+        for (int i=0;i<45;++i) {
+            if (helper[i]!=oldTrophies[i]) {
+                user.setNotificationTrophy(true);
+                UserRep.save(user);
+            }
+        }
+    }
+
     public void trophy02(UserPetSitters user) {
+        Boolean[] oldTrophies=user.getTrophy();
         if (user.getFavorites().size() > 0) {
             Boolean[] troph=user.getTrophy();
             troph[1]=true;
             user.setTrophy(troph);
+            setNotification(user,oldTrophies);
             UserRep.save(user);
             trophy05(user);
         }
     }
     public void trophy03(UserPetSitters user) {
+        Boolean[] oldTrophies=user.getTrophy();
         Boolean[] troph=user.getTrophy();
         troph[2]=true;
         user.setTrophy(troph);
+        setNotification(user,oldTrophies);
         UserRep.save(user);
         trophy05(user);
     }
 
     public void trophy04(UserPetSitters user) {
+        Boolean[] oldTrophies=user.getTrophy();
         Boolean[] troph=user.getTrophy();
         if (troph[15]&&troph[18]&&troph[22]&&troph[24]&&troph[27]&&troph[30]&&troph[33]&&troph[36]&&troph[39]&&troph[42]) {
             troph[3]=true;
             user.setTrophy(troph);
+            setNotification(user,oldTrophies);
             UserRep.save(user);
             trophy05(user);
         }
@@ -60,6 +78,7 @@ public class TrophyService {
 
     public void trophy05(UserPetSitters user) {
         Boolean[] troph=user.getTrophy();
+        Boolean[] oldTrophies=user.getTrophy();
         if (troph[0]&&troph[1]&&troph[2]&&troph[3]&&troph[5]&&troph[6]&&troph[7]&&
                 troph[8]&&troph[9]&&troph[10]&&troph[11]&&troph[12]&&troph[13]&&troph[14]&&troph[15]&&
                 troph[16]&&troph[17]&&troph[18]&&troph[19]&&troph[20]&&troph[21]&&troph[22]&&troph[23]&&
@@ -68,64 +87,80 @@ public class TrophyService {
                 troph[40]&&troph[41]&&troph[42]&&troph[43]&&troph[44]&&troph[45]) {
             troph[4]=true;
             user.setTrophy(troph);
+            setNotification(user,oldTrophies);
             UserRep.save(user);
         }
     }
 
     public void trophy06(UserPetSitters user) {
+        Boolean[] oldTrophies=user.getTrophy();
         if (Math.round(user.getStars())>=5) {
             Boolean[] troph=user.getTrophy();
             troph[5]=true;
             user.setTrophy(troph);
+            setNotification(user,oldTrophies);
             UserRep.save(user);
             trophy05(user);
         }
     }
 
     public void trophy07(UserPetSitters user) {
+        Boolean[] oldTrophies=user.getTrophy();
         if (Math.round(user.getStars())>=4) {
             Boolean[] troph=user.getTrophy();
             troph[6]=true;
             user.setTrophy(troph);
+            setNotification(user,oldTrophies);
             UserRep.save(user);
+            trophy05(user);
         }
     }
 
     public void trophy08(UserPetSitters user) {
+        Boolean[] oldTrophies=user.getTrophy();
         if (Math.round(user.getStars())>=3) {
             Boolean[] troph=user.getTrophy();
             troph[7]=true;
             user.setTrophy(troph);
+            setNotification(user,oldTrophies);
             UserRep.save(user);
+            trophy05(user);
         }
     }
 
     public void trophy09(UserPetSitters user) {
+        Boolean[] oldTrophies=user.getTrophy();
         if (ValuationRep.findByUserWhoValues(user.getUsername()).size()>=1) {
             Boolean[] troph=user.getTrophy();
             troph[8]=true;
             user.setTrophy(troph);
+            setNotification(user,oldTrophies);
             UserRep.save(user);
         }
     }
     public void trophy10(UserPetSitters user) {
+        Boolean[] oldTrophies=user.getTrophy();
         if (ValuationRep.findByUserWhoValues(user.getUsername()).size()>=5) {
             Boolean[] troph=user.getTrophy();
             troph[9]=true;
             user.setTrophy(troph);
+            setNotification(user,oldTrophies);
             UserRep.save(user);
         }
     }
     public void trophy11(UserPetSitters user) {
+        Boolean[] oldTrophies=user.getTrophy();
         if (ValuationRep.findByUserWhoValues(user.getUsername()).size()>=10) {
             Boolean[] troph=user.getTrophy();
             troph[10]=true;
             user.setTrophy(troph);
+            setNotification(user,oldTrophies);
             UserRep.save(user);
         }
     }
 
     public void trophy12_14(UserPetSitters user) {
+        Boolean[] oldTrophies=user.getTrophy();
         List<Message> why=MessageRep.findByUserWhoSendsAndIsVisible(user.getUsername(),true);
         Boolean[] troph=user.getTrophy();
         if (why.size()>=100) {
@@ -137,19 +172,23 @@ public class TrophyService {
                 }
             }
             user.setTrophy(troph);
+            setNotification(user,oldTrophies);
             UserRep.save(user);
         }
     }
 
     public void trophy15(UserPetSitters user) {
+        Boolean[] oldTrophies=user.getTrophy();
         Boolean[] troph=user.getTrophy();
         troph[14]=true;
         user.setTrophy(troph);
+        setNotification(user,oldTrophies);
         UserRep.save(user);
         trophy05(user);
     }
 
     public void trophy16_45(UserPetSitters user) {
+        Boolean[] oldTrophies=user.getTrophy();
         int other=0;
         int dog=0;
         int ferret=0;
@@ -296,6 +335,7 @@ public class TrophyService {
             }
         }
         user.setTrophy(troph);
+        setNotification(user,oldTrophies);
         UserRep.save(user);
         trophy05(user);
     }
