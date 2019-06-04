@@ -346,7 +346,7 @@ public class PetSittersController {
         Contract res = petSittersService.isContracted(contract, jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(res, HttpStatus.OK);
     }
-    @PostMapping(value = "/deleteUserAccount", headers = "Accept=application/json")
+    @DeleteMapping(value = "/deleteUserAccount", headers = "Accept=application/json")
     @ApiOperation(value = "Deletes the account, only admins can execute this action.")
     public ResponseEntity deleteAccountAdmin(@RequestParam String adminToken, @RequestParam String toDelete) throws ExceptionInvalidAccount {
         if (adminToken.equals("111122223333444455556666")) {

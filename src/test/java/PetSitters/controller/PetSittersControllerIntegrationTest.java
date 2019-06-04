@@ -1765,7 +1765,7 @@ public class PetSittersControllerIntegrationTest {
                 "  \"username\": \"rod98\"\n" +
                 "}";
         register(cont).andExpect(status().isOk());
-        ResultActions res=mvc.perform(post("/petsitters/deleteUserAccount?adminToken=111122223333444455556666&toDelete=rod98").content("{}").contentType("application/json")).andExpect(status().is2xxSuccessful());
+        ResultActions res=mvc.perform(delete("/petsitters/deleteUserAccount?adminToken=111122223333444455556666&toDelete=rod98").content("{}").contentType("application/json")).andExpect(status().is2xxSuccessful());
         assertTrue("Account not deleted",UserRep.findByUsername("rod98")==null);
     }
 
@@ -2046,9 +2046,9 @@ public class PetSittersControllerIntegrationTest {
         sendMessage(token, cont).andExpect(status().isOk());
         sendMessage(token, cont).andExpect(status().isOk());
 
-        ResultActions res=mvc.perform(post("/petsitters/deleteUserAccount?adminToken=111122223333444455556666&toDelete=rod98").content("{}").contentType("application/json")).andExpect(status().is2xxSuccessful());
+        ResultActions res=mvc.perform(delete("/petsitters/deleteUserAccount?adminToken=111122223333444455556666&toDelete=rod98").content("{}").contentType("application/json")).andExpect(status().is2xxSuccessful());
         assertTrue("Account not deleted",UserRep.findByUsername("rod98")==null);
-        res=mvc.perform(post("/petsitters/deleteUserAccount?adminToken=111122223333444455556666&toDelete=casjua92").content("{}").contentType("application/json")).andExpect(status().is2xxSuccessful());
+        res=mvc.perform(delete("/petsitters/deleteUserAccount?adminToken=111122223333444455556666&toDelete=casjua92").content("{}").contentType("application/json")).andExpect(status().is2xxSuccessful());
         assertTrue("Account not deleted",UserRep.findByUsername("casjua92")==null);
 
         List<UserPetSitters> users = UserRep.findAll();
