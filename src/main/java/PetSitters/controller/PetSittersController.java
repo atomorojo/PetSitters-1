@@ -448,19 +448,26 @@ public class PetSittersController {
         return new ResponseEntity(array, HttpStatus.OK);
     }
     @GetMapping(value = "/getNotifications", headers = "Accept=application/json")
-    @ApiOperation(value = "Gets notifications. Position 1 is chat, position 2 is trophy, position 3 is valuation")
+    @ApiOperation(value = "Gets notifications. Position 1 is chat, position 2 is trophy, position 3 is valuation, 4 is needing to give feedback")
     public ResponseEntity hasContracted(@RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
         Boolean[] nots=petSittersService.getNotifications(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(nots,HttpStatus.OK);
     }
+    @GetMapping(value = "/nullifyNotifications", headers = "Accept=application/json")
+    @ApiOperation(value = "Kills notifications")
+    public ResponseEntity nullifyNotifications(@RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
+        petSittersService.nullifyNotifications(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
 
     @GetMapping(value = "/getValuationsFromUser")
     @ApiOperation(value = "Gets all valuations of a given user. ")
     @ApiResponses(value = {
             @io.swagger.annotations.ApiResponse(code = 200, message = "Success", response = ValuationPreviewSchema.class, responseContainer = "List")})
     public ResponseEntity getValuationsFromUser(@RequestParam String user) throws ExceptionInvalidAccount {
-        LinkedList<ValuationPreviewSchema> array = petSittersService.getValuations(user);
-        return new ResponseEntity(array, HttpStatus.OK);
+        petSittersService.nullifyNotifications(user);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     @GetMapping(value = "/getTrophiesRanking")

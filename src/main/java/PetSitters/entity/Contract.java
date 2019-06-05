@@ -12,6 +12,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 
@@ -51,6 +52,11 @@ public class Contract implements Serializable {
     @Field("accepted")
     @NotBlank
     Boolean accepted;
+    @ApiModelProperty(value = "When was the contract last checked", required = true)
+    @Field("lastCheckedDate")
+    @NotBlank
+    Date lastCheckedDate;
+
 
     public String getUsernameFrom() {
         return usernameFrom;
@@ -114,5 +120,13 @@ public class Contract implements Serializable {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public Date getLastCheckedDate() {
+        return lastCheckedDate;
+    }
+
+    public void setLastCheckedDate(Date lastCheckedDate) {
+        this.lastCheckedDate = lastCheckedDate;
     }
 }

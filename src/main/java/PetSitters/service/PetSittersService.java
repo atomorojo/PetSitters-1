@@ -79,15 +79,16 @@ public class PetSittersService {
         if (!u.isTheSamePassword(password)) {
             throw new ExceptionInvalidAccount("The username or password provided are incorrect");
         }
-        if (u.getImage()!=null) gridFS.destroyFile(u.getImage());
+        if (u.getImage() != null) gridFS.destroyFile(u.getImage());
         deleteAllChats(username);
         killContract(username);
         UserRep.deleteByUsername(username);
     }
+
     public void deleteAccountAdmin(String username) throws ExceptionInvalidAccount {
         if (UserRep.existsByUsername(username)) {
             UserPetSitters user = UserRep.findByUsername(username);
-            if (user.getImage()!=null) gridFS.destroyFile(user.getImage());
+            if (user.getImage() != null) gridFS.destroyFile(user.getImage());
             deleteAllChats(username);
             killContract(username);
             UserRep.deleteByUsername(username);
@@ -147,13 +148,12 @@ public class PetSittersService {
     }
 
     private List<String> experts(String toModify) {
-        if (toModify!=null) {
+        if (toModify != null) {
             String[] aux = toModify.split("''");
             ArrayList<String> toret = new ArrayList<String>();
             for (String s : aux) toret.add(s);
             return new ArrayList<String>(toret);
-        }
-        else return null;
+        } else return null;
     }
 
     private void modifyImage(String value, String user) {
@@ -206,7 +206,8 @@ public class PetSittersService {
         UserPetSitters trueUser = UserRep.findByUsername(username);
         List<LightUserSchema> ret = new ArrayList<LightUserSchema>();
         for (UserPetSitters user : users) {
-            if (notReported(trueUser.getEmail(), user.getEmail()) && !username.equals(user.getUsername())) assignLightUserSchema(ret, user);
+            if (notReported(trueUser.getEmail(), user.getEmail()) && !username.equals(user.getUsername()))
+                assignLightUserSchema(ret, user);
         }
         return ret;
     }
@@ -452,7 +453,7 @@ public class PetSittersService {
 
     public void DEBUGload() throws ParseException {
         DEBUGclearAll();
-        register(new RegisterSchema("Alexandra", "Volkova", "alexandra", "ff788efa931cc5b6018695fbb6999911", "Barcelona","juan1@juan.com", "20-10-1998"));
+        register(new RegisterSchema("Alexandra", "Volkova", "alexandra", "ff788efa931cc5b6018695fbb6999911", "Barcelona", "juan1@juan.com", "20-10-1998"));
         register(new RegisterSchema("Daniel", "Esquina", "daniel", "ff788efa931cc5b6018695fbb6999911", "Lleida", "juan2@juan.com", "20-10-1998"));
         register(new RegisterSchema("Hector", "Baiges", "hector", "ff788efa931cc5b6018695fbb6999911", "Mataro", "juan3@juan.com", "20-10-1998"));
         register(new RegisterSchema("Ruben", "Gonzalex", "ruben", "ff788efa931cc5b6018695fbb6999911", "Valencia", "juan4@juan.com", "20-10-1998"));
@@ -519,15 +520,15 @@ public class PetSittersService {
     // -----------------------------------------------------------------------------------
 
     public void proposeContract(ContractSchema contract, String usernameFromToken) throws Exception {
-        UserPetSitters trueUser=UserRep.findByUsername(usernameFromToken);
-        UserPetSitters user=UserRep.findByUsername(contract.getUsername());
+        UserPetSitters trueUser = UserRep.findByUsername(usernameFromToken);
+        UserPetSitters user = UserRep.findByUsername(contract.getUsername());
         if (trueUser == null) {
             throw new ExceptionInvalidAccount("The specified username '" + usernameFromToken + "' does not belong to any user in the system");
         }
         if (user == null) {
             throw new ExceptionInvalidAccount("The specified username '" + contract.getUsername() + "' does not belong to any user in the system");
         }
-        Contract c = ContRep.findByUsernameFromAndUsernameTo(usernameFromToken,contract.getUsername());
+        Contract c = ContRep.findByUsernameFromAndUsernameTo(usernameFromToken, contract.getUsername());
         if (c != null) {
             ContRep.delete(c);
         }
@@ -539,15 +540,16 @@ public class PetSittersService {
         cont.setUsernameFrom(usernameFromToken);
         cont.setFeedback(contract.getFeedback());
         cont.setAccepted(false);
+        cont.setLastCheckedDate(new Date());
         ContRep.save(cont);
-        if (user.getCity() != null && trueUser.getCity()!=null) {
+        if (user.getCity() != null && trueUser.getCity() != null) {
             City city1 = new City(user.getCity());
             City city2 = new City(trueUser.getCity());
             Coordinates coord2 = city1.getCoordinates();
             Coordinates coord1 = city2.getCoordinates();
             Double distanceKm = distance(coord1.getLatitude(), coord1.getLongitude(), coord2.getLatitude(), coord2.getLongitude());
             System.out.println(distanceKm);
-            if (distanceKm>=50) {
+            if (distanceKm >= 50) {
                 Trophy.trophy15(trueUser);
             }
         }
@@ -572,18 +574,20 @@ public class PetSittersService {
         }
 
     }
+
     public void killContract(String usernameFromToken) {
         List<Contract> cont = ContRep.findByUsernameFrom(usernameFromToken);
         if (cont != null) {
-            for (Contract c:cont) {
+            for (Contract c : cont) {
                 ContRep.delete(c);
             }
         }
-        cont= ContRep.findByUsernameTo(usernameFromToken);
+        cont = ContRep.findByUsernameTo(usernameFromToken);
         if (cont != null) {
-            for (Contract c:cont) {
+            for (Contract c : cont) {
                 ContRep.delete(c);
-            }        }
+            }
+        }
 
     }
 
@@ -640,14 +644,14 @@ public class PetSittersService {
 
         MessageRep.save(message);
         Trophy.trophy12_14(userWhoSends);
-        UserPetSitters us=UserRep.findByUsername(messageSchema.getUserWhoReceives());
+        UserPetSitters us = UserRep.findByUsername(messageSchema.getUserWhoReceives());
         us.setNotificationChat(true);
         UserRep.save(us);
     }
 
-   public LinkedList<Message> getAllMessagesFromChat(Integer threshold, String usernameWhoReceives, String usernameWhoSends) throws ExceptionInvalidAccount {
+    public LinkedList<Message> getAllMessagesFromChat(Integer threshold, String usernameWhoReceives, String usernameWhoSends) throws ExceptionInvalidAccount {
         if (!UserRep.existsByUsername(usernameWhoSends)) {
-           throw new ExceptionInvalidAccount("The specified username '" + usernameWhoSends + "' does not belong to any user in the system");
+            throw new ExceptionInvalidAccount("The specified username '" + usernameWhoSends + "' does not belong to any user in the system");
         }
         if (!UserRep.existsByUsername(usernameWhoReceives)) {
             throw new ExceptionInvalidAccount("The specified username '" + usernameWhoReceives + "' does not belong to any user in the system");
@@ -705,21 +709,22 @@ public class PetSittersService {
     }
 
     public List<Report> getReports(String reported) {
-        String email=UserRep.findByUsername(reported).getEmail();
-        List<Report> res =ReportRep.findByReported(email);
+        String email = UserRep.findByUsername(reported).getEmail();
+        List<Report> res = ReportRep.findByReported(email);
         return res;
     }
 
     public List<GetAllReportsSchema> getAllReportedUsers() {
-        List<Report> reps=ReportRep.findAll();
-        Set<String> emails=new HashSet<>();
-        for (Report r:reps) {
-            if (UserRep.existsByEmail(r.getReported()) && !emails.contains(r.getReported())) emails.add(r.getReported());
+        List<Report> reps = ReportRep.findAll();
+        Set<String> emails = new HashSet<>();
+        for (Report r : reps) {
+            if (UserRep.existsByEmail(r.getReported()) && !emails.contains(r.getReported()))
+                emails.add(r.getReported());
         }
-        List<GetAllReportsSchema> result=new ArrayList<>();
-        for (String email:emails) {
-            UserPetSitters us=UserRep.findByEmail(email);
-            GetAllReportsSchema rep=new GetAllReportsSchema();
+        List<GetAllReportsSchema> result = new ArrayList<>();
+        for (String email : emails) {
+            UserPetSitters us = UserRep.findByEmail(email);
+            GetAllReportsSchema rep = new GetAllReportsSchema();
             rep.setEmail(email);
             rep.setFirstName(us.getFirstName());
             rep.setLastName(us.getLastName());
@@ -727,11 +732,11 @@ public class PetSittersService {
             rep.setReports(ReportRep.findByReported(email).size());
             result.add(rep);
         }
-		return result;
-	}
+        return result;
+    }
 
     private void deleteAllMultimedia(List<Message> list) {
-        for (Message message: list) {
+        for (Message message : list) {
             if (gridFS.getFile(message.getContent()) != null) {
                 System.out.println("Trying to delete..." + message.getContent());
                 gridFS.destroyFile(message.getContent());
@@ -739,11 +744,11 @@ public class PetSittersService {
         }
     }
 
-   public void deleteChat(DeleteChatSchema deleteChatSchema, String usernameWhoDeletes) throws ExceptionInvalidAccount {
-       deleteChatSchema.validate();
-       String otherUsername = deleteChatSchema.getOtherUsername();
-       deleteChat(otherUsername, usernameWhoDeletes);
-   }
+    public void deleteChat(DeleteChatSchema deleteChatSchema, String usernameWhoDeletes) throws ExceptionInvalidAccount {
+        deleteChatSchema.validate();
+        String otherUsername = deleteChatSchema.getOtherUsername();
+        deleteChat(otherUsername, usernameWhoDeletes);
+    }
 
     private String getOtherUsername(String usernameA, String usernameB, String usernameWhoDeletes) {
         if (usernameWhoDeletes.equals(usernameA)) return usernameB;
@@ -752,12 +757,12 @@ public class PetSittersService {
 
     public void deleteAllChats(String usernameWhoDeletes) throws ExceptionInvalidAccount {
         List<Chat> listOfChatByA = ChatRep.findByUsernameA(usernameWhoDeletes);
-        for (Chat chat: listOfChatByA) {
+        for (Chat chat : listOfChatByA) {
             String otherUsername = getOtherUsername(chat.getUsernameA(), chat.getUsernameB(), usernameWhoDeletes);
             deleteChat(otherUsername, usernameWhoDeletes);
         }
         List<Chat> listOfChatByB = ChatRep.findByUsernameB(usernameWhoDeletes);
-        for (Chat chat: listOfChatByB) {
+        for (Chat chat : listOfChatByB) {
             String otherUsername = getOtherUsername(chat.getUsernameA(), chat.getUsernameB(), usernameWhoDeletes);
             deleteChat(otherUsername, usernameWhoDeletes);
         }
@@ -799,7 +804,7 @@ public class PetSittersService {
             MessageRep.deleteByUserWhoSendsAndUserWhoReceives(otherUsername, usernameWhoDeletes);
             ChatRep.deleteByUsernameAAndUsernameB(usernameA, usernameB);
         }
-	}
+    }
 
     public List<LightUserSchema> getUsersValoration(Integer upperBound, Integer lowerBound, String usernameFromToken) {
         List<UserPetSitters> users = UserRep.findAll();
@@ -889,39 +894,57 @@ public class PetSittersService {
 
     }
 
-    @Scheduled(fixedDelay=100000)
+    @Scheduled(fixedDelay = 100000)
     public void contractCheck() throws ParseException {
-        List<Contract> contr=ContRep.findAll();
-        for (Contract c:contr) {
+        List<Contract> contr = ContRep.findAll();
+        for (Contract c : contr) {
             //Massive ball of fucking spaghetti code, why is this format used in front-end
-            String[] aberration=c.getEnd().split("-");
-            String[] worse=aberration[2].split(",");
+            String[] aberration = c.getEnd().split("-");
+            String[] worse = aberration[2].split(",");
             SimpleDateFormat inFormat = new SimpleDateFormat("yyyy-MM-dd");
-            String newDate=worse[0]+"-"+aberration[1]+"-"+aberration[0];
+            String newDate = worse[0] + "-" + aberration[1] + "-" + aberration[0];
             Date dtIn = inFormat.parse(newDate);
-            Date today=new Date();
+            Date today = new Date();
             //Don't touch this or it breaks, its spaghetti
             long diffInMillies = Math.abs(today.getTime() - dtIn.getTime());
             long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
-            if (diff<=0) {
-                UserPetSitters u=UserRep.findByUsername(c.getUsernameFrom());
+            if (diff <= 0) {
+                UserPetSitters u = UserRep.findByUsername(c.getUsernameFrom());
                 u.setNotificationValue(true);
                 UserRep.save(u);
+            }
+            if (c.getFeedback()) {
+                long millies = Math.abs(today.getTime() - c.getLastCheckedDate().getTime());
+                long days = TimeUnit.DAYS.convert(millies, TimeUnit.MILLISECONDS);
+                if (days>=1) {
+                    c.setLastCheckedDate(today);
+                    ContRep.save(c);
+                    UserPetSitters u = UserRep.findByUsername(c.getUsernameTo());
+                    u.setNotificationFeedback(true);
+                    UserRep.save(u);
+                }
             }
         }
     }
 
     public Boolean[] getNotifications(String usernameFromToken) {
-        Boolean[] b=new Boolean[3];
-        UserPetSitters us=UserRep.findByUsername(usernameFromToken);
-        b[0]=us.getNotificationChat();
-        b[1]=us.getNotificationTrophy();
-        b[2]=us.getNotificationValue();
+        Boolean[] b = new Boolean[4];
+        UserPetSitters us = UserRep.findByUsername(usernameFromToken);
+        b[0] = us.getNotificationChat();
+        b[1] = us.getNotificationTrophy();
+        b[2] = us.getNotificationValue();
+        b[3] = us.getNotificationFeedback();
+        UserRep.save(us);
+        return b;
+    }
+
+    public void nullifyNotifications(String usernameFromToken) {
+        UserPetSitters us = UserRep.findByUsername(usernameFromToken);
         us.setNotificationTrophy(false);
         us.setNotificationValue(false);
         us.setNotificationChat(false);
+        us.setNotificationFeedback(false);
         UserRep.save(us);
-        return b;
     }
 
     public LinkedList<TrophiesRankingPreviewSchema> getTrophiesRanking() {
