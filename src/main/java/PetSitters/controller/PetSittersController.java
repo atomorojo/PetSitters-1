@@ -455,6 +455,13 @@ public class PetSittersController {
         return new ResponseEntity(nots,HttpStatus.OK);
     }
 
-
+    @GetMapping(value = "/getValuationsFromUser")
+    @ApiOperation(value = "Gets all valuations of a given user. ")
+    @ApiResponses(value = {
+            @io.swagger.annotations.ApiResponse(code = 200, message = "Success", response = ValuationPreviewSchema.class, responseContainer = "List")})
+    public ResponseEntity getValuationsFromUser(@RequestParam String user) throws ExceptionInvalidAccount {
+        LinkedList<ValuationPreviewSchema> array = petSittersService.getValuations(user);
+        return new ResponseEntity(array, HttpStatus.OK);
+    }
 
 }

@@ -167,6 +167,11 @@ public class PetSittersControllerIntegrationTest {
                 .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token));
     }
 
+    ResultActions getValuationsFromUser(String username, String token) throws Exception {
+        return mvc.perform(get("/petsitters/getValuationsFromUser?user=" + username)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token));
+    }
+
     ResultActions translate(String cont, String token) throws Exception {
         return mvc.perform(post("/petsitters/translate")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token)
@@ -2193,7 +2198,7 @@ public class PetSittersControllerIntegrationTest {
     }
 
     @Test
-    public void executeNonCachedResult() throws Exception {
+    public void multiLanguageExecuteNonCachedResult() throws Exception {
         String cont = "{\n" +
                 "  \"birthdate\": \"20-11-1987\",\n" +
                 "  \"email\": \"a@b.com\",\n" +
@@ -2220,7 +2225,7 @@ public class PetSittersControllerIntegrationTest {
     }
 
     @Test
-    public void executeCachedResult() throws Exception {
+    public void multiLanguageExecuteCachedResult() throws Exception {
         String cont = "{\n" +
                 "  \"birthdate\": \"20-11-1987\",\n" +
                 "  \"email\": \"a@b.com\",\n" +
@@ -2248,7 +2253,7 @@ public class PetSittersControllerIntegrationTest {
     }
 
     @Test
-    public void executeCachedResultEntangled() throws Exception {
+    public void multiLanguageExecuteCachedResultEntangled() throws Exception {
         String cont = "{\n" +
                 "  \"birthdate\": \"20-11-1987\",\n" +
                 "  \"email\": \"a@b.com\",\n" +
@@ -2278,5 +2283,42 @@ public class PetSittersControllerIntegrationTest {
                 "\t\"outputLanguage\":\"es\"\n" +
                 "}";
         translate(cont, token).andExpect(status().isOk());
+    }
+
+    @Test
+    public void getValuationsFromUserNormal() throws Exception {
+        proposeContract();
+        UserPetSitters userPetSitters = UserRep.findByUsername("guy");
+        userPetSitters.setImage("IMAGE");
+        String cont = "{\n" +
+                "  \"valuedUser\": \"rod98\",\n" +
+                "  \"commentary\":\"Hello\",\n" +
+                "  \"stars\":1\n" +
+                "}";
+
+        valueUser(cont, validToken()).andExpect(status().isOk());
+
+        cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+
+        getValuationsFromUser("guy", token).andExpect(status().isOk());
+    }
+
+    @Test
+    public void getValuationsFromUserEmpty() throws Exception {
+        proposeContract();
+        UserPetSitters userPetSitters = UserRep.findByUsername("guy");
+        userPetSitters.setImage("IMAGE");
+
+        String cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+
+        getValuationsFromUser("guy", token).andExpect(status().isOk());
     }
 }
