@@ -453,6 +453,13 @@ public class PetSittersController {
         Boolean[] nots=petSittersService.getNotifications(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(nots,HttpStatus.OK);
     }
+    @GetMapping(value = "/nullifyNotifications", headers = "Accept=application/json")
+    @ApiOperation(value = "Kills notifications")
+    public ResponseEntity nullifyNotifications(@RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
+        Boolean[] nots=petSittersService.getNotifications(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(nots,HttpStatus.OK);
+    }
+
 
     @GetMapping(value = "/getValuationsFromUser")
     @ApiOperation(value = "Gets all valuations of a given user. ")
