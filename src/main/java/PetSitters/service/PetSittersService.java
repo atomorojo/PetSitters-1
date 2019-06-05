@@ -540,6 +540,7 @@ public class PetSittersService {
         cont.setUsernameFrom(usernameFromToken);
         cont.setFeedback(contract.getFeedback());
         cont.setAccepted(false);
+        cont.setLastCheckedDate(new Date());
         ContRep.save(cont);
         if (user.getCity() != null && trueUser.getCity() != null) {
             City city1 = new City(user.getCity());
@@ -912,25 +913,37 @@ public class PetSittersService {
                 u.setNotificationValue(true);
                 UserRep.save(u);
             }
+            if (c.getFeedback()) {
+                long millies = Math.abs(today.getTime() - c.getLastCheckedDate().getTime());
+                long days = TimeUnit.DAYS.convert(millies, TimeUnit.MILLISECONDS);
+                if (days>=1) {
+                    c.setLastCheckedDate(today);
+                    ContRep.save(c);
+                    UserPetSitters u = UserRep.findByUsername(c.getUsernameTo());
+                    u.setNotificationFeedback(true);
+                    UserRep.save(u);
+                }
+            }
         }
     }
 
     public Boolean[] getNotifications(String usernameFromToken) {
-        Boolean[] b = new Boolean[3];
+        Boolean[] b = new Boolean[4];
         UserPetSitters us = UserRep.findByUsername(usernameFromToken);
         b[0] = us.getNotificationChat();
         b[1] = us.getNotificationTrophy();
         b[2] = us.getNotificationValue();
+        b[3] = us.getNotificationFeedback();
         UserRep.save(us);
         return b;
     }
 
     public void nullifyNotifications(String usernameFromToken) {
-        Boolean[] b = new Boolean[3];
         UserPetSitters us = UserRep.findByUsername(usernameFromToken);
         us.setNotificationTrophy(false);
         us.setNotificationValue(false);
         us.setNotificationChat(false);
+        us.setNotificationFeedback(false);
         UserRep.save(us);
     }
 

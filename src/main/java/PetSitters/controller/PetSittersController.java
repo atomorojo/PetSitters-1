@@ -448,7 +448,7 @@ public class PetSittersController {
         return new ResponseEntity(array, HttpStatus.OK);
     }
     @GetMapping(value = "/getNotifications", headers = "Accept=application/json")
-    @ApiOperation(value = "Gets notifications. Position 1 is chat, position 2 is trophy, position 3 is valuation")
+    @ApiOperation(value = "Gets notifications. Position 1 is chat, position 2 is trophy, position 3 is valuation, 4 is needing to give feedback")
     public ResponseEntity hasContracted(@RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
         Boolean[] nots=petSittersService.getNotifications(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(nots,HttpStatus.OK);

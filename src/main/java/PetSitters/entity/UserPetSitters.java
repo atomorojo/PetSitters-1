@@ -84,6 +84,9 @@ public class UserPetSitters implements Comparable<UserPetSitters> {
     private Boolean notificationTrophy=false;
     @ApiModelProperty(value = "Whether the user has to be notified of having to value someone")
     private Boolean notificationValue=false;
+    @ApiModelProperty(value = "Whether the user has to be notified of having to give feedback")
+    private Boolean notificationFeedback=false;
+
 
 
 
@@ -288,6 +291,14 @@ public class UserPetSitters implements Comparable<UserPetSitters> {
     @Override
     public int compareTo(UserPetSitters o) {
         return this.getUsername().compareTo(o.getUsername());
+    }
+
+    public Boolean getNotificationFeedback() {
+        return notificationFeedback;
+    }
+
+    public void setNotificationFeedback(Boolean notificationFeedback) {
+        this.notificationFeedback = notificationFeedback;
     }
 }
 
