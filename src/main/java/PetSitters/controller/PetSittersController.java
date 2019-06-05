@@ -466,8 +466,8 @@ public class PetSittersController {
     @ApiResponses(value = {
             @io.swagger.annotations.ApiResponse(code = 200, message = "Success", response = ValuationPreviewSchema.class, responseContainer = "List")})
     public ResponseEntity getValuationsFromUser(@RequestParam String user) throws ExceptionInvalidAccount {
-        LinkedList<ValuationPreviewSchema> array = petSittersService.getValuations(user);
-        return new ResponseEntity(array, HttpStatus.OK);
+        petSittersService.nullifyNotifications(user);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     @GetMapping(value = "/getTrophiesRanking")
