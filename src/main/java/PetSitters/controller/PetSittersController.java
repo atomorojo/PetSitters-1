@@ -76,7 +76,6 @@ public class PetSittersController {
     @PostMapping(value = "/modify/{name}")
     @ApiOperation(value = "Modify the camp specified.")
     public ResponseEntity modify(@PathVariable String name, @RequestBody StringAux toModify, @RequestHeader("Authorization") String token) throws ParseException, IOException {
-        System.out.println(name);
         petSittersService.modify(name, toModify.getThing(), jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
         return new ResponseEntity(name, HttpStatus.OK);
     }

@@ -146,10 +146,13 @@ public class PetSittersService {
     }
 
     private List<String> experts(String toModify) {
-        String[] aux = toModify.split("''");
-        ArrayList<String> toret = new ArrayList<String>();
-        for (String s : aux) toret.add(s);
-        return new ArrayList<String>(toret);
+        if (toModify!=null) {
+            String[] aux = toModify.split("''");
+            ArrayList<String> toret = new ArrayList<String>();
+            for (String s : aux) toret.add(s);
+            return new ArrayList<String>(toret);
+        }
+        else return null;
     }
 
     private void modifyImage(String value, String user) {
