@@ -470,4 +470,12 @@ public class PetSittersController {
         return new ResponseEntity(array, HttpStatus.OK);
     }
 
+    @GetMapping(value = "/getTrophiesRanking")
+    @ApiOperation(value = "Gets all users ordered by number of trophies. From lowest to highest. ")
+    @ApiResponses(value = {
+            @io.swagger.annotations.ApiResponse(code = 200, message = "Success", response = TrophiesRankingPreviewSchema.class, responseContainer = "List")})
+    public ResponseEntity getTrophiesRanking() throws ExceptionInvalidAccount {
+        LinkedList<TrophiesRankingPreviewSchema> array = petSittersService.getTrophiesRanking();
+        return new ResponseEntity(array, HttpStatus.OK);
+    }
 }

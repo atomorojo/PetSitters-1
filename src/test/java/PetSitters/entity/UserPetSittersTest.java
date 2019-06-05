@@ -31,4 +31,28 @@ public class UserPetSittersTest {
         U.setPassword("PassDifferent");
         assertFalse("The password should be 'Pass'", U.isTheSamePassword("Pass"));
     }
+
+    @Test
+    public void compareToLower() {
+        U.setUsername("A");
+        UserPetSitters UU = new UserPetSitters();
+        UU.setUsername("B");
+        assertEquals("U should be lower than UU", U.compareTo(UU), -1);
+    }
+
+    @Test
+    public void compareToEqual() {
+        U.setUsername("B");
+        UserPetSitters UU = new UserPetSitters();
+        UU.setUsername("B");
+        assertEquals("U should be equal to UU", U.compareTo(UU), 0);
+    }
+
+    @Test
+    public void compareToGreater() {
+        U.setUsername("B");
+        UserPetSitters UU = new UserPetSitters();
+        UU.setUsername("A");
+        assertEquals("U should be greater than UU", U.compareTo(UU), 1);
+    }
 }

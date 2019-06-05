@@ -32,10 +32,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -1232,5 +1229,88 @@ public class PetSittersServiceIntegrationTest {
         output.addLast("lunes");
         output.addLast("Azul");
         assertEquals("The translated texts should be equal to output list",translated, output);
+    }
+
+    @Test
+    public void getRankingNoTies() {
+        UserPetSitters userPetSitters = new UserPetSitters();
+        Boolean[] array = new Boolean[45];
+        Arrays.fill(array, Boolean.FALSE);
+        userPetSitters.setTrophy(array);
+        userPetSitters.setUsername("rod98");
+        userPetSitters.setImage("NONE");
+        userPetSitters.setFirstName("A");
+        userPetSitters.setLastName("B");
+        UserRep.save(userPetSitters);
+
+        userPetSitters = new UserPetSitters();
+        array = new Boolean[45];
+        Arrays.fill(array, Boolean.FALSE);
+        array[0] = true;
+        userPetSitters.setTrophy(array);
+        userPetSitters.setUsername("casjua92");
+        userPetSitters.setImage("NONEE");
+        userPetSitters.setFirstName("AA");
+        userPetSitters.setLastName("BB");
+        userPetSitters.setEmail("ds");
+        UserRep.save(userPetSitters);
+
+        LinkedList<TrophiesRankingPreviewSchema> list = PSS.getTrophiesRanking();
+        TrophiesRankingPreviewSchema elem1 = list.get(0);
+        TrophiesRankingPreviewSchema elem2 = list.get(1);
+
+        assertEquals("Elem1 should be equal", elem1.getFullName(), "A B");
+        assertEquals("Elem1 should be equal", elem1.getProfileImage(), "NONE");
+        assertEquals("Elem1 should be equal", elem1.getUsername(), "rod98");
+        assertEquals("Elem1 should be equal", elem1.getNumberOfStars(), new Integer(0));
+
+        assertEquals("Elem2 should be equal", elem2.getFullName(), "AA BB");
+        assertEquals("Elem2 should be equal", elem2.getProfileImage(), "NONEE");
+        assertEquals("Elem2 should be equal", elem2.getUsername(), "casjua92");
+        assertEquals("Elem2 should be equal", elem2.getNumberOfStars(), new Integer(1));
+    }
+
+    @Test
+    public void getRankingOneTie() {
+        UserPetSitters userPetSitters = new UserPetSitters();
+        Boolean[] array = new Boolean[45];
+        Arrays.fill(array, Boolean.FALSE);
+        userPetSitters.setTrophy(array);
+        userPetSitters.setUsername("rod98");
+        userPetSitters.setImage("NONE");
+        userPetSitters.setFirstName("A");
+        userPetSitters.setLastName("B");
+        UserRep.save(userPetSitters);
+
+        userPetSitters = new UserPetSitters();
+        array = new Boolean[45];
+        Arrays.fill(array, Boolean.FALSE);
+        userPetSitters.setTrophy(array);
+        userPetSitters.setUsername("casjua92");
+        userPetSitters.setImage("NONEE");
+        userPetSitters.setFirstName("AA");
+        userPetSitters.setLastName("BB");
+        userPetSitters.setEmail("ds");
+        UserRep.save(userPetSitters);
+
+        LinkedList<TrophiesRankingPreviewSchema> list = PSS.getTrophiesRanking();
+        TrophiesRankingPreviewSchema elem1 = list.get(0);
+        TrophiesRankingPreviewSchema elem2 = list.get(1);
+
+        assertEquals("Elem1 should be equal", elem2.getFullName(), "A B");
+        assertEquals("Elem1 should be equal", elem2.getProfileImage(), "NONE");
+        assertEquals("Elem1 should be equal", elem2.getUsername(), "rod98");
+        assertEquals("Elem1 should be equal", elem2.getNumberOfStars(), new Integer(0));
+
+        assertEquals("Elem2 should be equal", elem1.getFullName(), "AA BB");
+        assertEquals("Elem2 should be equal", elem1.getProfileImage(), "NONEE");
+        assertEquals("Elem2 should be equal", elem1.getUsername(), "casjua92");
+        assertEquals("Elem2 should be equal", elem1.getNumberOfStars(), new Integer(0));
+    }
+
+    @Test
+    public void getRankingEmpty() {
+        LinkedList<TrophiesRankingPreviewSchema> list = PSS.getTrophiesRanking();
+        assertTrue("List should be empty", list.isEmpty());
     }
 }
