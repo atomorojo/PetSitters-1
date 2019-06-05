@@ -5,6 +5,7 @@ import PetSitters.exception.ExceptionInvalidAccount;
 import PetSitters.repository.*;
 import PetSitters.schemas.RegisterSchema;
 import PetSitters.schemas.ResultActionLoginSchemaTest;
+import PetSitters.schemas.TrophiesRankingPreviewSchema;
 import PetSitters.security.JwtTokenUtil;
 import PetSitters.service.GridFS;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,7 +30,9 @@ import org.springframework.web.util.NestedServletException;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -169,6 +172,11 @@ public class PetSittersControllerIntegrationTest {
 
     ResultActions getValuationsFromUser(String username, String token) throws Exception {
         return mvc.perform(get("/petsitters/getValuationsFromUser?user=" + username)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token));
+    }
+
+    ResultActions getTrophiesRanking(String token) throws Exception {
+        return mvc.perform(get("/petsitters/getTrophiesRanking")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer: " + token));
     }
 
@@ -2320,5 +2328,72 @@ public class PetSittersControllerIntegrationTest {
         String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
 
         getValuationsFromUser("guy", token).andExpect(status().isOk());
+    }
+
+    @Test
+    public void getRankingNoTies() throws Exception {
+        UserPetSitters userPetSitters = new UserPetSitters();
+        Boolean[] array = new Boolean[45];
+        Arrays.fill(array, Boolean.FALSE);
+        userPetSitters.setTrophy(array);
+        userPetSitters.setUsername("rod98");
+        userPetSitters.setPassword("123");
+        userPetSitters.setImage("NONE");
+        userPetSitters.setFirstName("A");
+        userPetSitters.setLastName("B");
+        UserRep.save(userPetSitters);
+
+        userPetSitters = new UserPetSitters();
+        array = new Boolean[45];
+        Arrays.fill(array, Boolean.FALSE);
+        array[0] = true;
+        userPetSitters.setTrophy(array);
+        userPetSitters.setUsername("casjua92");
+        userPetSitters.setPassword("123");
+        userPetSitters.setImage("NONEE");
+        userPetSitters.setFirstName("AA");
+        userPetSitters.setLastName("BB");
+        userPetSitters.setEmail("ds");
+        UserRep.save(userPetSitters);
+
+        String cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+        getTrophiesRanking(token).andExpect(status().isOk());
+    }
+
+    @Test
+    public void getRankingOneTie() throws Exception {
+        UserPetSitters userPetSitters = new UserPetSitters();
+        Boolean[] array = new Boolean[45];
+        Arrays.fill(array, Boolean.FALSE);
+        userPetSitters.setTrophy(array);
+        userPetSitters.setUsername("rod98");
+        userPetSitters.setPassword("123");
+        userPetSitters.setImage("NONE");
+        userPetSitters.setFirstName("A");
+        userPetSitters.setLastName("B");
+        UserRep.save(userPetSitters);
+
+        userPetSitters = new UserPetSitters();
+        array = new Boolean[45];
+        Arrays.fill(array, Boolean.FALSE);
+        userPetSitters.setTrophy(array);
+        userPetSitters.setUsername("casjua92");
+        userPetSitters.setPassword("123");
+        userPetSitters.setImage("NONEE");
+        userPetSitters.setFirstName("AA");
+        userPetSitters.setLastName("BB");
+        userPetSitters.setEmail("ds");
+        UserRep.save(userPetSitters);
+
+        String cont = "{\n" +
+                "\t\"username\":\"rod98\",\n" +
+                "\t\"password\":\"123\"\n" +
+                "}";
+        String token = ActivateUserAndLoginOkAndGetToken(cont, "rod98");
+        getTrophiesRanking(token).andExpect(status().isOk());
     }
 }

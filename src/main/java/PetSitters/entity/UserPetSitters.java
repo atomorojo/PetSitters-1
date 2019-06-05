@@ -22,7 +22,7 @@ import java.util.List;
 
 @ApiModel("User")
 @Document
-public class UserPetSitters {
+public class UserPetSitters implements Comparable<UserPetSitters> {
     @Id
     @ApiModelProperty(value = "The user's id", required = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -283,6 +283,11 @@ public class UserPetSitters {
 
     public void setTrophy(Boolean[] trophy) {
         this.trophy = trophy;
+    }
+
+    @Override
+    public int compareTo(UserPetSitters o) {
+        return this.getUsername().compareTo(o.getUsername());
     }
 }
 

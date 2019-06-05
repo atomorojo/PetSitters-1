@@ -1,6 +1,6 @@
 package PetSitters.auxiliary;
 
-public class Pair<F, S> {
+public class Pair<F, S>{
     F First;
     S Second;
 

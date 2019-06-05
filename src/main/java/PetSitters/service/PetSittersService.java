@@ -1,5 +1,6 @@
 package PetSitters.service;
 
+import PetSitters.auxiliary.Pair;
 import PetSitters.auxiliary.PushbackIterator;
 import PetSitters.domain.Availability;
 import PetSitters.domain.City;
@@ -914,5 +915,39 @@ public class PetSittersService {
         b[1]=us.getNotificationTrophy();
         b[2]=us.getNotificationValue();
         return b;
+    }
+
+    public LinkedList<TrophiesRankingPreviewSchema> getTrophiesRanking() {
+        List<UserPetSitters> users = UserRep.findAll();
+        List<Pair<Integer, UserPetSitters>> classification = new ArrayList<>();
+        for (UserPetSitters userPetSitters: users) {
+            Boolean[] trophies = userPetSitters.getTrophy();
+            Integer count = 0;
+            for (boolean b: trophies) {
+                if (b) ++count;
+            }
+            classification.add(new Pair<>(count, userPetSitters));
+        }
+
+        Comparator<Pair<Integer, UserPetSitters>> customComparator = new Comparator<Pair<Integer, UserPetSitters>>() {
+            @Override
+            public int compare(Pair<Integer, UserPetSitters> o1, Pair<Integer, UserPetSitters> o2) {
+                Integer P1first = o1.getFirst();
+                UserPetSitters P1second = o1.getSecond();
+                Integer P2first = o2.getFirst();
+                UserPetSitters P2second = o2.getSecond();
+                if (P1first.compareTo(P2first) == 0) return P1second.compareTo(P2second);
+                else return P1first.compareTo(P2first);
+            }
+        };
+
+        Collections.sort(classification, customComparator);
+        LinkedList<TrophiesRankingPreviewSchema> result = new LinkedList<>();
+        for (Pair<Integer, UserPetSitters> pair: classification) {
+            Integer numberOfStars = pair.getFirst();
+            UserPetSitters userPetSitters = pair.getSecond();
+            result.addLast(new TrophiesRankingPreviewSchema(userPetSitters.getUsername(), userPetSitters.getFirstName() + " " + userPetSitters.getLastName(), userPetSitters.getImage(), numberOfStars));
+        }
+        return result;
     }
 }
