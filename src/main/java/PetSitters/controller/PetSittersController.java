@@ -456,8 +456,8 @@ public class PetSittersController {
     @GetMapping(value = "/nullifyNotifications", headers = "Accept=application/json")
     @ApiOperation(value = "Kills notifications")
     public ResponseEntity nullifyNotifications(@RequestHeader("Authorization") String token) throws ExceptionInvalidAccount {
-        Boolean[] nots=petSittersService.getNotifications(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
-        return new ResponseEntity(nots,HttpStatus.OK);
+        petSittersService.nullifyNotifications(jwtTokenUtil.getUsernameFromToken(token.substring(7, token.length())));
+        return new ResponseEntity(HttpStatus.OK);
     }
 
 
