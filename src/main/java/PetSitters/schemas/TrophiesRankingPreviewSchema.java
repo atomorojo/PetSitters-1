@@ -4,7 +4,7 @@ public class TrophiesRankingPreviewSchema {
     String username;
     String fullName;
     String profileImage;
-    Integer numberOfStars;
+    Integer numberOfTrophies;
 
     public TrophiesRankingPreviewSchema() {
     }
@@ -13,7 +13,7 @@ public class TrophiesRankingPreviewSchema {
         this.username = username;
         this.fullName = fullName;
         this.profileImage = profileImage;
-        this.numberOfStars = numberOfStars;
+        this.numberOfTrophies = numberOfStars;
     }
 
     public String getUsername() {
@@ -40,11 +40,11 @@ public class TrophiesRankingPreviewSchema {
         this.profileImage = profileImage;
     }
 
-    public Integer getNumberOfStars() {
-        return numberOfStars;
+    public Integer getNumberOfTrophies() {
+        return numberOfTrophies;
     }
 
-    public void setNumberOfStars(Integer numberOfStars) {
-        this.numberOfStars = numberOfStars;
+    public void setNumberOfTrophies(Integer numberOfTrophies) {
+        this.numberOfTrophies = numberOfTrophies;
     }
 }
