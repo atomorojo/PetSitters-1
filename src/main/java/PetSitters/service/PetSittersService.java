@@ -916,6 +916,10 @@ public class PetSittersService {
         b[0]=us.getNotificationChat();
         b[1]=us.getNotificationTrophy();
         b[2]=us.getNotificationValue();
+        us.setNotificationTrophy(false);
+        us.setNotificationValue(false);
+        us.setNotificationChat(false);
+        UserRep.save(us);
         return b;
     }
 }
