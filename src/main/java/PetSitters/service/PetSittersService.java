@@ -966,8 +966,8 @@ public class PetSittersService {
                 UserPetSitters P1second = o1.getSecond();
                 Integer P2first = o2.getFirst();
                 UserPetSitters P2second = o2.getSecond();
-                if (P1first.compareTo(P2first) == 0) return P1second.compareTo(P2second);
-                else return P1first.compareTo(P2first);
+                if (P1first.compareTo(P2first) == 0) return -P1second.compareTo(P2second);
+                else return -P1first.compareTo(P2first);
             }
         };
 

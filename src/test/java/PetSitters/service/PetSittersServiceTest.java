@@ -999,15 +999,15 @@ public class PetSittersServiceTest {
         TrophiesRankingPreviewSchema elem1 = list.get(0);
         TrophiesRankingPreviewSchema elem2 = list.get(1);
 
-        assertEquals("Elem1 should be equal", elem1.getFullName(), "A B");
-        assertEquals("Elem1 should be equal", elem1.getProfileImage(), "NONE");
-        assertEquals("Elem1 should be equal", elem1.getUsername(), "rod98");
-        assertEquals("Elem1 should be equal", elem1.getNumberOfTrophies(), new Integer(0));
+        assertEquals("Elem1 should be equal", elem2.getFullName(), "A B");
+        assertEquals("Elem1 should be equal", elem2.getProfileImage(), "NONE");
+        assertEquals("Elem1 should be equal", elem2.getUsername(), "rod98");
+        assertEquals("Elem1 should be equal", elem2.getNumberOfTrophies(), new Integer(0));
 
-        assertEquals("Elem2 should be equal", elem2.getFullName(), "AA BB");
-        assertEquals("Elem2 should be equal", elem2.getProfileImage(), "NONEE");
-        assertEquals("Elem2 should be equal", elem2.getUsername(), "casjua92");
-        assertEquals("Elem2 should be equal", elem2.getNumberOfTrophies(), new Integer(1));
+        assertEquals("Elem2 should be equal", elem1.getFullName(), "AA BB");
+        assertEquals("Elem2 should be equal", elem1.getProfileImage(), "NONEE");
+        assertEquals("Elem2 should be equal", elem1.getUsername(), "casjua92");
+        assertEquals("Elem2 should be equal", elem1.getNumberOfTrophies(), new Integer(1));
     }
 
     @Test
@@ -1037,15 +1037,15 @@ public class PetSittersServiceTest {
         TrophiesRankingPreviewSchema elem1 = list.get(0);
         TrophiesRankingPreviewSchema elem2 = list.get(1);
 
-        assertEquals("Elem1 should be equal", elem2.getFullName(), "A B");
-        assertEquals("Elem1 should be equal", elem2.getProfileImage(), "NONE");
-        assertEquals("Elem1 should be equal", elem2.getUsername(), "rod98");
-        assertEquals("Elem1 should be equal", elem2.getNumberOfTrophies(), new Integer(0));
+        assertEquals("Elem1 should be equal", elem1.getFullName(), "A B");
+        assertEquals("Elem1 should be equal", elem1.getProfileImage(), "NONE");
+        assertEquals("Elem1 should be equal", elem1.getUsername(), "rod98");
+        assertEquals("Elem1 should be equal", elem1.getNumberOfTrophies(), new Integer(0));
 
-        assertEquals("Elem2 should be equal", elem1.getFullName(), "AA BB");
-        assertEquals("Elem2 should be equal", elem1.getProfileImage(), "NONEE");
-        assertEquals("Elem2 should be equal", elem1.getUsername(), "casjua92");
-        assertEquals("Elem2 should be equal", elem1.getNumberOfTrophies(), new Integer(0));
+        assertEquals("Elem2 should be equal", elem2.getFullName(), "AA BB");
+        assertEquals("Elem2 should be equal", elem2.getProfileImage(), "NONEE");
+        assertEquals("Elem2 should be equal", elem2.getUsername(), "casjua92");
+        assertEquals("Elem2 should be equal", elem2.getNumberOfTrophies(), new Integer(0));
     }
 
     @Test

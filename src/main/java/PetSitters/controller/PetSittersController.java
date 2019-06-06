@@ -471,7 +471,7 @@ public class PetSittersController {
     }
 
     @GetMapping(value = "/getTrophiesRanking")
-    @ApiOperation(value = "Gets all users ordered by number of trophies. From lowest to highest. ")
+    @ApiOperation(value = "Gets all users ordered by number of trophies. From highest to lowest. ")
     @ApiResponses(value = {
             @io.swagger.annotations.ApiResponse(code = 200, message = "Success", response = TrophiesRankingPreviewSchema.class, responseContainer = "List")})
     public ResponseEntity getTrophiesRanking() throws ExceptionInvalidAccount {
