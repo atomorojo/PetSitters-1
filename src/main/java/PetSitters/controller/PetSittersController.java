@@ -478,4 +478,11 @@ public class PetSittersController {
         LinkedList<TrophiesRankingPreviewSchema> array = petSittersService.getTrophiesRanking();
         return new ResponseEntity(array, HttpStatus.OK);
     }
+
+    @GetMapping(value = "/getTrophiesFromUser")
+    @ApiOperation(value = "Gets all trophies of a given user. ")
+    public ResponseEntity getTrophiesFromUser(@RequestParam String user) throws ExceptionInvalidAccount {
+        Boolean[] ret = petSittersService.getTrophies(user);
+        return new ResponseEntity(ret, HttpStatus.OK);
+    }
 }
